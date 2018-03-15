@@ -3,10 +3,10 @@ var http = require('http');
 var router = express.Router();
 
 //MongoDB Connection
-var mongoose = require('mongoose');
-var models = require('../models/models');
-var POI = models.POI;
-mongoose.connect('mongodb://localhost/IST');
+// var mongoose = require('mongoose');
+// var models = require('../models/models');
+// var POI = models.POI;
+// mongoose.connect('mongodb://localhost/IST');
 
 var test = require('../planner/test').test;
 var polylineGear = require('../planner/polyline');
@@ -51,7 +51,7 @@ var reformatGeoGoogle = function(POIs){
 };
 
 // 3. Get POI in Buffer
-var getPOIInBuffer = function(coordinates){
+/* var getPOIInBuffer = function(coordinates){
 	return new Promise(function(resolve, reject){
 		POI.where('geo')
 			.within({
@@ -71,7 +71,7 @@ var getPOIInBuffer = function(coordinates){
 				}
 			});
 	});
-};
+}; */
 
 // 4. Sort POI
 var sortPOI = function(pois, preference){
