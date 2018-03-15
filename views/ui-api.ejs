@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="javascripts/turf.min.js"></script>
+
+<table border="1">
+  <tr>
+    <td valign="top">
+      <div id="map" style="width: 1500px; height: 850px;;"></div>
+    </td>
+    <td>
+      <div id="side_bar" style="width:400px; height: 850px; overflow: auto">
+				<table style="width: 100%;">
+					<tr>
+						<th>Name</th>
+						<th>weight</th>
+					</tr>
+				</table>
+			</div>
+    </td>
+  </tr>
+</table>
+Box within at least
+<input type="text" id="distance" value="20" size="3">miles of the route from
+<input type="text" id="from" value="Seattle" />to
+<input type="text" id="to" value="San Jose" />
+<input type="submit" onclick="route()" />
+<br>
+<label>type</label>
+<input type="text" id="type" value="point_of_interest" />
+<label>keyword</label>
+<input type="text" id="keyword" value="" />
+<label>name</label>
+<input type="text" id="name" value="" />
+<br>
+<label>Preference</label>
+<br>
+<label>NATURE</label>
+<input type="text" id="nature" value="10" />
+<label>CULTURE</label>
+<input type="text" id="culture" value="15" />
+<label>AMUSEMENT</label>
+<input type="text" id="amusement" value="60" />
+<label>SHOPPING</label>
+<input type="text" id="shopping" value="100" />
+<label>NIGHTLIFE</label>
+<input type="text" id="nightlife" value="10" />
+<br>
+<label>Duration</label>
+<input type="text" id="duration" value="5" />
+<style>
+html,
+body,
+#map_canvas {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+</style>
+<script>
+var map = null;
+var directions = null;
+var distance = null; // km
+var service = null;
+var boxes = null;
+var routerequest = null;
+
+function initialize() {
+  // Default the map view to the continental U.S.
+  var mapOptions = {
+    center: new google.maps.LatLng(40.7128, -74.0060),
+    zoom: 9,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+
+  map = new google.maps.Map(document.getElementById("map"), mapOptions);
+	
+  service = new google.maps.places.PlacesService(map);
+
+
+  directionService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    map: map
+  });
+}
+
+function route() {
+	$.ajax({
+		url : '/itripsmarty-api-alpha',
+		type : "GET",
+		data: {
+			origin: document.getElementById("from").value,
+			destination: document.getElementById("to").value,
+			range: document.getElementById("distance").value,
+			preference: {
+				NATURE: $('#nature').val(),
+				CULTURE: $('#culture').val(),
+				AMUSEMENT: $('#amusement').val(),
+				SHOPPING: $('#shopping').val(),
+				NIGHTLIFE: $('#nightlife').val()
+			},
+			duration: $('#duration').val()
+		},
+		dataType : 'json',
+		success : function (result){
+			// buffer 
+			var dataMap = initTurfStyle();
+			dataMap.addGeoJson(result.buffer);
+			dataMap.setMap(map);
+			
+			var POIs = result.pois;
+			// 加点
+			for (var i = 0; i < POIs.length; i++) {
+				var item = $('<tr data-geo="' + POIs[i]['geo'][0] + ',' + POIs[i]['geo'][1] + '"><td>' + POIs[i].name + '</td><td>' + POIs[i].weight + '</td></tr>');
+				
+				var showALLPOIS = true;
+				if(showALLPOIS){
+					var marker = new google.maps.Marker({
+						position: {lat: POIs[i]['geo'][0], lng:  POIs[i]['geo'][1]},
+						map: map,
+						title: POIs[i].name
+					});
+					
+					 marker.addListener('click', function() {
+						addWaypoints([this.position]);
+						this.setMap(null);
+					});
+				}
+				
+				$('#side_bar table').append(item);
+			}
+			
+			/*
+			var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+			
+			for(var j=0; j<result.others[0].length && j < 1; j++){
+				var marker = new google.maps.Marker({
+					position: {lat: result.others[0][j][0], lng: result.others[0][j][1]},
+					map: map,
+					// icon: j==0 || j == result.others[0].length-1 ? image : '',
+					title: 'title'
+				});
+				// console.log(result.others[0][j]);
+			}
+			*/
+			
+			
+			// 加载线路
+			routerequest = {
+				origin: document.getElementById("from").value,
+				destination: document.getElementById("to").value,
+
+				waypoints: result.waypoints,
+				travelMode: google.maps.DirectionsTravelMode.DRIVING,
+				optimizeWaypoints: true
+			}
+			
+			  // Make the directions request
+			directionService.route(routerequest, function(result, status) {
+				if (status == google.maps.DirectionsStatus.OK) {
+					// 路线
+					directionsRenderer.setDirections(result);
+					console.log(result);
+				} else {
+					alert("Directions query failed: " + status);
+				}
+			});
+			
+		},
+		error: function(err){
+			console.log(err);
+		}
+	});
+
+
+
+
+
+
+}
+
+// 1. 设置 turf 样式
+var initTurfStyle = function(){
+	var dataMap = new google.maps.Data();
+
+	dataMap.setStyle(function(feature){
+		if( feature.getProperty('name') ){
+			return { icon: new google.maps.MarkerImage("https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=train|FFFF88") };
+		}
+		else if( feature.getProperty('line') ){
+			return { strokeWeight: 5, strokeColor: '#00f' };
+		}
+		else{
+			return { strokeWeight: 1, strokeColor: '#00f', fillOpacity: 0.25, fillColor: '#F5C13D' };
+		}
+	});
+	
+	return dataMap;
+};
+
+// 3. 添加waypoint
+var addWaypoints = function(positions){
+		$.each(positions, function(index, item){
+			routerequest.waypoints.push({
+				location: item,
+				stopover: true
+			});
+		});
+		
+		directionService.route(routerequest, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+				directionsRenderer.setDirections(result);
+			}else
+				console.log(status);
+		})
+};
+
+// 4. 计划
+var makePlan = function(duration, points){
+	var waypoints = [];
+	$.each(points, function(index, item){
+		if(index <= duration*3){
+			waypoints.push({lat: item['geo'][0], lng: item['geo'][1]});
+		}
+	});
+	addWaypoints(waypoints);
+};
+
+// 事件、
+// 1. 点击添加waypoint
+$('#side_bar table').on('click', 'tr', function(){
+	addWaypoints([$(this).attr('data-geo')]);
+});
+
+// 获取权重
+var getWeight = function(poi, preference) {
+	//average rates
+	var rates = 0.0;
+	var numRates = 0;
+	for(var i = 0; i<poi.ratings.length; i++) {
+		numRates += poi.ratings[i];
+		rates += poi.ratings[i] * (5-i);
+	}
+		rates /= numRates;
+	
+	//totalreview = 	totalreviews + numRates
+	var totalNumberOfReview = poi.totalreviews + numRates;
+	
+	
+	//preference point to percentage
+	var preferPercentage = preferToPercentage(preference);
+	
+	//find key of prefer
+	var preferKey = Object.keys(preference);
+	var key = null;
+	for(var i = 0; i<poi.genres.length; i++) {
+		var n = -1;
+		for(var j = 0; j<preferKey.length; j++) {
+			n = poi.genres[i].search(new RegExp(preferKey[j], "i"));
+			if(n != -1){
+				key = preferKey[j];
+				break;
+			}
+		}
+		if(n != -1)
+			break;
+	}
+	
+	//ignore children favour
+	
+	/*
+	console.log(poi);
+	console.log(poi.genres);
+	console.log(poi.totalreviews);
+	console.log(poi.ratings);
+	console.log(totalNumberOfReview);
+	console.log(rates);
+	console.log(preferPercentage);
+	console.log(n);
+	console.log(key);
+	*/
+	//return weight
+	if(key != null)
+		if(rates >= 4.5)
+			return totalNumberOfReview * 1 * preferPercentage[key];
+		else if(rates >= 4)
+			return totalNumberOfReview * 2/3 * preferPercentage[key];
+		else if(rates >= 3.5)
+			return totalNumberOfReview * 1/3 * preferPercentage[key];
+		else
+			return 0;
+	else
+		return 0;
+};
+
+var preferToPercentage = function(preference) {
+	var newPref = {};
+	var sum = 0;
+	Object.keys(preference).forEach(function(key) {
+		sum += preference[key];
+	});
+	
+	Object.keys(preference).forEach(function(key) {
+		newPref[key] = preference[key] / sum;
+	});
+	return newPref;
+};
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
