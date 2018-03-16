@@ -5,6 +5,7 @@ mongoose.connect('mongodb://localhost/IST');
 var models = require('../models/models');
 var POI = models.POI;
 
+
 // 1. Get POI in Buffer
 var getPOIInBuffer = function(coordinates, limit){
 	return new Promise(function(resolve, reject){
