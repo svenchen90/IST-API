@@ -1,11 +1,14 @@
-/// <reference types="geojson" />
-
-type Points = GeoJSON.FeatureCollection<GeoJSON.Point>;
-type LineStrings = GeoJSON.FeatureCollection<GeoJSON.LineString>;
+import { Point, MultiLineString, FeatureCollection, Properties } from '@turf/helpers'
 
 /**
  * http://turfjs.org/docs/#isolines
  */
-declare function isolines(points: Points, z: string, resolution: number, breaks: Array<number>): LineStrings;
-declare namespace isolines { }
-export = isolines;
+export default function isolines(
+    points: FeatureCollection<Point>,
+    breaks: number[],
+    options?: {
+        zProperty?: string,
+        commonProperties?: Properties,
+        breaksProperties?: Properties[]
+    }
+): FeatureCollection<MultiLineString>;

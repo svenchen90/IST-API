@@ -1,10 +1,12 @@
-/// <reference types="geojson" />
-
-type Point = GeoJSON.Feature<GeoJSON.Point>;
+import { Units, Coord } from '@turf/helpers'
 
 /**
  * http://turfjs.org/docs/#distance
  */
-declare function distance(from: Point, to: Point, units?: string): number;
-declare namespace distance { }
-export = distance;
+export default function distance(
+    from: Coord,
+    to: Coord,
+    options?: {
+        units?: Units
+    }
+): number;

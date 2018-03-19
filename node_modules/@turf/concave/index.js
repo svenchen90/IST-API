@@ -1,117 +1,93 @@
-// 1. run tin on points
-// 2. calculate lenth of all edges and area of all triangles
-// 3. remove triangles that fail the max length test
-// 4. buffer the results slightly
-// 5. merge the results
-var tin = require('@turf/tin');
-var union = require('@turf/union');
-var distance = require('@turf/distance');
+import tin from '@turf/tin';
+import distance from '@turf/distance';
+import { featureEach } from '@turf/meta';
+import { feature, featureCollection, isObject, isNumber } from '@turf/helpers';
+import dissolve from './lib/turf-dissolve';
 
 /**
- * Takes a set of {@link Point|points} and returns a concave hull polygon.
- *
+ * Takes a set of {@link Point|points} and returns a concave hull Polygon or MultiPolygon.
  * Internally, this uses [turf-tin](https://github.com/Turfjs/turf-tin) to generate geometries.
  *
+ * @name concave
  * @param {FeatureCollection<Point>} points input points
- * @param {number} maxEdge the size of an edge necessary for part of the
- * hull to become concave (in miles)
- * @param {string} [units=kilometers] can be degrees, radians, miles, or kilometers
- * @returns {Feature<Polygon>} a concave hull
- * @throws {Error} if maxEdge parameter is missing or unable to compute hull
+ * @param {Object} [options={}] Optional parameters
+ * @param {number} [options.maxEdge=Infinity] the length (in 'units') of an edge necessary for part of the hull to become concave.
+ * @param {string} [options.units='kilometers'] can be degrees, radians, miles, or kilometers
+ * @returns {Feature<(Polygon|MultiPolygon)>|null} a concave hull (null value is returned if unable to compute hull)
  * @example
- * var points = {
- *   "type": "FeatureCollection",
- *   "features": [
- *     {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.601226, 44.642643]
- *       }
- *     }, {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.591442, 44.651436]
- *       }
- *     }, {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.580799, 44.648749]
- *       }
- *     }, {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.573589, 44.641788]
- *       }
- *     }, {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.587665, 44.64533]
- *       }
- *     }, {
- *       "type": "Feature",
- *       "properties": {},
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [-63.595218, 44.64765]
- *       }
- *     }
- *   ]
- * };
+ * var points = turf.featureCollection([
+ *   turf.point([-63.601226, 44.642643]),
+ *   turf.point([-63.591442, 44.651436]),
+ *   turf.point([-63.580799, 44.648749]),
+ *   turf.point([-63.573589, 44.641788]),
+ *   turf.point([-63.587665, 44.64533]),
+ *   turf.point([-63.595218, 44.64765])
+ * ]);
+ * var options = {units: 'miles', maxEdge: 1};
  *
- * var hull = turf.concave(points, 1, 'miles');
+ * var hull = turf.concave(points, options);
  *
- * var resultFeatures = points.features.concat(hull);
- * var result = {
- *   "type": "FeatureCollection",
- *   "features": resultFeatures
- * };
- *
- * //=result
+ * //addToMap
+ * var addToMap = [points, hull]
  */
-function concave(points, maxEdge, units) {
-    if (typeof maxEdge !== 'number') throw new Error('maxEdge parameter is required');
+function concave(points, options) {
+    // Optional parameters
+    options = options || {};
+    if (!isObject(options)) throw new Error('options is invalid');
 
-    var tinPolys = tin(points);
-    var filteredPolys = tinPolys.features.filter(filterTriangles);
-    tinPolys.features = filteredPolys;
-    if (tinPolys.features.length < 1) {
-        throw new Error('too few polygons found to compute concave hull');
-    }
+    // validation
+    if (!points) throw new Error('points is required');
+    var maxEdge = options.maxEdge || Infinity;
+    if (!isNumber(maxEdge)) throw new Error('maxEdge is invalid');
 
-    function filterTriangles(triangle) {
+    var cleaned = removeDuplicates(points);
+
+    var tinPolys = tin(cleaned);
+    // calculate length of all edges and area of all triangles
+    // and remove triangles that fail the max length test
+    tinPolys.features = tinPolys.features.filter(function (triangle) {
         var pt1 = triangle.geometry.coordinates[0][0];
         var pt2 = triangle.geometry.coordinates[0][1];
         var pt3 = triangle.geometry.coordinates[0][2];
-        var dist1 = distance(pt1, pt2, units);
-        var dist2 = distance(pt2, pt3, units);
-        var dist3 = distance(pt1, pt3, units);
+        var dist1 = distance(pt1, pt2, options);
+        var dist2 = distance(pt2, pt3, options);
+        var dist3 = distance(pt1, pt3, options);
         return (dist1 <= maxEdge && dist2 <= maxEdge && dist3 <= maxEdge);
-    }
+    });
 
-    return merge(tinPolys);
+    if (tinPolys.features.length < 1) return null;
+
+    // merge the adjacent triangles
+    var dissolved = dissolve(tinPolys, options);
+
+    // geojson-dissolve always returns a MultiPolygon
+    if (dissolved.coordinates.length === 1) {
+        dissolved.coordinates = dissolved.coordinates[0];
+        dissolved.type = 'Polygon';
+    }
+    return feature(dissolved);
 }
 
-function merge(polygons) {
-    var merged = JSON.parse(JSON.stringify(polygons.features[0])),
-        features = polygons.features;
+/**
+ * Removes duplicated points in a collection returning a new collection
+ *
+ * @private
+ * @param {FeatureCollection<Point>} points to be cleaned
+ * @returns {FeatureCollection<Point>} cleaned set of points
+ */
+function removeDuplicates(points) {
+    var cleaned = [];
+    var existing = {};
 
-    for (var i = 0, len = features.length; i < len; i++) {
-        var poly = features[i];
-        if (poly.geometry) {
-            merged = union(merged, poly);
+    featureEach(points, function (pt) {
+        if (!pt.geometry) return;
+        var key = pt.geometry.coordinates.join('-');
+        if (!existing.hasOwnProperty(key)) {
+            cleaned.push(pt);
+            existing[key] = true;
         }
-    }
-    return merged;
+    });
+    return featureCollection(cleaned);
 }
 
-module.exports = concave;
+export default concave;

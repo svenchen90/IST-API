@@ -21,3 +21,5 @@ var reformatGeoGoogle = function(POIs){
 	
 	return result;
 };
+
+

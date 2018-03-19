@@ -21,6 +21,25 @@ var POISchema = new Schema({
 	geo: [Number]
 });
 
+var BywaySchema = new Schema({
+	id: String,
+	name: String,
+	bounds: [[Number]],
+	contact: String,
+	description: String,
+	designations: [String],
+	distance: String,
+	duration: String,
+	ll: [Number],
+	path: String,
+	ps: [String],
+	states: [String],
+	website: [{name: String, url: String}],
+	// includes
+	// part of
+});
+
+
 var PointSchema = new mongoose.Schema({
     //_id: mongoose.Schema.ObjectId,
     loc: [Number]
@@ -29,3 +48,4 @@ var PointSchema = new mongoose.Schema({
 //PointSchema.index({ loc: "2dsphere" });
 exports.Point = mongoose.model("Point", PointSchema);
 exports.POI = mongoose.model('poi', POISchema, 'poi2s');
+exports.Byway = mongoose.model('byway', BywaySchema, 'byway');

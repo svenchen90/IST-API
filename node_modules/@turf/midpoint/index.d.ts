@@ -1,10 +1,9 @@
-/// <reference types="geojson" />
-
-type Point = GeoJSON.Feature<GeoJSON.Point>;
+import { Feature, Point, Coord } from '@turf/helpers'
 
 /**
  * http://turfjs.org/docs/#midpoint
  */
-declare function midpoint(from: Point, to: Point): Point;
-declare namespace midpoint { }
-export = midpoint;
+export default function midpoint(
+    point1: Coord,
+    point2: Coord
+): Feature<Point>;

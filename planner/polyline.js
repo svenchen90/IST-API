@@ -1,3 +1,5 @@
+var turf = require('@turf/turf');
+
 var PLDivider = function(list, splitBy){
 	var map = [];
 	list.forEach(function(note,index){
@@ -45,7 +47,10 @@ var PLDecoder = function(polyline){
 	if(!PLValidation(polyline))
 		polyline = PLReformat(polyline)
 	
-	return MBDecoder.decode(polyline);
+	return MBDecoder.decode(polyline).map(function(item){
+		// [lng, lat]
+		return [item[1], item[0]]
+	});
 };
 
 var PLValidation = function(polyline){
@@ -53,8 +58,24 @@ var PLValidation = function(polyline){
 };
 
 var PLReformat = function(polyline){
-	return polyline.replace('\\\\', '\\');
+	//return polyline.replace('\\\\', '\\');
+	return polyline.replace(/\\\\/g, "\\");
+};
+
+var polylineToBuffer = function(polyline, radius){
+	var polylinePoints;
+	if(typeof polyline == 'string')
+		polylinePoints = PLDecoder(polyline);
+	else
+		polylinePoints = polyline;
+	
+	var line = turf.lineString(polylinePoints);
+	var buffered = turf.buffer(line, radius, {units: 'miles'});	
+	
+	return buffered.geometry.coordinates;
 };
 
 exports.PLDivider = PLDivider;
 exports.PLDecoder = PLDecoder;
+exports.PLReformat = PLReformat;
+exports.polylineToBuffer = polylineToBuffer;
