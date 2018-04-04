@@ -20,3 +20,4 @@ var getRoute = function(origin, desitination, waypoints, mode = 'DRIVE'){
 var getBuffer = function(polyline, type="POINTS") {
 	
 };
+
