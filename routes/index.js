@@ -4,7 +4,7 @@ var router = express.Router();
 
 var test = require('../planner/test').test;
 var planAgent = require('../planner/plan-agent').planAgent;
-//var turf = require('@turf/turf');
+var turf = require('@turf/turf');
 
 /* 
 The purpose of this API is to make a decent trip plan for customer based on his/her preference.
@@ -120,5 +120,12 @@ router.route('/test')
 		console.log("Got error: " + e.message);
 	});
 }); */
+
+var line = turf.lineString([[-95, 40], [-93, 45], [-85, 50]]);
+
+var chunk = turf.lineChunk(line, 15, {units: 'miles'});
+console.log(chunk.features.forEach(function(e){
+	console.log( e.geometry)
+}))
 
 module.exports = router;
