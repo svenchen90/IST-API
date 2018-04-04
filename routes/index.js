@@ -123,9 +123,15 @@ router.route('/test')
 
 var line = turf.lineString([[-95, 40], [-93, 45], [-85, 50]]);
 
-var chunk = turf.lineChunk(line, 15, {units: 'miles'});
+var chunk = turf.lineChunk(line, 1500, {units: 'miles'});
 console.log(chunk.features.forEach(function(e){
 	console.log( e.geometry)
 }))
+var abc  = function(a, c, b=1){
+	console.log(a,c,b)
+	return a*b;
+}
+
+console.log(abc(2, b=3, c=2))
 
 module.exports = router;
