@@ -252,10 +252,11 @@ var formateBuffer = function(buffer){
 	}
 };
 
-// Marker
 var addMarker = function(map, data){
 	var el = document.createElement('div');
 	el.className = 'marker';
+	el.classList.add("dot");
+	el.id = localIDGenerator();
 	el.style.backgroundImage = 'url(' + data.img + ')';
 	
 	new mapboxgl.Marker(el)
@@ -263,6 +264,11 @@ var addMarker = function(map, data){
 		.addTo(map);
 };
 
+var removeMarkerByID = function($container, id){
+	$container.find('#' + id).remove();
+}
+
+// Tool
 var randomHex = function(){
 	var x = Math.floor((Math.random() * 15));
 	var code = '0';
@@ -298,6 +304,10 @@ var randomColor = function(){
 		result += randomHex();
 	}
 	return result;
+};
+
+var localIDGenerator = function () {
+	return '_' + Math.random().toString(36).substr(2, 9);
 };
 
 (function(){
