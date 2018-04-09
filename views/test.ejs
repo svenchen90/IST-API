@@ -19,202 +19,252 @@
 		
 		<style>
 			body { margin:0; padding:0; }
-			#map { position:absolute; top:0; bottom:0; width:100%; }
+			#map { position:absolute; top:0; bottom:0; width:60%; }
+			.mapboxgl-ctrl-bottom-left { display: none }
+			/*.mapboxgl-ctrl-bottom-right { display: none }*/
+			.marker {
+				display: block;
+				border: none;
+				border-radius: 50%;
+				cursor: pointer;
+				padding: 0;
+				width: 50px;
+				height: 50px;
+			}
 		</style>
-	
+		<script src="javascripts/mapbox-utility.js"></script>
 		<script>
-		mapboxgl.accessToken = 'pk.eyJ1Ijoic3ZlbmNoZW4iLCJhIjoiY2ludTBwc2k0MTFkaHRxa2pqZDFrenRxbSJ9.0df0NgCDfQSolkaLSmMIIg';
-		var map = new mapboxgl.Map({
-				container: 'map',
-				style: 'mapbox://styles/mapbox/streets-v9',
-				center: [-121.70060640054322, 43.41720036607769],
-				zoom: 4
-		});
-
-		map.on('load', function() {
-			map.on('click', function(e){
-				$.ajax({
-					url : '/itripsmarty-api-alpha',
-					data: {},
-					type : "GET",
-					dataType : 'json',
-					success : function (result){
-						console.log(result);
-						/*console.log(result.json.routes[0].bounds);
-						map.fitBounds([
-							result.json.routes[0].bounds['southwest'],
-							result.json.routes[0].bounds['northeast']
-						]);
-						var notes = google.maps.geometry.encoding.decodePath(result.json.routes[0].overview_polyline.points)
-						.map(function(el){
-							return [el.lng(), el.lat()];
-						});
-						console.log(notes);*/
-						/*map.fitBounds([
-							result.result.json.routes[0].bounds['southwest'],
-							result.result.json.routes[0].bounds['northeast']
-						]);*/
-						//addPolyline(result.polyline);
-						//console.log(result.buffer.geometry.coordinates);
-						addPolygon(result.buffer);
-						result.subline.forEach(function(item){
-							addPolyline(item);
-						});
-						/*result.subbuffer.forEach(function(item){
-							addPolygon(item);
-						});*/
-						
-						addPoints(result.pois);
-						// addByway(result.byway[0]);
-						result.byway.forEach(function(way){
-							addByway(way);
-						});
-						
-					},
-					error: function(err){
-						reject('请求失败2');
+			var map = initializeMapbox('map', 'streets', [-122.4833858013153, 37.829607404976734], 12);
+			map.on('load', function(){
+				/*
+				// Route
+				initializeRouteLayer(map, [{
+					route:  [[-122.4833858013153, 37.829607404976734],
+									[-122.4830961227417, 37.82932776098012],
+									[-122.4830746650696, 37.82932776098012],
+									[-122.48218417167662, 37.82889558180985],
+									[-122.48218417167662, 37.82890193740421],
+									[-122.48221099376678, 37.82868372835086],
+									[-122.4822163581848, 37.82868372835086],
+									[-122.48205006122589, 37.82801003030873]],
+					start: 12132
+				}]);
+				
+				var r = {
+					route: [[-122.48393028974533, 37.829471820141016],
+									[-122.48395174741744, 37.82940826466351],
+									[-122.48395174741744, 37.829412501697064],
+									[-122.48423874378203, 37.829357420242125],
+									[-122.48422533273697, 37.829361657278575],
+									[-122.48459815979002, 37.8293425906126],
+									[-122.48458743095398, 37.8293447091313],
+									[-122.4847564101219, 37.82932776098012],
+									[-122.48474299907684, 37.829331998018276],
+									[-122.4849334359169, 37.829298101706186],
+									[-122.48492807149889, 37.82930022022615],
+									[-122.48509705066681, 37.82920488676767],
+									[-122.48509168624878, 37.82920912381288],
+									[-122.48520433902739, 37.82905870855876],
+									[-122.48519897460936, 37.82905870855876],
+									[-122.4854403734207, 37.828594749716714],
+									[-122.48543500900269, 37.82860534241688],
+									[-122.48571664094925, 37.82808206121068],
+									[-122.48570591211319, 37.82809689109353],
+									[-122.4858346581459, 37.82797189627337],
+									[-122.48582661151886, 37.82797825194729],
+									[-122.4859634041786, 37.82788503534145],
+									[-122.48595803976059, 37.82788927246246],
+									[-122.48605459928514, 37.82786596829394]]
+				}
+				
+				addRoute(map, r)
+				
+				map.on('mouseenter', 'route', function(e){
+					console.log(e.features[0])
+					clearRoute(map);
+				});
+				
+				// POI
+				var points = [[-122.48393028974533, 37.829471820141016],
+									[-122.48395174741744, 37.82940826466351],
+									[-122.48395174741744, 37.829412501697064],
+									[-122.48423874378203, 37.829357420242125],
+									[-122.48422533273697, 37.829361657278575],
+									[-122.48459815979002, 37.8293425906126],
+									[-122.48458743095398, 37.8293447091313],
+									[-122.4847564101219, 37.82932776098012],
+									[-122.48474299907684, 37.829331998018276],
+									[-122.4849334359169, 37.829298101706186],
+									[-122.48492807149889, 37.82930022022615],
+									[-122.48509705066681, 37.82920488676767],
+									[-122.48509168624878, 37.82920912381288],
+									[-122.48520433902739, 37.82905870855876],
+									[-122.48519897460936, 37.82905870855876],
+									[-122.4854403734207, 37.828594749716714],
+									[-122.48543500900269, 37.82860534241688],
+									[-122.48571664094925, 37.82808206121068],
+									[-122.48570591211319, 37.82809689109353],
+									[-122.4858346581459, 37.82797189627337],
+									[-122.48582661151886, 37.82797825194729],
+									[-122.4859634041786, 37.82788503534145],
+									[-122.48595803976059, 37.82788927246246],
+									[-122.48605459928514, 37.82786596829394]];
+				var points = points.map(function(item){
+					return {geo: item, name: '1'}
+				});
+				// console.log(points);
+				initializePOI(map, points)
+				addPOI(map, {geo: [-122.48205006122589, 37.82801003030873]});
+				clearPOI(map);
+				
+				// Buffer
+				initializeBufferLayer(map, [{
+					points: [[[-122.48393028974533, 37.829471820141016],
+									[-122.48395174741744, 37.82940826466351],
+									[-122.48395174741744, 37.829412501697064],
+									[-122.48423874378203, 37.829357420242125],
+									[-122.48422533273697, 37.829361657278575],
+									[-122.48459815979002, 37.8293425906126],
+									[-122.48458743095398, 37.8293447091313],
+									[-122.4847564101219, 37.82932776098012],
+									[-122.48474299907684, 37.829331998018276],
+									[-122.4849334359169, 37.829298101706186],
+									[-122.48492807149889, 37.82930022022615],
+									[-122.48509705066681, 37.82920488676767],
+									[-122.48509168624878, 37.82920912381288],
+									[-122.48520433902739, 37.82905870855876],
+									[-122.48519897460936, 37.82905870855876],
+									[-122.4854403734207, 37.828594749716714],
+									[-122.48543500900269, 37.82860534241688],
+									[-122.48571664094925, 37.82808206121068],
+									[-122.48570591211319, 37.82809689109353],
+									[-122.4858346581459, 37.82797189627337],
+									[-122.48582661151886, 37.82797825194729],
+									[-122.4859634041786, 37.82788503534145],
+									[-122.48595803976059, 37.82788927246246],
+									[-122.48605459928514, 37.82786596829394],
+									[-122.48393028974533, 37.829471820141016]]]
+				}]) ;
+				
+				clearBuffer(map);
+				addBuffer(map, {
+					points: [[[-122.48393028974533, 37.829471820141016],
+									[-122.48395174741744, 37.82940826466351],
+									[-122.48395174741744, 37.829412501697064],
+									[-122.48423874378203, 37.829357420242125],
+									[-122.48422533273697, 37.829361657278575],
+									[-122.48459815979002, 37.8293425906126],
+									[-122.48458743095398, 37.8293447091313],
+									[-122.4847564101219, 37.82932776098012],
+									[-122.48474299907684, 37.829331998018276],
+									[-122.4849334359169, 37.829298101706186],
+									[-122.48492807149889, 37.82930022022615],
+									[-122.48509705066681, 37.82920488676767],
+									[-122.48509168624878, 37.82920912381288],
+									[-122.48520433902739, 37.82905870855876],
+									[-122.48519897460936, 37.82905870855876],
+									[-122.4854403734207, 37.828594749716714],
+									[-122.48543500900269, 37.82860534241688],
+									[-122.48571664094925, 37.82808206121068],
+									[-122.48570591211319, 37.82809689109353],
+									[-122.4858346581459, 37.82797189627337],
+									[-122.48582661151886, 37.82797825194729],
+									[-122.4859634041786, 37.82788503534145],
+									[-122.48595803976059, 37.82788927246246],
+									[-122.48605459928514, 37.82786596829394],
+									[-122.48393028974533, 37.829471820141016]]]
+				})
+				*/
+				
+				addMarker(map, {img: 'https://placekitten.com/g/50/50/', geo: [-122.4833858013153, 37.829607404976734]});
+				
+				/*
+				map.flyTo({
+					center: [-122.4833858013153, 37.829607404976734],
+					zoom: 16,
+					speed: 5,
+					curve: 1,
+					easing(t) {
+						//console.log(t);
+						return t;
 					}
 				});
-			});	
+				*/
+				
+	/*			
+				var geojson = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "message": "Foo",
+                "iconSize": [60, 60]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -66.324462890625,
+                    -16.024695711685304
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "message": "Bar",
+                "iconSize": [50, 50]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -61.2158203125,
+                    -15.97189158092897
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "message": "Baz",
+                "iconSize": [40, 40]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -63.29223632812499,
+                    -18.28151823530889
+                ]
+            }
+        }
+    ]
+};
+
+// add markers to map
+geojson.features.forEach(function(marker) {
+    // create a DOM element for the marker
+    var el = document.createElement('div');
+    el.className = 'marker';
+    el.style.backgroundImage = 'url(https://placekitten.com/g/' + marker.properties.iconSize.join('/') + '/)';
+    el.style.width = marker.properties.iconSize[0] + 'px';
+    el.style.height = marker.properties.iconSize[1] + 'px';
+
+    el.addEventListener('click', function() {
+        window.alert(marker.properties.message);
+    });
+		console.log(marker.geometry.coordinates)
+    // add marker to map
+    new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .addTo(map);
+});
+*/
+			});
 			
-		});
-		
-		var randomHex = function(){
-			var x = Math.floor((Math.random() * 15));
-			var code = '0';
-			switch(x){
-				case 10:
-					code = 'A';
-					break;
-				case 11:
-					code = 'B';
-					break;
-				case 12:
-					code = 'C';
-					break;
-				case 13:
-					code = 'D';
-					break;
-				case 14:
-					code = 'E';
-					break;
-				case 15:
-					code = 'F';
-					break;
-				default:
-					code = x.toString();
-					break;
-			};
-			return code;
-		};
-		
-		var randomColor = function(){
-			var result = "#"
-			for(var i=0; i<6; i++){
-				result += randomHex();
-			}
-			return result;
-		};
-		var line_index = 0;
-		var addPolyline = function(notes){
-			//console.log(notes);
-			map.addLayer({
-				"id": "line_" + line_index,
-				"type": "line",
-				"source": {
-					"type": "geojson",
-					"data": {
-						"type": "Feature",
-						"properties": {},
-						"geometry": {
-							"type": "LineString",
-							"coordinates": notes
-						}
-					}
-				},
-				"layout": {
-					"line-join": "round",
-					"line-cap": "round"
-				},
-				"paint": {
-					"line-color": randomColor(),
-					"line-width": 3
-				}
-			});
-			line_index ++;
-		};
-		
-		var polygon_index = 0;
-		var addPolygon = function(notes){
-		    map.addLayer({
-					'id': 'polygon_' + polygon_index,
-					'type': 'fill',
-					'source': {
-							'type': 'geojson',
-							'data': {
-									'type': 'Feature',
-									'geometry': {
-											'type': 'Polygon',
-											'coordinates': notes
-									}
-							}
-					},
-					'layout': {},
-					'paint': {
-							'fill-color': '#088',
-							'fill-opacity': 0.3
-					}
-			});
-			polygon_index ++;
-		};
-		
-		var addPoints = function(notes){
-			var data = notes.map(function(note){
-				return {
-						"type": "Feature",
-						"geometry": {
-								"type": "Point",
-								"coordinates": note.geo
-						},
-						"properties": {
-								"title": note.name,
-								"icon": "monument",
-								"details": note
-						}
-				}
-			});
-			map.addLayer({
-					"id": "points",
-					"type": "symbol",
-					"source": {
-							"type": "geojson",
-							"data": {
-									"type": "FeatureCollection",
-									"features": data
-							}
-					},
-					"layout": {
-							"icon-image": "{icon}-15",
-							"text-field": "{title}",
-							"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-							"text-offset": [0, 0.6],
-							"text-anchor": "top"
-					}
-			});
-		};
-		
-		var addByway = function(way){
-			//var path = way.path.replace(new RegExp('\\\\'), '\\');
-			//var notes = google.maps.geometry.encoding.decodePath(path).map(function(note){
-				//return [note.lng(), note.lat()];
-			//});
-			//console.log(notes);
-			addPolyline(way);
-		};
-		
-		
+			
+			
 		</script>
-	
+
 	</body>
 </html>	
 

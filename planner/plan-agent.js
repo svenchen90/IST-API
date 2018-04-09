@@ -29,7 +29,7 @@ var planAgent = function(input){
 		var queryPool = []
 		var subBuffer = subLines.map(function(l){
 			var sb = PL.polylineToBuffer(l, 100);
-			queryPool.push(POI(sb, 500));
+			queryPool.push(POI(sb, 50));
 			return sb;
 		});
 		

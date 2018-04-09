@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title>Filter features within map view</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="javascripts/turf.min.js"></script> -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4&libraries=geometry"></script>
+	</head>
+	
+	<body>
+		<div id='map'></div>
+		
+		<style>
+			body { margin:0; padding:0; }
+			#map { position:absolute; top:0; bottom:0; width:60%; }
+			.mapboxgl-ctrl-bottom-left { display: none }
+			.mapboxgl-ctrl-bottom-right { display: none }
+		</style>
+		
+		<script src="javascripts/mapbox-utility.js"></script>
+		<script>
+		$.ajax({
+			url : '/test2',
+			data: {},
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+			},
+			error: function(err){
+				console.log('请求失败2');
+			}
+		});
+		mapboxgl.accessToken = 'pk.eyJ1Ijoic3ZlbmNoZW4iLCJhIjoiY2ludTBwc2k0MTFkaHRxa2pqZDFrenRxbSJ9.0df0NgCDfQSolkaLSmMIIg';
+		var map = new mapboxgl.Map({
+				container: 'map',
+				style: 'mapbox://styles/mapbox/streets-v9',
+				center: [-121.70060640054322, 43.41720036607769],
+				zoom: 4
+		});
+
+		//map.on('load', function() {
+		map.on('click', 'cluster-count', function(e){
+			console.log(e);
+		});
+		
+		
+		
+			var load = false;
+			map.on('click', function(e){
+				if(!load){
+					$.ajax({
+						url : '/itripsmarty-api-alpha',
+						data: {},
+						type : "GET",
+						dataType : 'json',
+						success : function (result){
+							console.log(result);
+							/*console.log(result.json.routes[0].bounds);
+							map.fitBounds([
+								result.json.routes[0].bounds['southwest'],
+								result.json.routes[0].bounds['northeast']
+							]);
+							var notes = google.maps.geometry.encoding.decodePath(result.json.routes[0].overview_polyline.points)
+							.map(function(el){
+								return [el.lng(), el.lat()];
+							});
+							console.log(notes);*/
+							/*map.fitBounds([
+								result.result.json.routes[0].bounds['southwest'],
+								result.result.json.routes[0].bounds['northeast']
+							]);*/
+							//addPolyline(result.polyline);
+							//console.log(result.buffer.geometry.coordinates);
+							addPolygon(result.buffer);
+							result.subline.forEach(function(item){
+								addPolyline(item);
+							});
+							/*result.subbuffer.forEach(function(item){
+								addPolygon(item);
+							});*/
+							
+							addPoints(result.pois);
+							// addByway(result.byway[0]);
+							result.byway.forEach(function(way){
+								addByway(way);
+							});
+							
+						},
+						error: function(err){
+							reject('请求失败2');
+						}
+					});
+					load = true;
+				}
+			});	
+			
+		//});
+		
+		var randomHex = function(){
+			var x = Math.floor((Math.random() * 15));
+			var code = '0';
+			switch(x){
+				case 10:
+					code = 'A';
+					break;
+				case 11:
+					code = 'B';
+					break;
+				case 12:
+					code = 'C';
+					break;
+				case 13:
+					code = 'D';
+					break;
+				case 14:
+					code = 'E';
+					break;
+				case 15:
+					code = 'F';
+					break;
+				default:
+					code = x.toString();
+					break;
+			};
+			return code;
+		};
+		
+		var randomColor = function(){
+			var result = "#"
+			for(var i=0; i<6; i++){
+				result += randomHex();
+			}
+			return result;
+		};
+		var line_index = 0;
+		var addPolyline = function(notes){
+			//console.log(notes);
+			map.addLayer({
+				"id": "line_" + line_index,
+				"type": "line",
+				"source": {
+					"type": "geojson",
+					"data": {
+						"type": "Feature",
+						"properties": {},
+						"geometry": {
+							"type": "LineString",
+							"coordinates": notes
+						}
+					}
+				},
+				"layout": {
+					"line-join": "round",
+					"line-cap": "round"
+				},
+				"paint": {
+					"line-color": randomColor(),
+					"line-width": 3
+				}
+			});
+			line_index ++;
+		};
+		
+		var polygon_index = 0;
+		var addPolygon = function(notes){
+		    map.addLayer({
+					'id': 'polygon_' + polygon_index,
+					'type': 'fill',
+					'source': {
+							'type': 'geojson',
+							'data': {
+									'type': 'Feature',
+									'geometry': {
+											'type': 'Polygon',
+											'coordinates': notes
+									}
+							}
+					},
+					'layout': {},
+					'paint': {
+							'fill-color': '#088',
+							'fill-opacity': 0.3
+					}
+			});
+			polygon_index ++;
+		};
+		/*
+		var addPoints = function(notes){
+			var data = notes.map(function(note){
+				return {
+						"type": "Feature",
+						"geometry": {
+								"type": "Point",
+								"coordinates": note.geo
+						},
+						"properties": {
+								"title": note.name,
+								"icon": "monument",
+								"details": note
+						}
+				}
+			});
+			map.addLayer({
+					"id": "points",
+					"type": "symbol",
+					"source": {
+							"type": "geojson",
+							"data": {
+									"type": "FeatureCollection",
+									"features": data
+							}
+					},
+					"layout": {
+							"icon-image": "{icon}-15",
+							"text-field": "{title}",
+							"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+							"text-offset": [0, 0.6],
+							"text-anchor": "top"
+					}
+			});
+		};
+		*/
+		var addPoints = function(notes){
+			var list = notes.map(function(note){
+				return {
+						"type": "Feature",
+						"geometry": {
+								"type": "Point",
+								"coordinates": note.geo
+						},
+						"properties": {
+								"title": note.name,
+								"icon": "monument",
+								"details": note
+						}
+				}
+			});
+			
+			var data = {
+				"type": "FeatureCollection",
+				"features": list
+			};
+			
+			
+			map.addSource("earthquakes", {
+				type: "geojson",
+				// Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+				// from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+				data: data,
+				cluster: true,
+				clusterMaxZoom: 14, // Max zoom to cluster points on
+				clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+			});
+			console.log(1);
+			map.addLayer({
+					id: "clusters",
+					type: "circle",
+					source: "earthquakes",
+					filter: ["has", "point_count"],
+					paint: {
+							// Use step expressions (https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+							// with three steps to implement three types of circles:
+							//   * Blue, 20px circles when point count is less than 100
+							//   * Yellow, 30px circles when point count is between 100 and 750
+							//   * Pink, 40px circles when point count is greater than or equal to 750
+							"circle-color": [
+									"step",
+									["get", "point_count"],
+									"#51bbd6",
+									100,
+									"#f1f075",
+									750,
+									"#f28cb1"
+							],
+							"circle-radius": [
+									"step",
+									["get", "point_count"],
+									20,
+									100,
+									30,
+									750,
+									40
+							]
+					}
+			});
+			
+			map.addLayer({
+					id: "cluster-count",
+					type: "symbol",
+					source: "earthquakes",
+					filter: ["has", "point_count"],
+					layout: {
+							"text-field": "{point_count_abbreviated}",
+							"text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+							"text-size": 12
+					}
+			});
+			
+			/*map.on('click', 'cluster-count', function(e){
+				console.log(111);
+			});*/
+			
+			map.addLayer({
+					id: "unclustered-point",
+					type: "circle",
+					source: "earthquakes",
+					filter: ["!has", "point_count"],
+					paint: {
+							"circle-color": "#11b4da",
+							"circle-radius": 20,
+							"circle-stroke-width": 1,
+							"circle-stroke-color": "#fff"
+					}
+			});
+			
+			map.on('click', 'unclustered-point', function(e){
+				console.log(e);
+				
+				var data = {
+					"type": "FeatureCollection",
+					"features": []
+				};
+				data.features = map.getSource('earthquakes')._data.features.slice(1,20)
+				map.getSource('earthquakes').setData(data)
+				
+			});
+		};
+		
+		
+		
+		var addByway = function(way){
+			//var path = way.path.replace(new RegExp('\\\\'), '\\');
+			//var notes = google.maps.geometry.encoding.decodePath(path).map(function(note){
+				//return [note.lng(), note.lat()];
+			//});
+			//console.log(notes);
+			addPolyline(way);
+		};
+		
+		
+		</script>
+	
+	</body>
+</html>	
+

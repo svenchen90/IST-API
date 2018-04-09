@@ -19,8 +19,8 @@ Scenario:
 router.get('/itripsmarty-api-alpha', function(req, res, next){
 	planAgent({
 		origin: 'San Diego, CA',
+		destination: 'Los Angeles, CA',
 		//destination: 'Los Angeles, CA',
-		destination: 'Seattle, WA',
 		waypoints: [
 			/* 'Hayward, CA',
 			'Fremont, CA', */
@@ -104,7 +104,19 @@ router.route('/test')
 		res.render('test',{});
 	});
 
+router.route('/test2')
+	.get(function(req, res, next){
+		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA'])
+			.then(function(result){
+				res.json(result);
+			})
+			.catch(function(exception){
+				res.json(exception);
+			});
+	});
 
+	
+	
 /* router.get('/testgooglejscall', function(req, res, next){
 	var options = {
 			host: 'road.li',
