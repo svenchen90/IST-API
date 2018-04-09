@@ -252,6 +252,7 @@ var formateBuffer = function(buffer){
 	}
 };
 
+// Marker
 var addMarker = function(map, data){
 	var el = document.createElement('div');
 	el.className = 'marker';
