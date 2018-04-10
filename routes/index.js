@@ -106,11 +106,12 @@ router.route('/test')
 
 router.route('/test2')
 	.get(function(req, res, next){
-		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA'])
+		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA', 'Santa Barbara, CA'])
 			.then(function(result){
 				res.json(result);
 			})
 			.catch(function(exception){
+				console.log('error', exception)
 				res.json(exception);
 			});
 	});
@@ -132,18 +133,5 @@ router.route('/test2')
 		console.log("Got error: " + e.message);
 	});
 }); */
-
-var line = turf.lineString([[-95, 40], [-93, 45], [-85, 50]]);
-
-var chunk = turf.lineChunk(line, 1500, {units: 'miles'});
-console.log(chunk.features.forEach(function(e){
-	console.log( e.geometry)
-}))
-var abc  = function(a, c, b=1){
-	console.log(a,c,b)
-	return a*b;
-}
-
-console.log(abc(2, b=3, c=2))
 
 module.exports = router;

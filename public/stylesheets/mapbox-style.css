@@ -1,0 +1,71 @@
+:root {
+	--marker-marker-border-size: 3px;
+}
+
+/* Marker */
+.marker{
+	display: block;
+	text-align: center;
+	cursor: pointer;
+}
+
+.marker .icon {
+	border-radius: 50%;
+	position:absolute;
+	left:calc(0px - var(--marker-marker-border-size));
+	top: calc(0px - var(--marker-marker-border-size));
+	width:100%;
+	height:100%;
+	border: var(--marker-marker-border-size) solid rgba(255,255,255,1);
+}
+
+.marker.hover .ripple, .marker.active .ripple, .marker:hover .ripple {
+	position:absolute;
+	background-color: rgba(0,0,0,0.7);
+	border-radius: 50%;
+	box-shadow: 0 0 10px rgba(0,0,0,.3) inset;
+	-webkit-animation-name:'ripple';/*动画属性名，也就是我们前面keyframes定义的动画名*/
+	-webkit-animation-duration: 2.5s;/*动画持续时间*/
+	-webkit-animation-timing-function: ease; /*动画频率，和transition-timing-function是一样的*/
+	-webkit-animation-delay: 0s;/*动画延迟时间*/
+	-webkit-animation-iteration-count: infinite;/*定义循环资料，infinite为无限次*/
+	-webkit-animation-direction: normal;/*定义动画方式*/
+}
+
+.marker .ripple.delay-05 {
+	-webkit-animation-delay: 0.5s;
+}
+
+.marker .ripple.delay-1 {
+	-webkit-animation-delay: 1s;
+}
+
+@keyframes ripple {
+   0% {
+	left:0;
+	top:0;
+	opcity:0;
+	width:100%;
+	height:100%;
+  }
+  100% {
+	left: calc(0px - 50%);
+	top: calc(0px - 50%);
+	opacity: 0;
+	width:200%;
+	height:200%;
+  }
+}
+
+.cluster-icon {
+	background: rgba(255,255,255,1);
+	border-color: #11b4da !important;
+}
+/* ! Marker */
+
+.route-pointer {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	border: 1px solid rgba(255,255,255,1);
+}

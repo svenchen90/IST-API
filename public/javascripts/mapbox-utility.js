@@ -11,7 +11,7 @@ var initializeMapbox = function(container_id, style, coordinates, zoom){
 };
 
 // Route
-var initializeRouteLayer = function(map, data, id='route'){
+var initializeRouteLayer = function(map, data, id='route', color="#4285F4"){
 	if(map.getSource(id) != undefined){
 		map.removeSource(id);
 	}
@@ -36,8 +36,26 @@ var initializeRouteLayer = function(map, data, id='route'){
 			"line-cap": "round"
 		},
 		"paint": {
-			"line-color": randomColor(),
-			"line-width": 3
+			"line-color": color,
+			 "line-width": 10,
+			 "line-blur": 1
+			//"line-gap-width": 1
+		}
+	});
+
+	map.on('mousemove', function (e) {
+		var features = map.queryRenderedFeatures(e.point, { layers: [id] });
+		// UI indicator for clicking/hovering a point on the map
+		// map.getCanvas().style.cursor = (features.length) ?  '' :'pointer';
+		
+		if(features.length){
+			var $routePointer = $('<div class="route-pointer"></div>');
+			
+			new mapboxgl.Marker($routePointer.get(0))
+				.setLngLat(e.lngLat)
+				.addTo(map);
+		}else{
+			$(map.getContainer()).find('.route-pointer').remove();
 		}
 	});
 };
@@ -96,7 +114,7 @@ var initializePOILayer = function(map, data, id="POI"){
 		clusterRadius: 50
 	});
 	
-	map.addLayer({
+	/* map.addLayer({
 		id: "clusters-bg",
 		type: "circle",
 		source: id,
@@ -127,36 +145,15 @@ var initializePOILayer = function(map, data, id="POI"){
 			"circle-stroke-width": 2,
 			"circle-stroke-color": "#11b4da"
 		}
-	});
+	}); */
 	
 	map.addLayer({
-		id: "cluster-" + id,
-		type: "symbol",
-		source: id,
-		filter: ["has", "point_count"],
-		layout: {
-			"text-field": "{point_count_abbreviated}",
-			"text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-			"text-size": 12
-		}
-	});
-	
-	map.addLayer({
-		id: "unclustered-" + id,
+		id: id,
 		type: "circle",
 		source: id,
-		filter: ["!has", "point_count"],
+		//	filter: ["has", "point_count"],
 		paint: {
-			"circle-color": "#11b4da",
-			"circle-radius": [
-				"interpolate", ["linear"], ["zoom"],
-				// zoom is 5 (or less) -> circle radius will be 1px
-				5, 5,
-				// zoom is 10 (or greater) -> circle radius will be 5px
-				15, 10
-			],
-			"circle-stroke-width": 2,
-			"circle-stroke-color": "#fff"
+			"circle-radius": 0
 		}
 	});
 };
@@ -252,7 +249,7 @@ var formateBuffer = function(buffer){
 	}
 };
 
-//
+/* 
 var addMarker = function(map, data){
 	var size = 50
 	var $marker = $(
@@ -271,10 +268,69 @@ var addMarker = function(map, data){
 		.setLngLat(data.geo)
 		.addTo(map);
 };
+ */
+var addMarker = function(map, data){
+	var size = 50
+	var $marker = $(
+		'<div class="marker" id="' + localIDGenerator() + '">\n' +
+		' <div class="ripple"></div>\n' +
+		' <div class="ripple delay-05"></div>\n' +
+		' <div class="ripple delay-1"></div>\n' +
+		' <div class="icon"></div>\n' +
+		'</div>'
+	).css({
+		'width': size + 'px',
+		'height': size + 'px',
+		'line-height': size + 'px'
+	});
+	
+	if(data.count){
+		$marker.find('.icon')
+			.addClass('cluster-icon')
+			.text(data.count)
+			.css({'font-family': 'Arial'});
+	}else{
+		if(data.img)
+			$marker.find('.icon')
+				.css({'background-image': 'url(' + data.img + ')'});
+		else
+			$marker.find('.icon')
+				.css({'background-color': 'rgba(255,255,255,1)'});
+	}
+	
+	/* delay of hover effect  */
+	$marker.on('mouseenter', function(e){
+		$marker.addClass('hover');
+	});
+	
+	$marker.on('mouseleave', function(e){
+		delay(function(){
+			$marker.removeClass('hover');
+		}, 1000)
+	});
+	
+	new mapboxgl.Marker($marker.get(0))
+		.setLngLat(data.geo)
+		.addTo(map);
+};
+
+var clearMarker = function($container) {
+	$container.find('.marker').remove();
+};
 
 var removeMarkerByID = function($container, id){
 	$container.find('#' + id).remove();
 }
+
+var bindMaker = function(map) {
+	var features = map.queryRenderedFeatures({ layers: ['POI'] });
+	clearMarker($('#map'));
+	
+	features.forEach(function(item){
+		console.log(item)
+		addMarker(map, {img: item.properties.img, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated});
+	});
+};
 
 // Tool
 var randomHex = function(){
@@ -318,11 +374,17 @@ var localIDGenerator = function () {
 	return '_' + Math.random().toString(36).substr(2, 9);
 };
 
+var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+	clearTimeout (timer);
+	timer = setTimeout(callback, ms);
+  };
+})();
+
 (function(){
 	console.log('loading mapbox');
 	
 	
-		
-		
 	console.log('! loading mapbox');
 })();

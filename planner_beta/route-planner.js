@@ -9,11 +9,13 @@ step 5, use 01 backpack soluction to find several outstanding solution for each 
 * step 6, use GA to optimize on those solution. (mutation and crossover)
 step 7, checked feasiblity over results. If yes, done. If no, back to 01 backpack.
 */
-var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode = 'DRIVING'){
+const COORDINATE_FORMAT = 'lnglat';
+
+var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
 	// Promise
 	/* 
 	return {
-		steps: [route: [points], start: String, end: '',  distance: float(mile), duration: float(hour), speed: float(miles/hour)],
+		steps: [route],
 		originResult: result
 	}
 	 */
@@ -22,9 +24,11 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode = '
 		switch(agent){
 			case 'GOOGLE':
 				var routeRequest = {
-					origin: stringToCoordinate(origin),
-					destination: stringToCoordinate(destination),
-					waypoints: waypoints,
+					origin: geoCoder(origin),
+					destination: geoCoder(destination),
+					waypoints: waypoints.map(function(item){
+						return geoCoder(item);
+					}),
 					mode: mode.toLowerCase(),
 					optimize: true
 				};
@@ -33,7 +37,23 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode = '
 					if(err){
 						reject('google agent error')
 					}else{
-						resolve(result);
+						var route = result.json.routes[0];
+						var data = {
+							bounds: [route.bounds['southwest'], route.bounds['northeast']],
+							/* bounds: Object.keys(route.bounds).map(function(key){
+								if(geoFormat == 'lnglat')
+									return [route.bounds[key]['lng'], route.bounds[key]['lat']];
+								else if(geoFormat == 'latlng')
+									return [route.bounds[key]['lat'], route.bounds[key]['lng']];
+							}), */
+							overview_path: polylineDecoder(route.overview_polyline.points),
+							waypoint_order: route.waypoint_order,
+							sub_route: route.legs.map(function(item){
+								return item;
+							})
+						};
+
+						resolve(data);
 					}
 				});
 				break;
@@ -43,8 +63,8 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode = '
 	});
 };
 
-var stringToCoordinate = function(str){
-	return str;
+var geoCoder = function(string) {
+	return string;
 };
 
 var getBuffer = function(polyline, radius, unit="mile") {
@@ -154,5 +174,36 @@ var sliceScheduling = function(list, days) {
 		}
 	});
 };
+
+
+
+// Utility
+/* Polyline */
+var polylineDecoder = function(polyline, geoFormat=COORDINATE_FORMAT){
+	if(!polylineValidation(polyline))
+		polyline = polylineReformat(polyline)
+	
+	return require('@mapbox/polyline').decode(polyline).map(function(item){
+		// [lng, lat]
+		if(geoFormat == 'lnglat')
+			return [item[1], item[0]];
+		else if(geoFormat == 'lnglat')
+			return item;
+		else{
+			console.log('geo format error');
+			return;	
+		}
+	});
+};
+
+var polylineValidation = function(polyline){
+	return false;
+};
+
+var polylineReformat = function(polyline){
+	//return polyline.replace('\\\\', '\\');
+	return polyline.replace(/\\\\/g, "\\");
+};
+/* ! Polyline */
 
 exports.getRoute = getRoute
