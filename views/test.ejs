@@ -277,30 +277,29 @@ geojson.features.forEach(function(marker) {
 			
 		</script>
 	<style>
+	:root {
+		--marker-ripple-size: 20px;
+	}
 	
-	.dot:before{
-	  content:' ';
+	.marker{
 	  position: absolute;
-	  z-index:2;
-	  left:0;
-	  top:0;
-	  width:10px;
-	  height:10px; 
-	  background-color: #ff4200;
+		display: block;
+	  z-index:100;
+    text-align: center;
 	  border-radius: 50%;
+		border: 3px solid rgba(255,255,255,1);
+		cursor: pointer;
 	}
 
-	.dot:after {
+	.marker:after, .marker.active:after {
 	  content:' ';
 	  position: absolute;
 	  z-index:1;
-	  width:10px;
-	  height:10px; 
-	  background-color: #ff4200;
+	  background-color: rgba(0,0,0,0.7);
 	  border-radius: 50%;
 	  box-shadow: 0 0 10px rgba(0,0,0,.3) inset;
 	  -webkit-animation-name:'ripple';/*动画属性名，也就是我们前面keyframes定义的动画名*/
-	  -webkit-animation-duration: 1s;/*动画持续时间*/
+	  -webkit-animation-duration: 2s;/*动画持续时间*/
 	  -webkit-animation-timing-function: ease; /*动画频率，和transition-timing-function是一样的*/
 	  -webkit-animation-delay: 0s;/*动画延迟时间*/
 	  -webkit-animation-iteration-count: infinite;/*定义循环资料，infinite为无限次*/
@@ -309,18 +308,18 @@ geojson.features.forEach(function(marker) {
 
 	@keyframes ripple {
 	   0% {
-		left:5px;
-		top:5px;
-		opcity:75;
+		left:calc(var(--marker-ripple-size)/2);
+		top:calc(var(--marker-ripple-size)/2);
+		opcity:1;
 		width:0;
 		height:0;
 	  }
 	  100% {
-		left:-20px;
-		top:-20px;
+		left: calc(0px - var(--marker-ripple-size)/2);
+		top: calc(0px - var(--marker-ripple-size)/2);
 		opacity: 0;
-		width:50px;
-		height:50px;
+		width:calc(var(--marker-ripple-size) * 2);
+		height:calc(var(--marker-ripple-size) * 2);
 	  }
 	}
 	</style>

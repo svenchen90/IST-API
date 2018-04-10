@@ -155,5 +155,4 @@ var sliceScheduling = function(list, days) {
 	});
 };
 
-
 exports.getRoute = getRoute

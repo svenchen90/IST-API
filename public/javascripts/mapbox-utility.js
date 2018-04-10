@@ -252,14 +252,22 @@ var formateBuffer = function(buffer){
 	}
 };
 
+//
 var addMarker = function(map, data){
-	var el = document.createElement('div');
-	el.className = 'marker';
-	el.classList.add("dot");
-	el.id = localIDGenerator();
-	el.style.backgroundImage = 'url(' + data.img + ')';
+	var size = 50
+	var $marker = $(
+		'<div class="marker" id="' + localIDGenerator() + '">' + data.count + '</div>'
+	).css({
+		'background-image': 'url(' + data.img + ')',
+		'width': size + 'px',
+		'height': size + 'px',
+		'line-height': size + 'px'
+	});
 	
-	new mapboxgl.Marker(el)
+	var styleTag = $('<style>:root {--marker-ripple-size: ' + size + 'px !important;}</style>')
+	$('html > head').append(styleTag);
+	
+	new mapboxgl.Marker($marker.get(0))
 		.setLngLat(data.geo)
 		.addTo(map);
 };
