@@ -38,26 +38,28 @@ var initializeRouteLayer = function(map, data, id='route', color="#4285F4"){
 		"paint": {
 			"line-color": color,
 			 "line-width": 10,
-			 "line-blur": 1
-			//"line-gap-width": 1
+			 "line-blur": 1,
+			// "line-gap-width": 5
 		}
 	});
-
+			
+	/* var routePointer = new mapboxgl.Marker($('<div class="route-pointer"></div>').get(0))
+		.setLngLat([1,1])
+		.addTo(map);
+	
+	
 	map.on('mousemove', function (e) {
 		var features = map.queryRenderedFeatures(e.point, { layers: [id] });
 		// UI indicator for clicking/hovering a point on the map
 		// map.getCanvas().style.cursor = (features.length) ?  '' :'pointer';
 		
 		if(features.length){
-			var $routePointer = $('<div class="route-pointer"></div>');
-			
-			new mapboxgl.Marker($routePointer.get(0))
-				.setLngLat(e.lngLat)
-				.addTo(map);
+			routePointer.setLngLat(e.lngLat);
+			$('.route-pointer').removeClass('hide');
 		}else{
-			$(map.getContainer()).find('.route-pointer').remove();
+			$('.route-pointer').addClass('hide');
 		}
-	});
+	}); */
 };
 
 var addRoute = function(map, route, id='route'){

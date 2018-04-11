@@ -108,6 +108,11 @@ router.route('/test2')
 	.get(function(req, res, next){
 		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA', 'Santa Barbara, CA'])
 			.then(function(result){
+				
+				result.sub_route.forEach(function(sub_route){
+					sub_route.buffer = require('../planner_beta/route-planner').getBuffer(sub_route.sub_overview_path, 20);
+				});
+				
 				res.json(result);
 			})
 			.catch(function(exception){

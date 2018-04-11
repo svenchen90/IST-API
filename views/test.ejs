@@ -244,8 +244,21 @@
 					dataType : 'json',
 					success : function (result){
 						console.log(result);
-						initializeRouteLayer(map, [{route: result.overview_path}])
+						initializeRouteLayer(map, 
+							result.sub_route.map(function(sub_route){
+								// [{route: result.overview_path}]
+								return {route: sub_route.sub_overview_path};
+							})
+						);
+						
+						initializeBufferLayer(map, 
+							result.sub_route.map(function(sub_route){
+								console.log(sub_route.buffer)
+								return {points: sub_route.buffer};
+							})
+						);
 						map.fitBounds(result.bounds)
+						map.moveLayer('buffer', 'route')
 					},
 					error: function(err){
 						console.log('error');

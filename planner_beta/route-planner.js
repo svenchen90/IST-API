@@ -10,6 +10,7 @@ step 5, use 01 backpack soluction to find several outstanding solution for each 
 step 7, checked feasiblity over results. If yes, done. If no, back to 01 backpack.
 */
 const COORDINATE_FORMAT = 'lnglat';
+var turf = require('@turf/turf');
 
 var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
 	// Promise
@@ -49,6 +50,11 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 							overview_path: polylineDecoder(route.overview_polyline.points),
 							waypoint_order: route.waypoint_order,
 							sub_route: route.legs.map(function(item){
+								item.sub_overview_path = '';
+								item.steps.forEach(function(step){
+									item.sub_overview_path += step.polyline.points;
+								});
+								item.sub_overview_path = polylineDecoder(route.overview_polyline.points);
 								return item;
 							})
 						};
@@ -67,8 +73,11 @@ var geoCoder = function(string) {
 	return string;
 };
 
-var getBuffer = function(polyline, radius, unit="mile") {
+var getBuffer = function(polyline, radius, unit="miles") {
+	var line = turf.lineString(polyline);
+	var buffered = turf.buffer(line, radius, {units: unit});	
 	
+	return buffered.geometry.coordinates;
 };
 
 var getPOI = function(buffer, limit=100) {
@@ -206,4 +215,5 @@ var polylineReformat = function(polyline){
 };
 /* ! Polyline */
 
-exports.getRoute = getRoute
+exports.getRoute = getRoute;
+exports.getBuffer = getBuffer;
