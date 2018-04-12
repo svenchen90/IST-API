@@ -108,12 +108,37 @@ router.route('/test2')
 	.get(function(req, res, next){
 		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA', 'Santa Barbara, CA'])
 			.then(function(result){
+				var promisePool = [];
+				// 
 				
-				result.sub_route.forEach(function(sub_route){
-					sub_route.buffer = require('../planner_beta/route-planner').getBuffer(sub_route.sub_overview_path, 20);
+				var line = turf.lineString(result.overview_path);
+				var chunk = turf.lineChunk(line, 100, {units: 'miles'});
+				var buffers = chunk.features.map(function(item){
+					var buffer = require('../planner_beta/route-planner').getBuffer(item.geometry.coordinates, 20);
+					promisePool.push(require('../planner_beta/route-planner').getPOI(buffer));
+					return buffer;
 				});
 				
-				res.json(result);
+				result.buffer = require('../planner_beta/route-planner').getBuffer(result.overview_path, 20)
+				
+				/* result.sub_route.forEach(function(sub_route, index){
+					sub_route.buffer = require('../planner_beta/route-planner').getBuffer(sub_route.sub_overview_path, 20);
+					//console.log(index, sub_route.sub_overview_path[0], sub_route.sub_overview_path[sub_route.sub_overview_path.length-1])
+					promisePool.push(require('../planner_beta/route-planner').getPOI(sub_route.buffer));
+				}); */
+				Promise.all(promisePool)
+					.then(function(poi_list){
+						result.poi_list = Array.prototype.concat.apply([], poi_list); 
+						res.json(result);
+					})
+					.catch(function(exception){
+						res.json(exception);
+					});
+				/* result.sub_route.forEach(function(sub_route){
+					sub_route.buffer = require('../planner_beta/route-planner').getBuffer(sub_route.sub_overview_path, 20);
+				});
+				res.json(result); */
+				
 			})
 			.catch(function(exception){
 				console.log('error', exception)

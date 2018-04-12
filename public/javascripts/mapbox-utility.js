@@ -113,7 +113,7 @@ var initializePOILayer = function(map, data, id="POI"){
 		},
 		cluster: true,
 		clusterMaxZoom: 12,
-		clusterRadius: 50
+		clusterRadius: 40
 	});
 	
 	/* map.addLayer({
@@ -187,6 +187,7 @@ var formatePOI = function(POI){
 		},
 		"properties": {
 			"name": POI.name,
+			'img': POI.poster
 			// "icon": "monument",
 		}
 	}
@@ -271,8 +272,7 @@ var addMarker = function(map, data){
 		.addTo(map);
 };
  */
-var addMarker = function(map, data){
-	var size = 50
+var addMarker = function(map, data, size=50){
 	var $marker = $(
 		'<div class="marker" id="' + localIDGenerator() + '">\n' +
 		' <div class="ripple"></div>\n' +
@@ -328,9 +328,10 @@ var bindMaker = function(map) {
 	var features = map.queryRenderedFeatures({ layers: ['POI'] });
 	clearMarker($('#map'));
 	
+	var iconSize = Math.max(Math.ceil(map.getZoom()*5), 30);
 	features.forEach(function(item){
-		console.log(item)
-		addMarker(map, {img: item.properties.img, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated});
+		//console.log(item)
+		addMarker(map, {img: item.properties.img, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
 	});
 };
 

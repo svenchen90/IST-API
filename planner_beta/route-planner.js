@@ -12,6 +12,18 @@ step 7, checked feasiblity over results. If yes, done. If no, back to 01 backpac
 const COORDINATE_FORMAT = 'lnglat';
 var turf = require('@turf/turf');
 
+/* Mongo */
+try{
+	var mongoose = require('mongoose');
+	mongoose.connect('mongodb://localhost/IST');
+	var models = require('../models/models');
+	var POI = models.POI;
+	var Byway = models.Byway;
+}catch(e){
+	console.log(e);
+}
+/* ! Mongo */
+
 var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
 	// Promise
 	/* 
@@ -49,14 +61,16 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 							}), */
 							overview_path: polylineDecoder(route.overview_polyline.points),
 							waypoint_order: route.waypoint_order,
-							sub_route: route.legs.map(function(item){
+							/* sub_route: route.legs.map(function(item){
 								item.sub_overview_path = '';
 								item.steps.forEach(function(step){
+									//console.log(polylineDecoder(step.polyline.points))
 									item.sub_overview_path += step.polyline.points;
 								});
+								console.log(item.sub_overview_path);
 								item.sub_overview_path = polylineDecoder(route.overview_polyline.points);
 								return item;
-							})
+							}) */
 						};
 
 						resolve(data);
@@ -83,11 +97,34 @@ var getBuffer = function(polyline, radius, unit="miles") {
 var getPOI = function(buffer, limit=100) {
 	// promise
 	// return lean
+	return new Promise(function(resolve, reject){
+		POI
+			.where('geo')
+			.within({
+					type: "Polygon",
+					coordinates: buffer
+			})
+			//.where('action')
+			//.equals(your_action)
+			//.skip(your_skip)
+			.limit(limit)
+			.lean()
+			.exec(function(err, POIs) {
+				if(err)
+					reject(err);
+				else{
+					resolve(POIs);
+				}
+			});
+	});
 };
 
 var getByway = function(buffer) {
 	// promise
 	// return lean
+	
+	
+	
 };
 
 var getWeightOfPOI = function(POI, preference) {
@@ -217,3 +254,4 @@ var polylineReformat = function(polyline){
 
 exports.getRoute = getRoute;
 exports.getBuffer = getBuffer;
+exports.getPOI = getPOI;

@@ -1,10 +1,10 @@
 //MongoDB Connection
-var mongoose = require('mongoose');
+/* var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/IST');
 
 var models = require('../models/models');
 var POI = models.POI;
-var Byway = models.Byway;
+var Byway = models.Byway; */
 
 // 0. Test
 var getPOIs_test = function(limit){
