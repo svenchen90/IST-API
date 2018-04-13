@@ -259,7 +259,7 @@ var signTimeCostToPOI = function(POI, route, speed){
 var getCostOfByway = function(POI, route) {
 	
 };
-/* Calcucate time cost */
+/* ! Calcucate time cost */
 
 var getPools = function(POIs, byway, ratio=0.3, minimal=20, maximum=100){
 	sortPOI(POIs);
