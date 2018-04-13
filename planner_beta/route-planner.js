@@ -17,12 +17,35 @@ try{
 	var mongoose = require('mongoose');
 	mongoose.connect('mongodb://localhost/IST');
 	var models = require('../models/models');
-	var POI = models.POI;
-	var Byway = models.Byway;
+	var POI = models.POI,
+	Byway = models.Byway,
+	Route = models.Route;
 }catch(e){
 	console.log(e);
 }
 /* ! Mongo */
+
+/* 
+new Route({
+	id: 1,
+	origin: {
+		name: 'ori',
+		geo: [-1312, 12312],
+		address: 'origin, CA'
+	},
+	subRoute: [{
+		origin: {
+			name: 'ori',
+			geo: [-1312, 12312],
+			address: 'origin, CA'
+		},
+		steps: {
+			htmlInstructions: '111111'
+		}
+	}] 
+}).save(function(err){
+	console.log(err);
+}); */
 
 var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
 	// Promise
@@ -33,6 +56,7 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 	}
 	 */
 	console.log(origin, destination, waypoints, agent, mode);
+	
 	return new Promise(function(resolve, reject){
 		switch(agent){
 			case 'GOOGLE':
@@ -69,8 +93,12 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 								});
 								console.log(item.sub_overview_path);
 								item.sub_overview_path = polylineDecoder(route.overview_polyline.points); */
+								item.steps.forEach(function(s){
+									s.polyline_points = polylineDecoder(s.polyline.points);
+								});
 								return item;
-							})
+							}),
+							origin: result
 						};
 
 						resolve(data);

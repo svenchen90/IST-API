@@ -25,11 +25,10 @@ var initializePointLayer = function(map, list, id, options){
 	}else{
 		try{
 			var defaultOptions = {
-				"line-color": "#4285F4",
-				"line-width": 5,
-				"line-join": "round",
-				"line-cap": "round",
-				"line-blur": 1
+				cluster: true,
+				clusterMaxZoom: 12,
+				clusterRadius: 40,
+				"circle-radius": 0
 			};
 			$.extend( true, defaultOptions, options);
 			
@@ -37,28 +36,57 @@ var initializePointLayer = function(map, list, id, options){
 				type: "geojson",
 				data: {
 					"type": "FeatureCollection",
-					"features": list
-				}
+					"features": list,
+				},
+				cluster: defaultOptions.cluster,
+				clusterMaxZoom: defaultOptions.clusterMaxZoom,
+				clusterRadius: defaultOptions.clusterRadius
 			});
 			
+			/* map.addLayer({
+				id: "clusters-bg",
+				type: "circle",
+				source: id,
+				filter: ["has", "point_count"],
+				paint: {
+					// with three steps to implement three types of circles:
+					//   * Blue, 20px circles when point count is less than 20
+					//   * Yellow, 30px circles when point count is between 20 and 50
+					//   * Pink, 40px circles when point count is greater than or equal to 50
+					"circle-color": [
+						"step",
+						["get", "point_count"],
+						"#ffffff",
+						20,
+						"#ffffff",
+						50,
+						"#ffffff"
+					],
+					"circle-radius": [
+						"step",
+						["get", "point_count"],
+						15,
+						20,
+						20,
+						50,
+						30
+					],
+					"circle-stroke-width": 2,
+					"circle-stroke-color": "#11b4da"
+				}
+			}); */
+			
 			map.addLayer({
-				"id": id,
-				"type": "line",
-				"source": id,
-				"layout": {
-					"line-join": defaultOptions["line-join"],
-					"line-cap": defaultOptions["line-cap"]
-				},
-				"paint": {
-					"line-color": defaultOptions["line-color"],
-					 "line-width": defaultOptions["line-width"],
-					 "line-blur": defaultOptions["line-blur"],
-					// "line-gap-width": 5
+				id: id,
+				type: "circle",
+				source: id,
+				//	filter: ["has", "point_count"],
+				paint: {
+					"circle-radius": defaultOptions["circle-radius"]
 				}
 			});
 			return id;
 		}catch(e){
-			console.log(e);
 			throw 'error at initializePolylineLayer';
 		}
 	}
@@ -107,13 +135,53 @@ var initializePolylineLayer = function(map, list, id, options){
 			});
 			return id;
 		}catch(e){
-			console.log(e);
 			throw 'error at initializePolylineLayer';
 		}
 	}
 };
+/* ! Polyline */
 
-var addPolylinesToLayer = function(map, list, id){
+/* Polygon */
+var initializePolygonLayer = function(map, list, id, options){
+	if(map.getSource(id) != undefined){
+		throw id + ' source already exist!';
+	}else if(map.getLayer(id) != undefined){
+		throw id + ' layer already exist!';
+	}else{
+		try{
+			var defaultOptions = {
+				'fill-color': '#088',
+				'fill-opacity': 0.2
+			};
+			$.extend( true, defaultOptions, options);
+			
+			map.addSource(id, {
+				type: "geojson",
+				data: {
+					"type": "FeatureCollection",
+					"features": list,
+				}
+			});
+			
+			map.addLayer({
+				'id': id,
+				'type': 'fill',
+				'source': id,
+				'layout': {},
+				'paint': {
+					'fill-color': defaultOptions['fill-color'],
+					'fill-opacity': defaultOptions['fill-opacity'],
+				}
+			});
+			
+			return id;
+		}catch(e){
+			throw 'error at initializePolylineLayer';
+		}
+	}
+};
+/* ! Polygon */
+var addDataToLayer = function(map, list, id){
 	if(map.getSource(id) == undefined){
 		throw id + ' not exist!';
 	}else{
@@ -121,9 +189,9 @@ var addPolylinesToLayer = function(map, list, id){
 		var sData = source._data;
 		sData.features = sData.features.concat(list);
 		source.setData(sData);
+		return source;
 	};
 };
-/* ! Polyline */
 
 var clearLayer = function(map,id){
 	if(map.getSource(id) == undefined){
@@ -133,8 +201,13 @@ var clearLayer = function(map,id){
 		var sData = source._data;
 		sData.features = [];
 		source.setData(sData);
+		return source;
 	}
 };
+
+
+/* **************************************** */
+
 
 /* Route */
 /* route: {
@@ -145,29 +218,11 @@ var clearLayer = function(map,id){
 	start_coordinates: [],
 	end_name: String,
 	end_coordinates: [],
-	coordinates: [[]],
+	coordinates: [[lng, lat]],
 	distance: Number(miles),
 	duration: Number(hours),
 	speed: Number(m/h)
 } */
-var formateRoute = function(route){
-	var result = {
-		"type": "Feature",
-		"properties": {
-		},
-		"geometry": {
-			"type": "LineString",
-			"coordinates": route.coordinates
-		}
-	};
-	
-	Object.keys(route).forEach(function(key){
-		result.properties[key] = route[key];
-	});
-	
-	return result;
-};
-
 var formateRoute_ALPHA = function(route){
 	return {
 		"type": "Feature",
@@ -183,6 +238,25 @@ var formateRoute_ALPHA = function(route){
 			"coordinates": route.route
 		}
 	}
+};
+
+var formateRoute = function(route){
+	var result = {
+		"type": "Feature",
+		"properties": {
+		},
+		"geometry": {
+			"type": "LineString",
+			"coordinates": route.coordinates
+		}
+	};
+	
+	Object.keys(route).forEach(function(key){
+		if(key != 'coordinates')
+			result.properties[key] = route[key];
+	});
+	
+	return result;
 };
 
 var initializeRouteLayer = function(map, list, options){
@@ -220,162 +294,111 @@ var initializeRouteLayer = function(map, list, options){
 };
 
 var addRoute = function(map, list, id='route', formateFunct=formateRoute_ALPHA){
-	addPolylinesToLayer(map, 
-		list.map(function(r){
-			return formateFunct(r);
+	return addDataToLayer(map, 
+		list.map(function(i){
+			return formateFunct(i);
 		}),	
 		id
 	);
 };
 
 var clearRoute = function(map, id='route'){
-	clearLayer(map, id);
+	return clearLayer(map, id);
 };
 /* ! Route */
 
-// POI
-var initializePOILayer = function(map, data, id="POI"){
-	if(map.getSource(id) != undefined){
-		map.removeSource(id);
-	}
+/* POI */
+/* POI: {
+	id: ,
+	name: ,
+	geo: [lng, lat],
+	address: {type: String},
+	genres: [String],
+	poster: String,
 	
-	map.addSource(id, {
-		type: "geojson",
-		data: {
-			"type": "FeatureCollection",
-			"features": data.map(function(point){
-				return formatePOI(point)
-			})
-		},
-		cluster: true,
-		clusterMaxZoom: 12,
-		clusterRadius: 40
-	});
+	rates: [5,4,3,2,1],
+	reviews: [{}],
+	totalreviews: Number,
 	
-	/* map.addLayer({
-		id: "clusters-bg",
-		type: "circle",
-		source: id,
-		filter: ["has", "point_count"],
-		paint: {
-			// with three steps to implement three types of circles:
-			//   * Blue, 20px circles when point count is less than 20
-			//   * Yellow, 30px circles when point count is between 20 and 50
-			//   * Pink, 40px circles when point count is greater than or equal to 50
-			"circle-color": [
-				"step",
-				["get", "point_count"],
-				"#ffffff",
-				20,
-				"#ffffff",
-				50,
-				"#ffffff"
-			],
-			"circle-radius": [
-				"step",
-				["get", "point_count"],
-				15,
-				20,
-				20,
-				50,
-				30
-			],
-			"circle-stroke-width": 2,
-			"circle-stroke-color": "#11b4da"
-		}
-	}); */
+	hours: {type: String},
+	length_visit: {type: String},
+	phone: {type: String},
+	website: {type: String},
+	email: {type: String},
 	
-	map.addLayer({
-		id: id,
-		type: "circle",
-		source: id,
-		//	filter: ["has", "point_count"],
-		paint: {
-			"circle-radius": 0
-		}
-	});
-};
-
-var addPOI = function(map, POI, id="POI"){
-	if(map.getSource(id) == undefined){
-		initializePOI(map, [POI], id);
-	}else{
-		var source = map.getSource(id);
-		var sData = source._data;
-		sData.features.push(formatePOI(POI));
-		source.setData(sData)
-	}
-};
-
-var clearPOI = function(map,id="POI"){
-	var source = map.getSource(id);
-	var sData = source._data;
-	sData.features = []
-	source.setData(sData);
-};
-
-var formatePOI = function(POI){
+	description: {type: String},
+	certification: {type: String},
+	rank: [String],
+}; */
+var formatePOI_ALPHA = function(poi){
 	return {
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
-			"coordinates": POI.geo
+			"coordinates": poi.geo
 		},
 		"properties": {
-			"name": POI.name,
-			'img': POI.poster
+			"name": poi.name,
+			'poster': poi.poster
 			// "icon": "monument",
 		}
 	}
 };
 
-// Buffer
-var initializeBufferLayer = function(map, data, id="buffer"){
-	if(map.getSource(id) != undefined){
-		map.removeSource(id);
-	}
+var formatePOI = function(poi){
+		var result = {
+			"type": "Feature",
+			"properties": {
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": poi.geo
+			}
+		};
+		
+		Object.keys(poi).forEach(function(key){
+			if(key != 'geo')
+				result.properties[key] = poi[key];
+		});
+		
+		return result;
+};
 
-	map.addSource(id, {
-		type: "geojson",
-		data: {
-			"type": "FeatureCollection",
-			"features": data.map(function(buffer){
-				return formateBuffer(buffer);
-			})
-		}
+var initializePOILayer = function(map, data, options){
+	var defaultOptions = {
+		id: 'POI',
+		formateFunct: formatePOI_ALPHA
+	};
+	$.extend(true, defaultOptions, options);
+	
+	var list = data.map(function(poi){
+		return defaultOptions.formateFunct(poi);
 	});
 	
-	map.addLayer({
-		'id': id,
-		'type': 'fill',
-		'source': id,
-		'layout': {},
-		'paint': {
-			'fill-color': '#088',
-			'fill-opacity': 0.3
-		}
-	});
+	return initializePointLayer(map, list, defaultOptions.id, defaultOptions);
 };
 
-var addBuffer = function(map, buffer, id="buffer"){
-	if(map.getSource(id) == undefined){
-		initializePOI(map, [buffer], id);
-	}else{
-		var source = map.getSource(id);
-		var sData = source._data;
-		sData.features.push(formateBuffer(buffer));
-		source.setData(sData)
-	}
+var addPOI = function(map, POI, id="POI", formateFunct=formatePOI_ALPHA){
+	return addDataToLayer(map, 
+		list.map(function(i){
+			return formateFunct(i);
+		}),	
+		id
+	);
 };
 
-var clearBuffer = function(map,id="buffer"){
-	var source = map.getSource(id);
-	var sData = source._data;
-	sData.features = []
-	source.setData(sData);
+var clearPOI = function(map,id="POI"){
+	return clearLayer(map, id);
 };
+/* ! POI */
 
-var formateBuffer = function(buffer){
+
+/* Buffer */
+/* buffer: {
+	id: ,
+	points: [[[Number, Number]]]
+} */
+var formateBuffer_AlPHA = function(buffer){
 	return {
 		'type': 'Feature',
 		'geometry': {
@@ -388,29 +411,43 @@ var formateBuffer = function(buffer){
 	}
 };
 
-/* 
-var addMarker = function(map, data){
-	var size = 50
-	var $marker = $(
-		'<div class="marker" id="' + localIDGenerator() + '">' + data.count + '</div>'
-	).css({
-		'background-image': 'url(' + data.img + ')',
-		'width': size + 'px',
-		'height': size + 'px',
-		'line-height': size + 'px'
+var formateBuffer = function(buffer){
+	
+};
+
+var initializeBufferLayer = function(map, data, options){
+	var defaultOptions = {
+		id: 'buffer',
+		formateFunct: formateBuffer_AlPHA
+	};
+	$.extend(true, defaultOptions, options);
+	
+	var list = data.map(function(buffer){
+		return defaultOptions.formateFunct(buffer);
 	});
 	
-	var styleTag = $('<style>:root {--marker-ripple-size: ' + size + 'px !important;}</style>')
-	$('html > head').append(styleTag);
-	
-	new mapboxgl.Marker($marker.get(0))
-		.setLngLat(data.geo)
-		.addTo(map);
+	return initializePolygonLayer(map, list, defaultOptions.id, defaultOptions);
 };
- */
+
+var addBuffer = function(map, buffer, id="buffer", formateFunct=formateBuffer_AlPHA){
+	return addDataToLayer(map, 
+		list.map(function(i){
+			return formateFunct(i);
+		}),	
+		id
+	);
+};
+
+var clearBuffer = function(map,id="buffer"){
+	return clearLayer(map, id);
+};
+/* ! Buffer */
+
+/* Marker */
 var addMarker = function(map, data, size=50){
+	var id = localIDGenerator();
 	var $marker = $(
-		'<div class="marker" id="' + localIDGenerator() + '">\n' +
+		'<div class="marker" id="' + id + '">\n' +
 		' <div class="ripple"></div>\n' +
 		' <div class="ripple delay-05"></div>\n' +
 		' <div class="ripple delay-1"></div>\n' +
@@ -428,9 +465,9 @@ var addMarker = function(map, data, size=50){
 			.text(data.count)
 			.css({'font-family': 'Arial'});
 	}else{
-		if(data.img)
+		if(data.poster)
 			$marker.find('.icon')
-				.css({'background-image': 'url(' + data.img + ')'});
+				.css({'background-image': 'url(' + data.poster + ')'});
 		else
 			$marker.find('.icon')
 				.css({'background-color': 'rgba(255,255,255,1)'});
@@ -447,29 +484,36 @@ var addMarker = function(map, data, size=50){
 		}, 1000)
 	});
 	
-	new mapboxgl.Marker($marker.get(0))
+	return new mapboxgl.Marker($marker.get(0))
 		.setLngLat(data.geo)
 		.addTo(map);
 };
 
-var clearMarker = function($container) {
-	$container.find('.marker').remove();
+var clearMarker = function(map) {
+	$(map.getContainer()).find('.marker').remove();
 };
 
-var removeMarkerByID = function($container, id){
-	$container.find('#' + id).remove();
-}
+var removeMarkerByID = function(map, id){
+	$(map.getContainer()).find('.marker#' + id).remove();
+};
 
-var bindMaker = function(map) {
-	var features = map.queryRenderedFeatures({ layers: ['POI'] });
-	clearMarker($('#map'));
+var bindMaker = function(map, layers=['POI']) {
+	var features = map.queryRenderedFeatures({ layers: layers});
 	
+	clearMarker(map);
+	
+	// ###
 	var iconSize = Math.max(Math.ceil(map.getZoom()*5), 30);
+	
 	features.forEach(function(item){
-		//console.log(item)
-		addMarker(map, {img: item.properties.img, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
+		addMarker(map, {poster: item.properties.poster, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
 	});
 };
+/* ! Marker */
+
+
+/* **************************************** */
+
 
 // Tool
 var randomHex = function(){
@@ -520,6 +564,10 @@ var delay = (function(){
 	timer = setTimeout(callback, ms);
   };
 })();
+
+
+/* **************************************** */
+
 
 (function(){
 	console.log('loading mapbox');

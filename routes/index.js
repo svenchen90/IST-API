@@ -106,7 +106,7 @@ router.route('/test')
 
 router.route('/test2')
 	.get(function(req, res, next){
-		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', [/* 'Calsbad, CA', 'Santa Barbara, CA' */])
+		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', [{lng: -117.01129200000003, lat:32.75344799999999}/* 'Santa Barbara, CA', 'Calsbad, CA' */])
 			.then(function(result){
 				var promisePool = [];
 				//var BywayPromisePool = [];

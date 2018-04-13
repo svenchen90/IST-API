@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema,
 	ObjectId = Schema.ObjectId;
 
-//User
+// POI
 var POISchema = new Schema({
 	name: {type: String},
 	poster: {type: String},
@@ -21,6 +21,7 @@ var POISchema = new Schema({
 	geo: [Number]
 });
 
+// Byway
 var BywaySchema = new Schema({
 	id: String,
 	name: String,
@@ -39,13 +40,51 @@ var BywaySchema = new Schema({
 	// part of
 });
 
-
-var PointSchema = new mongoose.Schema({
-    //_id: mongoose.Schema.ObjectId,
-    loc: [Number]
+var LocationSchema = new Schema({
+	name: {type: String},
+	geo: [Number],
+	address: {type: String}
 });
 
-//PointSchema.index({ loc: "2dsphere" });
-exports.Point = mongoose.model("Point", PointSchema);
+var PathSchema = new Schema({
+	coordinates: [[Number]],
+	encodedPath: String
+});
+
+var TravelSchema = new Schema({
+	startGeo: [Number],
+	endGeo: [Number],
+	distance: Number,
+	duration: Number,
+	path: PathSchema,
+	travelMode: String,
+	htmlInstructions: String
+});
+
+var SubrouteSchema = new Schema({
+	origin: LocationSchema,
+	destine: LocationSchema,
+	path: PathSchema,
+	distance: Number,
+	duration: Number,
+	steps: [TravelSchema]
+});
+
+// Route
+var RouteSchema = new Schema({
+	id: {type: String},
+	origin: LocationSchema,
+	destine: LocationSchema,
+	waypoints: [LocationSchema],
+	waypointsOrder: [Number],
+	path: PathSchema,
+	distance: Number,
+	duration: Number,
+	subRoute: [SubrouteSchema]
+});
+
+
+
 exports.POI = mongoose.model('poi', POISchema, 'poi2s');
 exports.Byway = mongoose.model('byway', BywaySchema, 'byway');
+exports.Route = mongoose.model('route', RouteSchema, 'routes');

@@ -272,6 +272,18 @@
 							}
 						);
 						
+						/*initializeRouteLayer(map, 
+							result.byway_list.map(function(item){
+								return {route: item.path};
+							}),
+							{
+								id: 'sub_route' + localIDGenerator(),
+								"line-color": randomColor(),
+								"line-width": 3
+							}
+						);*/
+						
+						
 						console.log(result.solution);
 						// bindMaker(map)
 						map.fitBounds(result.bounds)
