@@ -61,16 +61,16 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 							}), */
 							overview_path: polylineDecoder(route.overview_polyline.points),
 							waypoint_order: route.waypoint_order,
-							/* sub_route: route.legs.map(function(item){
-								item.sub_overview_path = '';
+							sub_route: route.legs.map(function(item){
+								/* item.sub_overview_path = '';
 								item.steps.forEach(function(step){
 									//console.log(polylineDecoder(step.polyline.points))
 									item.sub_overview_path += step.polyline.points;
 								});
 								console.log(item.sub_overview_path);
-								item.sub_overview_path = polylineDecoder(route.overview_polyline.points);
+								item.sub_overview_path = polylineDecoder(route.overview_polyline.points); */
 								return item;
-							}) */
+							})
 						};
 
 						resolve(data);
@@ -119,28 +119,170 @@ var getPOI = function(buffer, limit=100) {
 	});
 };
 
-var getByway = function(buffer) {
-	// promise
+var getByway = function(buffer, limit=100) {
+		// promise
 	// return lean
+	return new Promise(function(resolve, reject){
+		Byway
+			.where('ll')
+			.within({
+					type: "Polygon",
+					coordinates: buffer
+			})
+			//.where('action')
+			//.equals(your_action)
+			//.skip(your_skip)
+			.limit(limit)
+			.lean()
+			.exec(function(err, POIs) {
+				if(err)
+					reject(err);
+				else{
+					POIs.forEach(function(poi){
+						poi.path = polylineDecoder(poi.path)
+					});
+					resolve(POIs);
+				}
+			});
+	});
 	
 	
 	
 };
 
-var getWeightOfPOI = function(POI, preference) {
+/* Calcucate weight  */
+var signWeightToPOI = function(POI, preference, act_fun=square) {
+	POI.weight = {
+		fitting_weight: act_fun(getFittingWeight(POI, preference)),
+		pop_weight: act_fun(getPopularityWeight(POI)),
+	}
 	
+	// expoential function
+	POI.weight.total_weight = act_fun(POI.weight.fitting_weight * POI.weight.pop_weight);
+/* 	if(POI.weight.fitting_weight == undefined || POI.weight.pop_weight == undefined || POI.weight.total_weight == undefined)
+		console.log('=======================') */
 };
 
-var getCostOfPOI = function(POI, route) {
+var sortPOI_Alpha = function(POIs, preference){
+	// 1) Popularity Rank
+	POIs.sort(function(a, b){
+		return getPopularityWeight(b) - getPopularityWeight(a);
+	});
+	POIs.forEach(function(POI, index){
+		POI.pop_rank = index+1;
+	});
 	
+	// 2) Preference Rank
+	var preference = preferToPercentage(preference);
+	POIs.sort(function(a, b){
+		return getFittingWeight(b, preference) - getFittingWeight(a, preference);
+	});
+	POIs.forEach(function(POI, index){
+		POI.fitting_rank = index+1;
+	});
+	
+	// 3) aggregation
+	var alpha = 0.5;
+	var beta = 0.5;
+	POIs.sort(function(a, b){
+		return (alpha * a.pop_rank + beta * a.fitting) - (alpha * b.pop_rank + beta * b.fitting);
+	});
+	return POIs
+};
+
+var getPopularityWeight = function(POI){
+	var weight = {
+		0: 3,
+		1: 1,
+		2: 0,
+		3: -1,
+		4: -3
+	}
+	var popularity = 0.0;
+	
+	POI.ratings.forEach(function(rate, index){
+		popularity += rate * weight[index];
+	});
+	return popularity
+};
+
+var getFittingWeight = function(POI, preference){
+	var fitting = 0;
+	
+	//Pre-formate preference to proportion
+	var preferToPercentage = function(preference) {
+		var newPref = {};
+		var sum = 0;
+
+		Object.keys(preference).forEach(function(key) {
+			sum += preference[key];
+		});
+		
+		Object.keys(preference).forEach(function(key) {
+			newPref[key] = preference[key] / sum;
+		});
+		return newPref;
+	}; 
+	
+	preference = preferToPercentage(preference)
+	Object.keys(preference).forEach(function(key){
+		var contains = POI.genres.some(function(g){
+			return g.search(new RegExp(key, "i")) > -1;
+		});
+		if(contains){
+			fitting += preference[key];
+		}
+	});
+	
+	return fitting;
+};
+/* ! Calcucate weight  */
+
+/* Calcucate time cost */
+var signTimeCostToPOI = function(POI, route, speed){
+	
+	var line = turf.lineString(route);
+	var pt = turf.point(POI.geo);
+	
+	var point = turf.nearestPointOnLine(line, pt, {units: 'miles'});
+	
+	POI.time_cost = {
+		closest_point: point.geometry.coordinates,
+		point_on: point.properties.index,
+		dist: point.properties.dist,
+		location: point.properties.location
+	};
+	// POI lenth of visit
+	POI.time_cost.cost = POI.time_cost.dist * 2 / speed + 2;
 };
 
 var getCostOfByway = function(POI, route) {
 	
 };
+/* Calcucate time cost */
 
-var getPools = function(POIs, byway) {
-	// return {primary: [], secondary: []} divide by limit and ratio
+var getPools = function(POIs, byway, ratio=0.3, minimal=20, maximum=100){
+	sortPOI(POIs);
+	var length_primary = Math.floor(POIs.length*ratio);
+	var split_index = 0;
+	if(length_primary<minimal){
+		split_index = minimal;
+	}else if(length_primary > maximum){
+		split_index = maximum;
+	}else{
+		split_index = length_primary;
+	}
+	
+	return {
+		primary: POIs.slice(0, split_index),
+		secondary: POIs.slice(split_index)
+	}
+};
+
+var sortPOI = function(POIs){
+	POIs.sort(function(a,b){
+		return b.weight.total_weight / b.time_cost.cost - a.weight.total_weight / a.time_cost.cost;
+	});
 };
 
 var backpackAlgorithm = function(list, capacity) {
@@ -186,7 +328,7 @@ var backpackAlgorithm = function(list, capacity) {
 	
 	return {
 		valueMatrix: valueMatrix,
-		solutionMatrix: valueMatrix,
+		solutionMatrix: solutionMatrix
 	}
 };
 
@@ -202,26 +344,40 @@ var sliceScheduling = function(list, days) {
 	list.forEach(function(i){
 		total += i;
 	});
-	var meanLoad = Math.ceil(total/day);
+	var meanLoad = Math.ceil(total/days);
 	
 	var currentLoad = 0;
+	var currentSchedule_load = [];
+	var currentSchedule_index = [];
 	list.forEach(function(item, index){
 		// ratio
 		if(currentLoad + item <= meanLoad){
 			currentLoad += item;
+			currentSchedule_load.push(item);
+			currentSchedule_index.push(index);
 		}else{
 			if(index%2 == 0){
-				schedule.push(meanLoad);
+				// schedule.push(meanLoad);
+				currentSchedule_load.push(meanLoad - currentLoad);
+				// schedule.push(currentSchedule_load);
 				currentLoad = item + currentLoad - meanLoad;
+				currentSchedule_load = [item + currentLoad - meanLoad]
+				
+				currentSchedule_index.push(index);
+				schedule.push(currentSchedule_index);
+				currentSchedule_index = [index];
 			}else{
-				schedule.push(currentLoad);
+				// schedule.push(currentSchedule_load);
 				currentLoad = item;
+				currentSchedule_load = [item];
+				schedule.push(currentSchedule_index);
+				currentSchedule_index = [index];
+				
 			}
 		}
 	});
+	return schedule
 };
-
-
 
 // Utility
 /* Polyline */
@@ -252,6 +408,18 @@ var polylineReformat = function(polyline){
 };
 /* ! Polyline */
 
+/* Math */
+var square = function(number){
+	return Math.pow(number, 2)
+};
+/* ! Math */
+
 exports.getRoute = getRoute;
 exports.getBuffer = getBuffer;
 exports.getPOI = getPOI;
+exports.getByway = getByway;
+exports.signWeightToPOI = signWeightToPOI;
+exports.signTimeCostToPOI = signTimeCostToPOI;
+exports.getPools = getPools;
+exports.backpackAlgorithm = backpackAlgorithm;
+exports.sliceScheduling = sliceScheduling;

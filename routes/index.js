@@ -109,6 +109,7 @@ router.route('/test2')
 		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', ['Calsbad, CA', 'Santa Barbara, CA'])
 			.then(function(result){
 				var promisePool = [];
+				//var BywayPromisePool = [];
 				// 
 				
 				var line = turf.lineString(result.overview_path);
@@ -116,11 +117,12 @@ router.route('/test2')
 				var buffers = chunk.features.map(function(item){
 					var buffer = require('../planner_beta/route-planner').getBuffer(item.geometry.coordinates, 20);
 					promisePool.push(require('../planner_beta/route-planner').getPOI(buffer));
+					// BywayPromisePool.push(require('../planner_beta/route-planner').getByway(buffer));
 					return buffer;
 				});
 				
 				result.buffer = require('../planner_beta/route-planner').getBuffer(result.overview_path, 20)
-				
+				promisePool.push(require('../planner_beta/route-planner').getByway(result.buffer));
 				/* result.sub_route.forEach(function(sub_route, index){
 					sub_route.buffer = require('../planner_beta/route-planner').getBuffer(sub_route.sub_overview_path, 20);
 					//console.log(index, sub_route.sub_overview_path[0], sub_route.sub_overview_path[sub_route.sub_overview_path.length-1])
@@ -128,7 +130,66 @@ router.route('/test2')
 				}); */
 				Promise.all(promisePool)
 					.then(function(poi_list){
-						result.poi_list = Array.prototype.concat.apply([], poi_list); 
+						result.poi_list = Array.prototype.concat.apply([], poi_list.slice(0, poi_list.length-1)); 
+						result.poi_list.forEach(function(poi){
+							require('../planner_beta/route-planner').signWeightToPOI(poi, 
+								{
+									NATURE: 1,
+									CULTURE: 2,
+									AMUSEMENT: 3,
+									SHOPPING: 4,
+									NIGHTLIFE: 5
+								}
+							)
+							
+							require('../planner_beta/route-planner').signTimeCostToPOI(poi, result.overview_path, 60);
+						});
+						result.poi_list = require('../planner_beta/route-planner').getPools(result.poi_list);
+						
+						try{
+							var matrix = require('../planner_beta/route-planner').backpackAlgorithm(result.poi_list.primary.map(function(item, index){
+								return {
+									id: index,
+									value: Math.ceil(item.weight.total_weight),
+									cost: Math.ceil(item.time_cost.cost)
+								};
+							}), 40);
+							
+							result.matrix = matrix;
+							result.solution = matrix.solutionMatrix[matrix.solutionMatrix.length-1]
+								[matrix.solutionMatrix[matrix.solutionMatrix.length-1].length-1].map(function(item){
+								return result.poi_list.primary[item];
+							});
+							result.solution.sort(function(a,b){
+								return a.time_cost.location - b.time_cost.location; 
+							});
+							result.solution = result.solution.map(function(item){
+								return {
+									dist: item.time_cost.dist,
+									cost: item.time_cost.cost,
+									location: item.time_cost.location
+								}
+							});
+							var scheduleBuffer = [];
+							result.solution.forEach(function(item,index){
+								if(index == 0){
+									scheduleBuffer.push(item.location/60);
+									scheduleBuffer.push(item.cost);
+								}else{
+									scheduleBuffer.push((item.location-result.solution[index-1].location)/60);
+									scheduleBuffer.push(item.cost);
+								}
+								scheduleBuffer.push(1);
+							});
+							result.scheduleBuffer = scheduleBuffer;
+							
+							result.schedule = require('../planner_beta/route-planner').sliceScheduling(scheduleBuffer, 5);
+						}catch(e){
+							console.log(e);
+						}
+						
+						
+						result.byway_list = poi_list[poi_list.length-1];
 						res.json(result);
 					})
 					.catch(function(exception){

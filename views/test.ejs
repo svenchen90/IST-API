@@ -18,7 +18,7 @@
 		<div id='map'></div>
 		<style>
 			body { margin:0; padding:0; }
-			#map { position:absolute; top:0; bottom:0; width:60%; }
+			#map { position:absolute; top:0; bottom:0; width:100%; }
 			/* .mapboxgl-ctrl-bottom-left { display: none } */
 			/* .mapboxgl-ctrl-bottom-right { display: none } */
 		</style>
@@ -259,8 +259,19 @@
 							})*/
 							[{points: result.buffer}]
 						);
-						console.log(result.poi_list)
-						initializePOILayer(map, result.poi_list);
+						//console.log(result.poi_list)
+						initializePOILayer(map, result.poi_list.primary);
+						
+						initializeRouteLayer(map, 
+							result.byway_list.map(function(item){
+								return {route: item.path};
+							}),
+							'byway',
+							'#ff0000',
+							3
+						);
+						
+						console.log(result.solution);
 						// bindMaker(map)
 						map.fitBounds(result.bounds)
 						map.moveLayer('buffer', 'route')

@@ -11,7 +11,7 @@ var initializeMapbox = function(container_id, style, coordinates, zoom){
 };
 
 // Route
-var initializeRouteLayer = function(map, data, id='route', color="#4285F4"){
+var initializeRouteLayer = function(map, data, id='route', color="#4285F4", lineWidth=10){
 	if(map.getSource(id) != undefined){
 		map.removeSource(id);
 	}
@@ -37,7 +37,7 @@ var initializeRouteLayer = function(map, data, id='route', color="#4285F4"){
 		},
 		"paint": {
 			"line-color": color,
-			 "line-width": 10,
+			 "line-width": lineWidth,
 			 "line-blur": 1,
 			// "line-gap-width": 5
 		}
