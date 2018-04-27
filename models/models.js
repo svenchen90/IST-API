@@ -40,10 +40,12 @@ var BywaySchema = new Schema({
 	// part of
 });
 
+
+/* Route */
 var LocationSchema = new Schema({
-	name: {type: String},
+	name: String,
 	geo: [Number],
-	address: {type: String}
+	address: String
 });
 
 var PathSchema = new Schema({
@@ -70,9 +72,8 @@ var SubrouteSchema = new Schema({
 	steps: [TravelSchema]
 });
 
-// Route
 var RouteSchema = new Schema({
-	id: {type: String},
+	id: String,
 	origin: LocationSchema,
 	destine: LocationSchema,
 	waypoints: [LocationSchema],
@@ -82,7 +83,7 @@ var RouteSchema = new Schema({
 	duration: Number,
 	subRoute: [SubrouteSchema]
 });
-
+/* Route */
 
 
 exports.POI = mongoose.model('poi', POISchema, 'poi2s');

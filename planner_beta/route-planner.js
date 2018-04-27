@@ -148,7 +148,7 @@ var getPOI = function(buffer, limit=100) {
 };
 
 var getByway = function(buffer, limit=100) {
-		// promise
+	// promise
 	// return lean
 	return new Promise(function(resolve, reject){
 		Byway
@@ -173,9 +173,6 @@ var getByway = function(buffer, limit=100) {
 				}
 			});
 	});
-	
-	
-	
 };
 
 /* Calcucate weight  */
