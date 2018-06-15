@@ -6,6 +6,11 @@ var test = require('../planner/test').test;
 var planAgent = require('../planner/plan-agent').planAgent;
 var turf = require('@turf/turf');
 
+var googleMapsClient = require('@google/maps').createClient({
+  key: 'AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4'
+});
+
+
 /* 
 The purpose of this API is to make a decent trip plan for customer based on his/her preference.
 The plan might not be the best, but one of the bests.
@@ -22,8 +27,7 @@ router.get('/itripsmarty-api-alpha', function(req, res, next){
 		destination: 'Los Angeles, CA',
 		//destination: 'Los Angeles, CA',
 		waypoints: [
-			/* 'Hayward, CA',
-			'Fremont, CA', */
+			[35.80949, -117.91897]
 		],
 	}).then(function(result){
 		res.json(result);
@@ -106,7 +110,7 @@ router.route('/test')
 
 router.route('/test2')
 	.get(function(req, res, next){
-		require('../planner_beta/route-planner').getRoute('San Diego, CA', 'Los Angeles, CA', [{lng: -117.01129200000003, lat:32.75344799999999}/* 'Santa Barbara, CA', 'Calsbad, CA' */])
+		require('../planner_beta/route-planner').getRoute_alpha('San Diego, CA', 'Los Angeles, CA', [/* {lng: -117.01129200000003, lat:32.75344799999999, abc:11} *//* 'Santa Barbara, CA', 'Calsbad, CA' */])
 			.then(function(result){
 				var promisePool = [];
 				//var BywayPromisePool = [];
@@ -207,8 +211,73 @@ router.route('/test2')
 			});
 	});
 
+router.route('/test3')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('test3',{});
+	});
+
+router.route('/test4')
+	.get(function(req, res, next){
+		try{
+			require('../planner_beta/route-planner').getRoute({
+				origin: {lng: -117.1611, lat:32.7157, name: 'San Diego, CA'}, //'San Diego, CA', 
+				destination: {lng: -118.2437, lat:34.0522, name: 'Los Angeles, CA'}, //'Los Angeles, CA',
+				waypoints: [
+					// {lng: -117.01129200000003, lat:32.75344799999999, _id: 1}
+				]
+				// departure_time: Date | number,
+				// arrival_time: Date | number,
+			}).then(function(result){
+				res.json(result);
+			}).catch(function(exception){
+				console.log('error', exception);
+				res.json(exception);
+			});
+		}catch(e){
+			console.log(e);
+		}
+	});
 	
-	
+router.route('/test5')
+	.get(function(req, res, next){
+		try{
+			console.log(req.query);
+			req.query.waypoints = [];
+			req.query.departure_date = req.query.start;
+			req.query.arrival_date = req.query.end;
+			require('../planner_beta/route-planner').planner(
+				req.query
+			/* {
+				origin: 'New York, NY', //'San Diego, CA', 
+				destination: 'Chicago, IL', //'Los Angeles, CA',
+				waypoints: [],
+				departure_date: '2018-05-20',
+				arrival_date: '2018-05-28',
+				preference: {
+					NATURE: 1,
+					CULTURE: 2,
+					AMUSEMENT: 3,
+					SHOPPING: 4,
+					NIGHTLIFE: 5
+				}
+			} */
+			).then(function(result){
+				res.json(result);
+			}).catch(function(exception){
+				console.log('error', exception);
+				res.json(exception);
+			});
+		}catch(e){
+			console.log(e);
+		}
+	});
+
+router.route('/test6')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('test6',{});
+	});
 /* router.get('/testgooglejscall', function(req, res, next){
 	var options = {
 			host: 'road.li',

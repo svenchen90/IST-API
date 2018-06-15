@@ -38,9 +38,9 @@ var initializePointLayer = function(map, list, id, options){
 					"type": "FeatureCollection",
 					"features": list,
 				},
-				cluster: defaultOptions.cluster,
+				/*cluster: defaultOptions.cluster,
 				clusterMaxZoom: defaultOptions.clusterMaxZoom,
-				clusterRadius: defaultOptions.clusterRadius
+				clusterRadius: defaultOptions.clusterRadius*/
 			});
 			
 			/* map.addLayer({
@@ -103,7 +103,7 @@ var initializePolylineLayer = function(map, list, id, options){
 		try{
 			var defaultOptions = {
 				"line-color": "#4285F4",
-				"line-width": 5,
+				"line-width": 3,
 				"line-join": "round",
 				"line-cap": "round",
 				"line-blur": 1
@@ -264,7 +264,7 @@ var initializeRouteLayer = function(map, list, options){
 		id: 'route',
 		formateFunct: formateRoute_ALPHA,
 		"line-color": "#4285F4",
-		"line-width": 10
+		"line-width": 3
 	};
 	
 	$.extend(true, defaultOptions, options);
@@ -339,7 +339,8 @@ var formatePOI_ALPHA = function(poi){
 		},
 		"properties": {
 			"name": poi.name,
-			'poster': poi.poster
+			'poster': poi.poster,
+			'_id': poi._id
 			// "icon": "monument",
 		}
 	}
@@ -445,9 +446,9 @@ var clearBuffer = function(map,id="buffer"){
 
 /* Marker */
 var addMarker = function(map, data, size=50){
-	var id = localIDGenerator();
+	//var id = localIDGenerator();
 	var $marker = $(
-		'<div class="marker" id="' + id + '">\n' +
+		'<div class="marker" data-id="' + data._id + '" data-lng="' + data.geo[0] + '" data-lat="' + data.geo[1] + '">\n' +
 		' <div class="ripple"></div>\n' +
 		' <div class="ripple delay-05"></div>\n' +
 		' <div class="ripple delay-1"></div>\n' +
@@ -474,15 +475,19 @@ var addMarker = function(map, data, size=50){
 	}
 	
 	/* delay of hover effect  */
+	/*
 	$marker.on('mouseenter', function(e){
 		$marker.addClass('hover');
 	});
+	
 	
 	$marker.on('mouseleave', function(e){
 		delay(function(){
 			$marker.removeClass('hover');
 		}, 1000)
 	});
+	*/
+	
 	
 	return new mapboxgl.Marker($marker.get(0))
 		.setLngLat(data.geo)
@@ -494,7 +499,7 @@ var clearMarker = function(map) {
 };
 
 var removeMarkerByID = function(map, id){
-	$(map.getContainer()).find('.marker#' + id).remove();
+	$(map.getContainer()).find('.marker[data-id="' + id + '"]').remove();
 };
 
 var bindMaker = function(map, layers=['POI']) {
@@ -506,9 +511,23 @@ var bindMaker = function(map, layers=['POI']) {
 	var iconSize = Math.max(Math.ceil(map.getZoom()*5), 30);
 	
 	features.forEach(function(item){
-		addMarker(map, {poster: item.properties.poster, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
+		addMarker(map, {_id: item.properties._id, poster: item.properties.poster, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
 	});
 };
+
+var bindMaker_Static = function(map, sources_id='POI') {
+	var features = map.getSource(sources_id)._data.features
+	
+	clearMarker(map);
+	
+	// ###
+	var iconSize = Math.max(Math.ceil(map.getZoom()*5), 30);
+	
+	features.forEach(function(item){
+		addMarker(map, {_id: item.properties._id, poster: item.properties.poster, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
+	});
+};
+
 /* ! Marker */
 
 

@@ -5,19 +5,24 @@ step 3, divide route into sub routes, query POI in sub-buffer (popular), calcula
 	signitured POI should sign with outstanding weight, for example 1000 * originWeight
 step 4, filter POI into two pool, primary, secondary {and no-cost}. primary and secondary by weight/(time cost). {no-cost means time cost is negligible.} 
 	Time cost = extra traveling + length of visit.
-step 5, use 01 backpack soluction to find several outstanding solution for each day. 
+step 5, use 01 backpack solution to find several outstanding solution for each day. 
 * step 6, use GA to optimize on those solution. (mutation and crossover)
 step 7, checked feasiblity over results. If yes, done. If no, back to 01 backpack.
 */
 const COORDINATE_FORMAT = 'lnglat';
+const AGENT = 'google';
+
+var googleMapsClient = require('../planner_beta/agents/google').googleMapsClient;
+
 var turf = require('@turf/turf');
 
 /* Mongo */
+var POI, Byway, Route;
 try{
 	var mongoose = require('mongoose');
 	mongoose.connect('mongodb://localhost/IST');
 	var models = require('../models/models');
-	var POI = models.POI,
+	POI = models.POI,
 	Byway = models.Byway,
 	Route = models.Route;
 }catch(e){
@@ -47,15 +52,374 @@ new Route({
 	console.log(err);
 }); */
 
-var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
-	// Promise
+/* data: {
+	origin: string,
+	destination: string,
+	waypoints: []
+	departure_date:
+	arrival_date:
+	preference: {
+		
+	}
+} */
+var planner = function(data, chunks_size = 50){
+	return new Promise(function(resolve, reject){
+		getRoute(data)
+			.then(function(result){
+				var duration_overall = Math.abs(new Date(data.arrival_date) - new Date(data.departure_date))/1000;
+				var radius = getRadius(result.distance, duration_overall);
+				
+				var duration_day = duration_overall/24/60/60;
+				/* var distance = result.distance/1600;
+				var chunks_size = Math.ceil(distance/duration_day)/3; */
+				
+				var shrinkedPath = []
+				result.path.coordinates.forEach(function(item, index){
+					if(index%10 == 0)
+						shrinkedPath.push(item);
+				});
+				
+				var chunks = turf.lineChunk(turf.lineString(shrinkedPath), chunks_size, {units: 'miles'});
+				var promisePool = [];
+				
+				var buffer_pool = [];
+				var buffers = chunks.features.map(function(item){
+					var buffer = getBuffer(item.geometry.coordinates, radius);
+					
+					buffer_pool.push(buffer);
+					
+					promisePool.push(getPOI(buffer));
+					return buffer;
+				});
+				
+				var buffer_overall = getBuffer(shrinkedPath, radius);
+				promisePool.push(getByway(buffer_overall));
+				
+				Promise.all(promisePool)
+					.then(function(list_poi_list){
+						// console.log(poi_list );
+						// resolve(result);
+						byway_list = list_poi_list.pop();
+						
+						var poi_list = [];
+						var poi_id_set = new Set() ;
+						
+						list_poi_list.forEach(function(list, index){
+							// console.log(list.length);
+							list.forEach(function(poi, index2){
+								var id = String(poi._id);
+								if(poi_id_set.has(id)){
+									// console.log(id)
+								}else{
+									poi_id_set.add(id);
+									poi.zoon = index;
+									poi_list.push(poi);
+								}
+							});
+						});
+						
+						poi_list.forEach(function(poi){
+							signWeightToPOI(poi, data.preference);
+							var speed = (result.distance/1600) / (result.duration/3600);
+							signTimeCostToPOI(poi, result.path.coordinates, speed);
+						});
+						
+						
+						poi_list.forEach(function(item){
+							// console.log(item.zoon);
+						});
+						
+						poi_list = getPools(poi_list);
+						
+						// console.log('###' + poi_list.primary.length);
+						// console.log('###' + poi_list.secondary.length);
+						
+						
+						
+						
+						// console.log(poi_list.primary);
+						try{
+							var matrix = backpackAlgorithm(poi_list.primary.map(function(item, index){
+								return {
+									id: index,
+									value: Math.ceil(item.weight.total_weight),
+									cost: Math.ceil(item.time_cost.cost)
+								};
+							}), getActivityTime(duration_overall, result.duration));
+							
+							// result.poi = poi_list;
+							// result.matrix = matrix;
+							
+							list_solution_id = matrix.solutionMatrix[matrix.solutionMatrix.length-1][matrix.solutionMatrix[matrix.solutionMatrix.length-1].length - 1]
+							solution = list_solution_id.map(function(index, item){
+								// console.log(poi_list.primary[item]._id);
+								return poi_list.primary[item];
+							});
+							
+							
+							
+							getRoute({
+								origin: data.origin, //'San Diego, CA', 
+								destination: data.destination, //'Los Angeles, CA',
+								waypoints: solution.map(function(item){
+									return {lng: item.geo[0], lat: item.geo[1]}
+								})
+								/* [
+									{lng: -117.01129200000003, lat:32.75344799999999, _id: 1}
+								] */
+								// departure_time: Date | number,
+								// arrival_time: Date | number,
+							}).then(function(result2){
+								result2.poi = poi_list.primary.map(function(item){
+									if(item.zoon == 0)
+										return item;
+								});
+								result2.solution = result2.waypoints_order.map(function(item){
+									return solution[item];
+								});
+								result2.buffer = buffer_pool;
+								
+								var list_s = []
+								result2.subRoute.forEach(function(r, i){
+									if(i != result2.subRoute.length - 1){
+										// #####
+										list_s.push(2);
+									}
+									list_s.push(Math.ceil(r.duration/3600));
+									
+								});
+								
+								
+								// schedule = sliceScheduling(list_s, duration_day);
+								schedule = adaptiveScheduling(list_s, duration_day);
+								console.log(list_s.length);
+								itinerary = getItinerary(schedule, result2.subRoute, result2.solution)
+								
+								result2.schedule = schedule;
+								result2.itinerary = itinerary;
+								
+								resolve(result2);
+							})
+							.catch(function(exception2){
+								reject(exception)
+							});
+							
+							
+							// ####
+							// result.matrix = matrix;
+							/* result.solution = matrix.solutionMatrix[matrix.solutionMatrix.length-1]
+								[matrix.solutionMatrix[matrix.solutionMatrix.length-1].length-1].map(function(item){
+								return result.poi_list.primary[item];
+							});
+							result.solution.sort(function(a,b){
+								return a.time_cost.location - b.time_cost.location; 
+							});
+							result.solution = result.solution.map(function(item){
+								return {
+									dist: item.time_cost.dist,
+									cost: item.time_cost.cost,
+									location: item.time_cost.location
+								}
+							});
+							var scheduleBuffer = [];
+							result.solution.forEach(function(item,index){
+								if(index == 0){
+									scheduleBuffer.push(item.location/60);
+									scheduleBuffer.push(item.cost);
+								}else{
+									scheduleBuffer.push((item.location-result.solution[index-1].location)/60);
+									scheduleBuffer.push(item.cost);
+								}
+								scheduleBuffer.push(1);
+							});
+							result.scheduleBuffer = scheduleBuffer;
+							
+							result.schedule = require('../planner_beta/route-planner').sliceScheduling(scheduleBuffer, 5); */
+						}catch(e){
+							console.log(e);
+						}
+						
+						// result.byway_list = poi_list[poi_list.length-1];
+					})
+					.catch(function(exception){
+						reject(exception)
+					});
+				
+				// resolve(result);
+			})
+			.catch(function(exception){
+				reject(exception)
+			});
+	});
+};
+
+var getRoute = function(data, agent=AGENT, mode='driving', coordinate_format=COORDINATE_FORMAT, geo_code=false){
+	/* google data: {
+		origin: {lat: , lng: , name:}, 
+		destination: {lat: , lng: ,name:},
+		waypoints: [
+			string / {lat: , lng: , id:}
+		],
+		* departure_time: Date | number,
+		* arrival_time: Date | number,
+	} */
+	return new Promise(function(resolve, reject){
+		switch(agent){
+			case 'google':
+				var request = {
+					origin: data.origin,
+					destination: data.destination,
+					waypoints: data.waypoints.map(function(item){
+						return {lat: item.lat, lng: item.lng}
+					}),
+					mode: mode.toLowerCase(),
+					optimize: true
+				};
+				googleMapsClient.directions(request, function(err, result){
+					if(err){
+						reject('#error - google agent')
+					}else{
+						// console.log(result);
+						// ###
+						var formated = googleRouteFormat(result, data);
+						resolve(formated);
+					}
+				});
+				break;
+			default:
+				reject('###error - unknow route agent ' + agent);
+		}
+	});
+};
+
+var googleRouteFormat = function(routeResult, originData){
+	try{
+		var result = {
+		
+		};
+		
+		var route = routeResult.json.routes[0];
+		// origin
+		result.origin = {
+			id: originData.origin.id,
+			name: originData.origin.name,
+			geo: [route.legs[0].start_location.lng, route.legs[0].start_location.lat],
+			address: route.legs[0].start_address
+		};
+		// destination
+		result.destination = {
+			id: originData.destination.id,
+			name: originData.destination.name,
+			geo: [route.legs[route.legs.length-1].end_location.lng, route.legs[route.legs.length-1].end_location.lat],
+			address: route.legs[route.legs.length-1].end_address
+		};
+		// waypoints
+		result.waypoints = [];
+		result.waypoints_order = route.waypoint_order;
+		route.waypoint_order.forEach(function(value, index){
+			var point = {
+				id: originData.waypoints[value].id,
+				name: originData.waypoints[value].name,
+				geo: [route.legs[index].end_location.lng, route.legs[index].end_location.lat],
+				address: route.legs[index].end_address
+			};
+			result.waypoints.push(point);
+		});
+		// path
+		result.path = {
+			encodedPath: route.overview_polyline.points,
+			coordinates: polylineDecoder(route.overview_polyline.points)
+		};
+		// distance
+		result.distance = 0;
+		// duration
+		result.duration = 0;
+		route.legs.forEach(function(item, index){
+			result.distance += item.distance.value;
+			result.duration += item.duration.value;
+		});
+		// subRoute
+		result.subRoute = [];
+		route.legs.forEach(function(item, index){
+			var sub = {
+				
+			};
+			// origin
+			if(index == 0){
+				sub.origin = Object.assign({}, result.origin);
+			}else{
+				sub.origin = Object.assign({}, result.waypoints[index-1]);
+			}
+			// destination
+			if(index == route.legs.length-1){
+				sub.destination = Object.assign({}, result.destination);
+			}else{
+				sub.destination = Object.assign({}, result.waypoints[index]);
+			}
+			// distance: Number,
+			sub.distance = item.distance.value;
+			// duration: Number,
+			sub.duration = item.duration.value;
+			// steps: [TravelSchema]
+			sub.steps = [];
+			item.steps.forEach(function(item2, index2){
+				var s = {
+					
+				};
+				// start_location: [Number]
+				s.start_location = [item2.start_location.lng, item2.start_location.lat];
+				// end_location: [Number]
+				s.end_location = [item2.end_location.lng, item2.end_location.lat];
+				// distance: Number
+				s.distance = item2.distance.value;
+				// duration: Number
+				s.duration = item2.duration.value;
+				// path: PathSchema,
+				s.path = {
+					coordinates: polylineDecoder(item2.polyline.points),
+					encodedPath: item2.polyline.points
+				};
+				// travelMode: String,
+				s.travel_mode = item2.travel_mode;
+				s.html_instructions = item2.html_instructions;
+				
+				sub.steps.push(s);
+			});
+			// path: PathSchema,
+			// ! Uncompleted
+			sub.path = {
+				coordinates: [],
+				// encodedPath: String
+			};
+			sub.steps.forEach(function(item3, index3){
+				var s_path = item3.path.coordinates;
+				if(index3 == sub.steps.length-1){
+					sub.path.coordinates = sub.path.coordinates.concat(s_path);
+				}else{
+					sub.path.coordinates = sub.path.coordinates.concat(s_path.slice(1, s_path.length-1));
+				}
+			});
+			sub.path.encodedPath = polylineEncoder(sub.path.coordinates);
+		
+			result.subRoute.push(sub);
+		});
+		// bounds
+		result.bounds = [route.bounds.southwest, route.bounds.northeast];
+		
+		return result;
+	}catch(exception){
+		console.log(exception);
+	}
+};
+
+var getRoute_alpha = function(origin, destination, waypoints, agent="GOOGLE", mode='DRIVING', geoFormat=COORDINATE_FORMAT){
 	/* 
 	return {
 		steps: [route],
 		originResult: result
 	}
 	 */
-	console.log(origin, destination, waypoints, agent, mode);
+	// console.log(origin, destination, waypoints, agent, mode);
 	
 	return new Promise(function(resolve, reject){
 		switch(agent){
@@ -69,6 +433,8 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 					mode: mode.toLowerCase(),
 					optimize: true
 				};
+				
+				//console.log(routeRequest)
 				
 				require('../planner_beta/agents/google').googleMapsClient.directions(routeRequest, function(err, result){
 					if(err){
@@ -88,7 +454,6 @@ var getRoute = function(origin, destination, waypoints, agent="GOOGLE", mode='DR
 							sub_route: route.legs.map(function(item){
 								/* item.sub_overview_path = '';
 								item.steps.forEach(function(step){
-									//console.log(polylineDecoder(step.polyline.points))
 									item.sub_overview_path += step.polyline.points;
 								});
 								console.log(item.sub_overview_path);
@@ -167,7 +532,12 @@ var getByway = function(buffer, limit=100) {
 					reject(err);
 				else{
 					POIs.forEach(function(poi){
-						poi.path = polylineDecoder(poi.path)
+						if(Array.isArray(poi.path)){
+							poi.path = poi.path.map(function(item){
+								return polylineDecoder(item)
+							});
+						}else
+							poi.path = polylineDecoder(poi.path)
 					});
 					resolve(POIs);
 				}
@@ -175,8 +545,22 @@ var getByway = function(buffer, limit=100) {
 	});
 };
 
+var getRadius = function(distance, duration){
+	return Math.ceil(30*duration / distance);
+};
+
+var getActivityTime = function(duration_overall, duration_driving, pace=0.8){
+	return (duration_overall / 2  - duration_driving) / 3600 * pace;
+};
+
+var signWeightToPOI_adaptive = function(list_poi, preference, act_fun=linear){
+	list_poi.forEach(function(poi, index){
+		
+	});
+};
+
 /* Calcucate weight  */
-var signWeightToPOI = function(POI, preference, act_fun=square) {
+var signWeightToPOI = function(POI, preference, act_fun=linear) {
 	POI.weight = {
 		fitting_weight: act_fun(getFittingWeight(POI, preference)),
 		pop_weight: act_fun(getPopularityWeight(POI)),
@@ -369,7 +753,8 @@ var sliceScheduling = function(list, days) {
 	list.forEach(function(i){
 		total += i;
 	});
-	var meanLoad = Math.ceil(total/days);
+	console.log(days);
+	var meanLoad = total/days;
 	
 	var currentLoad = 0;
 	var currentSchedule_load = [];
@@ -404,6 +789,68 @@ var sliceScheduling = function(list, days) {
 	return schedule
 };
 
+var adaptiveScheduling = function(list, days){
+	var total = 0.0;
+	list.forEach(function(i){
+		total += i;
+	});
+	var meanLoad = total/days;
+	
+	var split = []
+	var left = 0.0;
+	var index = -1;
+	for(var i=1; i< days; i++){
+		var current_index = index + 1;
+		while(current_index<list.length){
+			var current_length = list[current_index];
+			if(left + current_length < meanLoad*i){
+				left = left + current_length;
+				current_index += 1;
+			}else{
+				split.push(current_index);
+				index = current_index-1;
+				break;
+			}
+		}
+	};
+	
+	split.push(list.length);
+	
+	// ### optimize
+	var schedule = [];
+	var initial = 0;
+	split.forEach(function(sp){
+		var temp = [];
+		for(var i=initial; i<sp; i++){
+			temp.push(i);
+		}
+		schedule.push(temp);
+		initial = sp;
+		
+	});
+	
+	return schedule;
+};
+
+var getItinerary = function(schedule, subRoute, pois){
+	var itinerary = schedule.map(function(list, index){
+		return list.map(function(item, index2){
+			var item;
+			if(item%2 == 0){
+				item = subRoute[parseInt(item/2)];
+				item['_type'] = 'route';
+			}else{
+				item = pois[parseInt(item/2)];
+				item['_type'] = 'poi';
+			}
+			return item;
+		});
+	});
+	
+	return itinerary;
+};
+
+
 // Utility
 /* Polyline */
 var polylineDecoder = function(polyline, geoFormat=COORDINATE_FORMAT){
@@ -414,7 +861,7 @@ var polylineDecoder = function(polyline, geoFormat=COORDINATE_FORMAT){
 		// [lng, lat]
 		if(geoFormat == 'lnglat')
 			return [item[1], item[0]];
-		else if(geoFormat == 'lnglat')
+		else if(geoFormat == 'latlng')
 			return item;
 		else{
 			console.log('geo format error');
@@ -423,13 +870,21 @@ var polylineDecoder = function(polyline, geoFormat=COORDINATE_FORMAT){
 	});
 };
 
+var polylineEncoder = function(coordinate, geoFormat=COORDINATE_FORMAT){
+	return require('@mapbox/polyline').encode(coordinate);
+};
+
 var polylineValidation = function(polyline){
 	return false;
 };
 
 var polylineReformat = function(polyline){
-	//return polyline.replace('\\\\', '\\');
-	return polyline.replace(/\\\\/g, "\\");
+	try{
+		return polyline.replace(/\\\\/g, "\\");
+	}catch(exception){
+		console.log(polyline);
+	}
+	
 };
 /* ! Polyline */
 
@@ -437,9 +892,16 @@ var polylineReformat = function(polyline){
 var square = function(number){
 	return Math.pow(number, 2)
 };
+
+var linear = function(number){
+	return number;
+};
+
 /* ! Math */
 
+exports.planner = planner;
 exports.getRoute = getRoute;
+exports.getRoute_alpha = getRoute_alpha;
 exports.getBuffer = getBuffer;
 exports.getPOI = getPOI;
 exports.getByway = getByway;

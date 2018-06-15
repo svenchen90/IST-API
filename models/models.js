@@ -43,6 +43,7 @@ var BywaySchema = new Schema({
 
 /* Route */
 var LocationSchema = new Schema({
+	id: String,
 	name: String,
 	geo: [Number],
 	address: String
@@ -54,18 +55,18 @@ var PathSchema = new Schema({
 });
 
 var TravelSchema = new Schema({
-	startGeo: [Number],
-	endGeo: [Number],
-	distance: Number,
-	duration: Number,
-	path: PathSchema,
-	travelMode: String,
-	htmlInstructions: String
+	// start_location: [Number],
+	// end_location: [Number],
+	// distance: Number,
+	// duration: Number,
+	// path: PathSchema,
+	// travel_mode: String,
+	// html_instructions: String
 });
 
 var SubrouteSchema = new Schema({
 	origin: LocationSchema,
-	destine: LocationSchema,
+	destination: LocationSchema,
 	path: PathSchema,
 	distance: Number,
 	duration: Number,
@@ -75,13 +76,14 @@ var SubrouteSchema = new Schema({
 var RouteSchema = new Schema({
 	id: String,
 	origin: LocationSchema,
-	destine: LocationSchema,
+	destination: LocationSchema,
 	waypoints: [LocationSchema],
-	waypointsOrder: [Number],
+	// waypointsOrder: [Number],
 	path: PathSchema,
 	distance: Number,
 	duration: Number,
-	subRoute: [SubrouteSchema]
+	subRoute: [SubrouteSchema],
+	bounds:[[Number]]
 });
 /* Route */
 
