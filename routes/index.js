@@ -294,4 +294,10 @@ router.route('/test6')
 	});
 }); */
 
+router.route('/user_main')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('user_main',{});
+	});
+
 module.exports = router;
