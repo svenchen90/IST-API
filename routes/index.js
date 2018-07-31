@@ -11,6 +11,11 @@ var googleMapsClient = require('@google/maps').createClient({
 });
 
 
+
+var models = require('../models/models');
+var Route_Temp = models.Route_Temp;
+var POI = models.POI;
+
 /* 
 The purpose of this API is to make a decent trip plan for customer based on his/her preference.
 The plan might not be the best, but one of the bests.
@@ -242,7 +247,7 @@ router.route('/test4')
 router.route('/test5')
 	.get(function(req, res, next){
 		try{
-			console.log(req.query);
+			//console.log(req.query);
 			req.query.waypoints = [];
 			req.query.departure_date = req.query.start;
 			req.query.arrival_date = req.query.end;
@@ -263,6 +268,20 @@ router.route('/test5')
 				}
 			} */
 			).then(function(result){
+				console.log(req.query);
+				new Route_Temp({
+						origin:  result.origin,
+						destination: result.destination,
+						start_date: req.query.start,
+						end_date: req.query.end,
+						path: result.path,
+						distance: result.distance,
+						duration: result.duration,
+						itinerary: result.itinerary,
+						solution: result.solution,
+						bounds: result.bounds
+					}).save();
+				// Route_Temp.remove({}, function(){});
 				res.json(result);
 			}).catch(function(exception){
 				console.log('error', exception);
@@ -300,4 +319,29 @@ router.route('/user_main')
 		res.render('user_main',{});
 	});
 
+	
+router.route('/test10')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('test10', {abc: req.query._id});
+	});
+	
+router.route('/test11')
+	.get(function(req, res, next){
+		Route_Temp.findOne({_id : req.query._id})
+			.exec(function(err, result){
+				// console.log(result);
+				res.json(result);
+			});
+	});
+
+router.route('/test12')
+	.get(function(req, res, next){
+		Route_Temp.find({})
+			.exec(function(err, result){
+				// console.log(result);
+				res.json(result);
+			});
+	});
+	
 module.exports = router;

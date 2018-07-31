@@ -87,7 +87,29 @@ var RouteSchema = new Schema({
 });
 /* Route */
 
+var RouteTempSchema = new Schema({
+	origin: {
+		address: String,
+		geo: [Number]
+	},
+	destination: {
+		address: String,
+		geo: [Number]
+	},
+	start_date: Date,
+	end_date: Date,
+	path: {
+		coordinates: [[Number]],
+		encodedPath: String
+	},
+	distance: Number,
+	duration: Number,
+	itinerary: [[Schema.Types.Mixed]],
+	solution: [Schema.Types.Mixed],
+	bounds: [Schema.Types.Mixed]
+});
 
 exports.POI = mongoose.model('poi', POISchema, 'poi2s');
 exports.Byway = mongoose.model('byway', BywaySchema, 'byway');
 exports.Route = mongoose.model('route', RouteSchema, 'routes');
+exports.Route_Temp = mongoose.model('route_temp', RouteTempSchema, 'routes_temp');

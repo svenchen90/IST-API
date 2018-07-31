@@ -19,8 +19,8 @@ var turf = require('@turf/turf');
 /* Mongo */
 var POI, Byway, Route;
 try{
-	var mongoose = require('mongoose');
-	mongoose.connect('mongodb://localhost/IST');
+	// var mongoose = require('mongoose');
+	// mongoose.connect('mongodb://localhost/IST');
 	var models = require('../models/models');
 	POI = models.POI,
 	Byway = models.Byway,

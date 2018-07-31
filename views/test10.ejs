@@ -1348,10 +1348,72 @@
 			intialPreferenceSelection(form);
 			linkInternaryAndMark();
 			
-			$('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
-			$(INPUT_BLOCK_ID[0]).css({'display': 'block'});
-
+			// $('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
+			// $(INPUT_BLOCK_ID[0]).css({'display': 'block'});
 			
+			// form.waypoints = []
+			// var $btn = $(this);
+			// $btn.addClass('disabled');
+			
+			$('.loader, .loader-bg').css({'display': 'block'});
+			
+			var url_string = window.location.href
+			var url = new URL(url_string);
+			var _id = url.searchParams.get("_id");
+			// console.log(_id);
+			
+			$.ajax({
+				url : '/test11?_id=' + _id,
+				// data: form,
+				type : "GET",
+				dataType : 'json',
+				success : function (result){
+					console.log(result);
+					initializeRouteLayer(map, 
+						[{route: result.path.coordinates}]
+					);
+					
+					initializePOILayer(map, result.solution);
+					// console.log(result);
+					/*
+					initializeBufferLayer(map, 
+						result.buffer.map(function(b){
+							return {points: b}
+						})
+					);
+					*/
+					loadItinerary(result.start_date, result.itinerary)
+					// completionCallback();
+					
+					$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
+					$('[data-action="' + LEFT_NAV[3] + '"]').removeClass('active');							
+					$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
+					$(INPUT_BLOCK_ID[6]).css({'display': 'block'});							
+					
+					// $btn.remove();
+					
+					
+					
+					map.fitBounds(result.bounds,{
+							padding: {top: 100, bottom:50, left: 600, right: 50}
+						}
+					)
+					bindMaker_Static(map)
+					// map.moveLayer('buffer', 'route')
+					// console.log(result);
+				},
+				error: function(err){
+					console.log('error');
+				}
+			}).done(function() {
+				//console.log();
+				})
+				.fail(function() {
+				//console.log('fail')
+				})
+				.always(function() {
+				$('.loader, .loader-bg').css({'display': 'none'});
+				});
 			
 			
 			map.on('contextmenu', function(e){
@@ -1374,7 +1436,7 @@
 			});
 		
 		
-		</script>
+		</script>		
 		
 	<!-- Log In -->
 	<div class="modal" id="login">
