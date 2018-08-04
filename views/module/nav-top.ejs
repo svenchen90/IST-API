@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<nav class="navbar navbar-expand-lg navbar-light bg-light nav-top">
+	<a class="navbar-brand" href="/">
+		<img src="img/logo-dark@2x.png" alt="iTripSmart logo">
+	</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			<!-- <li class="nav-item active">
+				<a class="nav-link" href="#">Home 
+					<span class="sr-only">(current)</span>
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">Link</a>
+			</li> -->
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="javascript: void(0);" id="navbarDropdown" data-toggle="dropdown" data-type="currentLanguage">
+					English
+				</a>
+				<div class="dropdown-menu">
+					<a class="dropdown-item" href="javascript: void(0);" data-action="language" data-value="en">English</a>
+					<a class="dropdown-item" href="javascript: void(0);" data-action="language" data-value="zh">中文</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<!-- <a class="dropdown-item" href="#">Something else here</a> -->
+				</div>
+			</li>
+			<!-- <li class="nav-item">
+				<a class="nav-link disabled" href="#">Disabled</a>
+			</li> -->
+			<!-- <form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
+		</ul>
+		<ul class="navbar-nav">
+			<li class="nav-item active" data-type="unauthorized" style="display: none; margin-right: 10px;">
+				<a class="nav-link btn-left" href="javascript: void(0);" data-action="signup" data-locale="signup" style="color: white; background-color: #1FB5C7;">SIGN UP</a>
+			</li>
+			<li class="nav-item" data-type="unauthorized" style="display: none;">
+				<a class="nav-link btn-left" href="javascript: void(0);" data-action="login" data-locale="login">LOG IN</a>
+			</li>
+			<li class="nav-item dropdown" data-type="authorized" style="display: none;">
+				<a class="nav-link dropdown-toggle" href="javascript: void(0);" id="navbarDropdown" role="button" data-toggle="dropdown">
+					Hello, <span data-field="username"></span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right">
+					<a class="dropdown-item" href="/user_main" data-action="userTrip"><i class="fa fa-file"></i> <span style="margin-left: 10px;">My Trip</span></a>
+					<a class="dropdown-item" href="javascript: void(0);" data-action="userProfile"><i class="fa fa-user"></i> <span style="margin-left: 10px;">Account Setting</span></a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item" href="/authenticate/logout" data-action="logout"><i class="fa fa-sign-out"></i> <span style="margin-left: 10px;">Log out</span></a>
+				</div>
+			</li>
+		</ul>
+	</div>
+</nav>
+<style>
+/* nav-top */
+.nav-top {
+	z-index: 4;
+}
+.nav-top .navbar-brand img {
+	width: 130px;
+	padding: 8px 0;
+}
+.nav-top .btn-left {
+	font-size: 12px;
+	font-weight: 600;
+	padding: 7px 32px !important;
+	
+	border-radius: 20px;
+}
+/* !nav-top */
+</style>
+<script>
+var loadNav = function(user) {
+	if(user == 0){
+		$('[data-type="unauthorized"]').css({'display': 'list-item'});
+		$('[data-type="authorized"]').css({'display': 'none'});
+	}else{
+		$('[data-type="unauthorized"]').css({'display': 'none'});
+		$('[data-type="authorized"]').css({'display': 'list-item'});
+		$('[data-type="authorized"] [data-field="username"]').html(user.first_name);
+	}
+};
+</script>

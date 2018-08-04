@@ -2,6 +2,15 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema,
 	ObjectId = Schema.ObjectId;
 
+var UserSchema = new Schema({
+	email: {type: Schema.Types.String, unique: true},
+	password: {type: String},
+	first_name: {type: String},
+	last_name: {type: String},
+	date_create: {type: Date}
+});
+	
+	
 // POI
 var POISchema = new Schema({
 	name: {type: String},
@@ -39,7 +48,6 @@ var BywaySchema = new Schema({
 	// includes
 	// part of
 });
-
 
 /* Route */
 var LocationSchema = new Schema({
@@ -113,3 +121,5 @@ exports.POI = mongoose.model('poi', POISchema, 'poi2s');
 exports.Byway = mongoose.model('byway', BywaySchema, 'byway');
 exports.Route = mongoose.model('route', RouteSchema, 'routes');
 exports.Route_Temp = mongoose.model('route_temp', RouteTempSchema, 'routes_temp');
+
+exports.User = mongoose.model('user', UserSchema, 'users');

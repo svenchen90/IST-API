@@ -15,6 +15,7 @@ var googleMapsClient = require('@google/maps').createClient({
 var models = require('../models/models');
 var Route_Temp = models.Route_Temp;
 var POI = models.POI;
+var User = models.User;
 
 /* 
 The purpose of this API is to make a decent trip plan for customer based on his/her preference.
@@ -343,5 +344,54 @@ router.route('/test12')
 				res.json(result);
 			});
 	});
+
+router.route('/')
+	.get(function(req, res, next){
+		res.render('test3',{});
+	});
+
+router.route('/signup')
+	.post(function(req, res, next){
+		var user_data = req.body;
+		user_data.date_create = new Date();
+		
+		User.findOne({ email: user_data.email }, function (err, user) {
+			if(user){
+				var err_msg = {};
+				err_msg.email = 'Email exists!'
+				res.json(err_msg);
+			}else{
+				new User(user_data).save(function (err) {
+					if (err) return handleError(err);
+					res.json(1);
+				});
+			}
+    });
+	});
+
+
+	
+router.route('/validateEmail')
+	.post(function(req, res, next){
+		User.findOne({ email: req.body.email }, function (err, user) {
+			if(user){
+				res.json(0);
+			}else{
+				res.json(1);
+			}
+    });
+	});
+
+router.route('/email')
+	.get(function(req, res, next){
+			var emailAddressValidation = require('../routes/email').emailAddressValidation;
+			emailAddressValidation(
+				'svenchen90@gmail.com',
+				'208.59.145.29',
+				function(err){console.log(err)},
+				function(info){console.log(info)}
+			);
+	});	
+	
 	
 module.exports = router;

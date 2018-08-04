@@ -12,6 +12,7 @@ mongoose.connect('mongodb://localhost/IST');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+
 var app = express();
 
 // view engine setup
@@ -26,8 +27,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//authenticate
+var passport = require('passport')
+var session = require("express-session"),
+    bodyParser = require("body-parser");
+// app.use(express.static("public"));
+app.use(session({
+	secret: "cats",
+	resave: true,
+  saveUninitialized: true
+}));
+var flash = require('connect-flash');
+app.use(flash());
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+var passport = require('./routes/passport_authenticate');
+app.use('/authenticate', passport);
+
 app.use('/', routes);
 app.use('/users', users);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

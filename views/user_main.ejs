@@ -49,63 +49,13 @@
 		<link href='stylesheets/mapbox-style.css' rel='stylesheet' />
 		
 		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		
+		<link href='stylesheets/global.css' rel='stylesheet' />
 	</head>
 	
 	<body>		
-		<nav class="navbar navbar-expand-lg navbar-light bg-light" style="z-index: 4;">
-			<a class="navbar-brand" href="#">
-				<img class="egbzLU" src="img/logo-dark@2x.png" alt="iTripSmart logo" style="width: 130px; padding: 8px 0;">
-			</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-					<!-- <li class="nav-item active">
-						<a class="nav-link" href="#">Home 
-							<span class="sr-only">(current)</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Link</a>
-					</li> -->
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-						  English
-						</a>
-						<div class="dropdown-menu">
-							<a class="dropdown-item" href="#">English</a>
-							<!-- <a class="dropdown-item" href="#">中文</a> -->
-							<!-- <div class="dropdown-divider"></div> -->
-							<!-- <a class="dropdown-item" href="#">Something else here</a> -->
-						</div>
-					</li>
-					<!-- <li class="nav-item">
-						<a class="nav-link disabled" href="#">Disabled</a>
-					</li> -->
-				</ul>
-				<ul class="navbar-nav">
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-						  Hello, Sven
-						</a>
-						<div class="dropdown-menu dropdown-menu-right">
-							<a class="dropdown-item" href="#"><i class="fa fa-file"></i> <span style="margin-left: 10px;">My Trip</span></a>
-							<a class="dropdown-item" href="#"><i class="fa fa-user"></i> <span style="margin-left: 10px;">Account Setting</span></a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="#"><i class="fa fa-sign-out"></i> <span style="margin-left: 10px;">Log out</span></a>
-							<!-- <a class="dropdown-item" href="#">中文</a> -->
-							<!-- <div class="dropdown-divider"></div> -->
-							<!-- <a class="dropdown-item" href="#">Something else here</a> -->
-						</div>
-					</li>
-				</ul>
-				<!-- <form class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-				</form> -->
-			</div>
-		</nav>
+		<% include module/nav-top.ejs %>
+		
 		<div style="text-align: center; padding: 50px 0 50px;">
 			<div style="font-size: 50px;">Jane Doe</div>
 			<div>2481215101 Seconds</div>
@@ -182,80 +132,103 @@
 					<!-- </div> -->
 				<!-- </div> -->
 			</div>
-			
-			<script>
-			var DateToMMDDYY = function(s){
-				var d = new Date(s);
-				var year = d.getFullYear() - 2000;
-				year = year < 10 ? '0' + year : year;
-				var month = d.getMonth()+1;
-				month = month < 10 ? '0' + month : month;
-				var day = d.getDate();
-				day = day <10 ? '0' + day : day;
-				
-				
-				return month + '|' + day + '|' + year;
-			};
-			var getTripCard = function(data){
-				var $html = $(
-					'<div class="col-md-4" style="padding: 50px; cursor: pointer;" data-id="' + data._id + '">\n' +
-					'	<div style="height: 280px; background-image: url(\'' + data.solution[0].poster + '\'); background-size:contain; background-repeat: no-repeat;background-position: center;">\n' +
-					'	</div>\n' +
-					// '	<img src="' + data.solution[0].poster + '" style="width: 100%; max-height: 200px;">\n' +
-					'	<div style="font-size: 25px;">\n' +
-					'		' + data.origin.address + ' - ' + data.destination.address + '\n' +
-					'	</div>\n' +
-					'	<div style="color: rgba(0,0,0,0.6)">\n' +
-					'		' + DateToMMDDYY(data.start_date) + ' - ' + DateToMMDDYY(data.end_date) + '\n' +
-					'	</div>\n' +
-					'</div>\n'
-				);
-				
-				$html.on('click', function(){
-					window.location.href = "http://127.0.0.1:3000/test10?_id=" + data._id;
-				});
-				
-				return $html;
-			};
-			
-			$.ajax({
-				url : '/test12',
-				data: {},
-				type : "GET",
-				dataType : 'json',
-				success : function (result){
-					console.log(result);
-					$('[data-container="upcoming"]')
-					//	.empty();
-					$('[data-container="complete"]')
-						.empty();
-					var current_time = new Date().getTime();
-					result.forEach(function(item,index){
-						var time = new Date(item.end_date).getTime();
-						var $card = getTripCard(item);
-						if(time > current_time){
-							$('[data-container="upcoming"]').append($card);
-						}else{
-							$('[data-container="complete"]').append($card);
-						}
-						
-						
-					});
-				},
-				error: function(err){
-					console.log('error');
-				}
-			}).done(function() {
-				//console.log();
-				})
-				.fail(function() {
-				//console.log('fail')
-				})
-				.always(function() {
-				$('.loader, .loader-bg').css({'display': 'none'});
-				});
-			</script>
 		</div>
+		<% include module/loader.ejs %>
+		
+		<script>
+		var DateToMMDDYY = function(s){
+			var d = new Date(s);
+			var year = d.getFullYear() - 2000;
+			year = year < 10 ? '0' + year : year;
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate();
+			day = day <10 ? '0' + day : day;
+			
+			
+			return month + '|' + day + '|' + year;
+		};
+		var getTripCard = function(data){
+			var $html = $(
+				'<div class="col-md-4" style="padding: 50px; cursor: pointer;" data-id="' + data._id + '">\n' +
+				'	<div style="height: 280px; background-image: url(\'' + data.solution[0].poster + '\'); background-size:contain; background-repeat: no-repeat;background-position: center;">\n' +
+				'	</div>\n' +
+				// '	<img src="' + data.solution[0].poster + '" style="width: 100%; max-height: 200px;">\n' +
+				'	<div style="font-size: 25px;">\n' +
+				'		' + data.origin.address + ' - ' + data.destination.address + '\n' +
+				'	</div>\n' +
+				'	<div style="color: rgba(0,0,0,0.6)">\n' +
+				'		' + DateToMMDDYY(data.start_date) + ' - ' + DateToMMDDYY(data.end_date) + '\n' +
+				'	</div>\n' +
+				'</div>\n'
+			);
+			
+			$html.on('click', function(){
+				window.location.href = "http://127.0.0.1:3000/test10?_id=" + data._id;
+			});
+			
+			return $html;
+		};
+		$('.loader-bg').css({'display': 'block'});
+		$.ajax({
+			url : '/authenticate/check-authority',
+			data: {},
+			type : "POST",
+			dataType : 'json',
+			success : function (result){
+				loadNav(result);
+			},
+			error: function(err){
+				console.log('error', err);
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+				$('.loader-bg').css({'display': 'none'});
+			});
+		
+		$.ajax({
+			url : '/test12',
+			data: {},
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				
+				console.log(result);
+				$('[data-container="upcoming"]')
+				//	.empty();
+				$('[data-container="complete"]')
+					.empty();
+				var current_time = new Date().getTime();
+				result.forEach(function(item,index){
+					var time = new Date(item.end_date).getTime();
+					var $card = getTripCard(item);
+					if(time > current_time){
+						$('[data-container="upcoming"]').append($card);
+					}else{
+						$('[data-container="complete"]').append($card);
+					}
+					
+					
+				});
+			},
+			error: function(err){
+				console.log('error');
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+				$('.loader-bg').css({'display': 'none'});
+			});
+		</script>
 		
 	</body>
 </html>
