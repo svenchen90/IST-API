@@ -176,7 +176,13 @@
 			type : "POST",
 			dataType : 'json',
 			success : function (result){
-				loadNav(result);
+				if(result == 0){
+					window.location.href = '/';
+				}else{
+					$('[data-type="authorized"]').css({'display': 'list-item'});
+					$('[data-type="authorized"] [data-field="username"]').html(result.first_name);
+					console.log(result);
+				}
 			},
 			error: function(err){
 				console.log('error', err);
