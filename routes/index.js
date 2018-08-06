@@ -269,8 +269,10 @@ router.route('/test5')
 				}
 			} */
 			).then(function(result){
-				console.log(req.query);
-				new Route_Temp({
+				//console.log(req.query);
+				if(req.user){
+					new Route_Temp({
+						_userId: req.user.id,
 						origin:  result.origin,
 						destination: result.destination,
 						start_date: req.query.start,
@@ -281,7 +283,41 @@ router.route('/test5')
 						itinerary: result.itinerary,
 						solution: result.solution,
 						bounds: result.bounds
-					}).save();
+					}).save(function(err){
+						if (err) return handleError(err);
+						User.findById(req.user.id, function (err, user) {
+							if (err) return handleError(err);
+							
+							user.travel_miles = user.travel_miles + result.distance;
+							
+							result.solution.forEach(function(item, index){
+								var temp = item.address.split(',');
+								var city = temp[temp.length-2].trim();
+								var country = 'USA';
+								
+								if(!user.travel_countries.includes(country)) {
+									user.travel_countries.push(country);
+								}
+								if(!user.travel_cities.includes(city)) {
+									user.travel_cities.push(city);
+								}
+								
+								user.travel_POIs = user.travel_POIs.map(function(item, index){
+									return String(item);
+								});
+								
+								if(!user.travel_POIs.includes(item._id)) {
+									user.travel_POIs.push(item._id);
+								}
+							});												
+							user.save(function (err, updatedUser) {
+								if (err) return handleError(err);
+								// console.log(updatedUser);
+								// res.send(updatedTank);
+							});
+						});
+					});
+				}
 				// Route_Temp.remove({}, function(){});
 				res.json(result);
 			}).catch(function(exception){
@@ -314,11 +350,7 @@ router.route('/test6')
 	});
 }); */
 
-router.route('/user_main')
-	.get(function(req, res, next){
-		//console.log(req.query);
-		res.render('user_main',{});
-	});
+
 
 	
 router.route('/test10')
@@ -336,20 +368,57 @@ router.route('/test11')
 			});
 	});
 
-router.route('/test12')
-	.get(function(req, res, next){
-		Route_Temp.find({})
-			.exec(function(err, result){
-				// console.log(result);
-				res.json(result);
-			});
-	});
+	
+	
+
 
 router.route('/')
 	.get(function(req, res, next){
 		res.render('test3',{});
 	});
 
+router.route('/user-main')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('user-main',{});
+	});	
+
+router.route('/update-user-profile')
+	.post(function(req, res, next){
+		console.log(req.body);
+		User.update({ _id: req.user.id }, { $set: req.body}, function(err, user){
+			if (err) return handleError(err);
+			res.json(1);
+		});
+	});
+
+router.route('/update-user-password')
+	.post(function(req, res, next){
+		console.log(req.body);
+		User.findOne({ _id: req.user.id, password: req.body.current_password }, function (err, user) {
+			if(user){
+				user.password = req.body.new_password;
+				user.save(function (err, updatedUser) {
+					if (err) return handleError(err);
+					res.json(1);
+				});
+			}else{
+				var err_msg = {};
+				err_msg.currentPassword = 1
+				res.json(err_msg);
+			}
+    });
+	});	
+	
+router.route('/get-user-routes')
+	.get(function(req, res, next){
+		Route_Temp.find({_userId: req.user.id})
+			.exec(function(err, result){
+				// console.log(result);
+				res.json(result);
+			});
+	});
+	
 router.route('/signup')
 	.post(function(req, res, next){
 		var user_data = req.body;
@@ -361,6 +430,12 @@ router.route('/signup')
 				err_msg.email = 'Email exists!'
 				res.json(err_msg);
 			}else{
+				user_data.travel_miles = 0;
+				user_data.travel_countries = [];
+				user_data.travel_cities = [];
+				user_data.travel_POIs = [];
+				user_data.status = 0;
+				
 				new User(user_data).save(function (err) {
 					if (err) return handleError(err);
 					res.json(1);

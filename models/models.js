@@ -7,7 +7,12 @@ var UserSchema = new Schema({
 	password: {type: String},
 	first_name: {type: String},
 	last_name: {type: String},
-	date_create: {type: Date}
+	date_create: {type: Date},
+	travel_miles: {type: Number},
+	travel_countries: [String],
+	travel_cities: [String],
+	travel_POIs: [Schema.Types.ObjectId],
+	status: {type: Number}
 });
 	
 	
@@ -96,6 +101,7 @@ var RouteSchema = new Schema({
 /* Route */
 
 var RouteTempSchema = new Schema({
+	_userId: Schema.Types.ObjectId,
 	origin: {
 		address: String,
 		geo: [Number]

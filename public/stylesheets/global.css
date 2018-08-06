@@ -1,3 +1,7 @@
+[data-value="errorMsg"] {
+	color: #ed143d;
+}
+
 /* 模态框居中 */
 .modal {
 	text-align: center;

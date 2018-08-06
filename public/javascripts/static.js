@@ -1,0 +1,1 @@
+const DOMIAN_URL = '208.59.145.29';

@@ -47,10 +47,11 @@
 					Hello, <span data-field="username"></span>
 				</a>
 				<div class="dropdown-menu dropdown-menu-right">
-					<a class="dropdown-item" href="/user_main" data-action="userTrip"><i class="fa fa-file"></i> <span style="margin-left: 10px;">My Trip</span></a>
-					<a class="dropdown-item" href="javascript: void(0);" data-action="userProfile"><i class="fa fa-user"></i> <span style="margin-left: 10px;">Account Setting</span></a>
+					<a class="dropdown-item" href="/user-main" data-action="userTrip"><i class="fa fa-bookmark"></i> <span style="margin-left: 10px;" data-locale="mytrip">My Trip</span></a>
+					<a class="dropdown-item" href="javascript: void(0);" data-action="updateProfile"><i class="fa fa-user"></i> <span style="margin-left: 10px;" data-locale="profilesetting">Profile Setting</span></a>
+					<a class="dropdown-item" href="javascript: void(0);" data-action="updatePassword"><i class="fa fa-user-secret"></i> <span style="margin-left: 10px;" data-locale="passwordsetting">Password Setting</span></a>
 					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="/authenticate/logout" data-action="logout"><i class="fa fa-sign-out"></i> <span style="margin-left: 10px;">Log out</span></a>
+					<a class="dropdown-item" href="/authenticate/logout" data-action="logout"><i class="fa fa-sign-out"></i> <span style="margin-left: 10px;" data-locale="logout">Log out</span></a>
 				</div>
 			</li>
 		</ul>
@@ -85,4 +86,18 @@ var loadNav = function(user) {
 		$('[data-type="authorized"] [data-field="username"]').html(user.first_name);
 	}
 };
+
+$('.nav-top').on('click', '[data-action]', function(e){
+	var actionType = $(this).attr('data-action');
+	
+	if(actionType == 'updateProfile'){
+		callProfile();
+	}
+	
+	if(actionType == 'updatePassword'){
+		callPassword();
+	}
+	
+});
+
 </script>

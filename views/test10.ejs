@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset='utf-8' />
-		<title>Filter features within map view</title>
+		<title data-locale="pageTitle">IST</title>
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 		<!-- mapbox-gl -->
 		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
@@ -49,120 +49,32 @@
 		<link href='stylesheets/mapbox-style.css' rel='stylesheet' />
 		
 		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		
+		<link href='stylesheets/global.css' rel='stylesheet' />
+		<link href='stylesheets/main.css' rel='stylesheet' />
+		<script src="javascripts/gear.js"></script>
 	</head>
 	
 	<body>
-		<div id="map"></div>
+		<div id="map"></div>		
 		
-		<style>
-		body { margin:0; padding:0; }
-		#map { 
-			position:absolute; 
-			top:63px;
-			left: 70px;
-			width:calc(100vw - 70px);
-			bottom:0;  
-		}
-		
-		/*#map { position:absolute; top:0; bottom:0; width:100%; }*/
-		/* .mapboxgl-ctrl-bottom-left { display: none } */
-		/* .mapboxgl-ctrl-bottom-right { display: none } */
-		</style>
-		
-		<nav class="navbar navbar-expand-lg navbar-light bg-light" style="z-index: 4;">
-			<a class="navbar-brand" href="#">
-				<img class="egbzLU" src="img/logo-dark@2x.png" alt="iTripSmart logo" style="width: 130px; padding: 8px 0;">
-			</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-					<!-- <li class="nav-item active">
-						<a class="nav-link" href="#">Home 
-							<span class="sr-only">(current)</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Link</a>
-					</li> -->
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-						  English
-						</a>
-						<div class="dropdown-menu">
-							<a class="dropdown-item" href="#">English</a>
-							<!-- <a class="dropdown-item" href="#">中文</a> -->
-							<!-- <div class="dropdown-divider"></div> -->
-							<!-- <a class="dropdown-item" href="#">Something else here</a> -->
-						</div>
-					</li>
-					<!-- <li class="nav-item">
-						<a class="nav-link disabled" href="#">Disabled</a>
-					</li> -->
-				</ul>
-				<ul class="navbar-nav">
-					<li class="nav-item active" style="margin-right: 10px;">
-						<a data-action="signup" class="nav-link" href="#" style="background-color: #1FB5C7; color: white; font-weight: 600; font-size: 12px; border-radius: 20px;padding: 7px 32px;">SIGN UP</a>
-					</li>
-					<li class="nav-item">
-						<a data-action="login" class="nav-link" href="#" style="font-weight: 600; font-size: 12px; border-radius: 20px;padding: 7px 32px;">LOG IN</a>
-					</li>
-				</ul>
-				<!-- <form class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-				</form> -->
-			</div>
-		</nav>
-		
+		<% include module/profile-setting.ejs %>
+		<% include module/password-setting.ejs %>
+		<% include module/nav-top.ejs %>
 		
 		<div class="left-nav">
-			<ul style="padding: 0;list-style-type: none;text-align: center;">
-				<li class="disabled"  data-action="select-city"><img src="img/cities-w@2x.png"></li>
-				<li class="disabled" data-action="select-date"><img src="img/dates-w@2x.png"></li>
-				<li class="disabled" data-action="input-traveler"><img src="img/travelers-w@2x.png"></li>
-				<li class="disabled" data-action="select-preference"><img src="img/preferences-w@2x.png"></li>
-				<li class="disabled" data-action="get-hotel"><img src="img/hotel-w@2x.png"></li>
-				<li class="disabled" data-action="get-food"><img src="img/food-w@2x.png"></li>
-				<li class="disabled" data-action="get-itinerary"><img src="img/itinerary-w@2x.png"></li>
-				<li class="disabled" data-action="get-weather"><img src="img/weather-w@2x.png"></li>
+			<ul>
+				<li class="disabled" data-action="select-city" data-locale="navLocation"><img src="img/cities-w@2x.png"></li>
+				<li class="disabled" data-action="select-date" data-locale="navDate"><img src="img/dates-w@2x.png"></li>
+				<li class="disabled" data-action="input-traveler" data-locale="navTraveler"><img src="img/travelers-w@2x.png"></li>
+				<li class="disabled" data-action="select-preference" data-locale="navPreference"><img src="img/preferences-w@2x.png"></li>
+				<li class="disabled" data-action="get-hotel" data-locale="navHotel"><img src="img/hotel-w@2x.png"></li>
+				<li class="disabled" data-action="get-food" data-locale="navFood><img src="img/food-w@2x.png"></li>
+				<li class="disabled" data-action="get-itinerary" data-locale="navItinerary"><img src="img/itinerary-w@2x.png"></li>
+				<li class="disabled" data-action="get-weather" data-locale="navWeather"><img src="img/weather-w@2x.png"></li>
 			</ul>
 		</div>
-		<style>
-		.left-nav {
-			position: absolute;
-			display: block;
-			z-index: 3;
-			top: 0;
-			left: 0;
-			width: 70px;
-			height: 100%;
-			padding-top: 63px;
-			background-color: #F58123;
-			color: white;
-		}
 		
-		.left-nav li {
-			padding:12px;
-			cursor: pointer;
-		}
-		
-		.left-nav li > img{
-			width: 20px;
-		}
-		
-		.left-nav li.active > img {
-			-webkit-filter: invert(100%);
-			filter: invert(100%);
-			-webkit-filter: invert(100%);
-		}
-		
-		.left-nav li.disabled > img {
-			opacity: 0.3;
-		}
-		
-		</style>
 		
 		<div class="right-info">
 			<div>
@@ -187,202 +99,41 @@
 		</style>
 		
 		<div id="select-city" class="input-block">
-			<div class="head">
-				Cities Selection
-			</div>
+			<div class="head" data-locale="titleLocation">Cities Selection</div>
 			<div class="body">
 				<div class="form-group">
-					<label>ORIGIN</label>
+					<label data-locale="originLocation">ORIGIN</label>
 					<div id="origin" data-container></div>
 				</div>
 				<div class="form-group">
-					<label>DESTINATION</label>
+					<label data-locale="originDestination">DESTINATION</label>
 					<div id="destination" data-container></div>
 				</div>
 			</div>
 		</div>
-		<style>
-		.input-block {
-			position: absolute;
-			z-index: 3;
-			top: 0;
-			left: 70px;
-			display: none;
-			width: 280px;
-			padding-top: 63px;
-			background-color: white;
-		}
-		
-		.input-block .head{
-			display: table-cell;
-			height: 45px;
-			width: 500px;
-			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-			font-weight: 300;
-			opacity: 0.9;
-			background-color: #232323;
-			text-align: left;
-			vertical-align: middle;
-			font-size: 20px;
-			font-weight: 200;
-			color: #FFFFFF;
-			letter-spacing: 1px;
-			line-height: 28px;
-			padding-left: 10px;
-		}
-		
-		.input-block .body{
-			padding: 20px 20px 25px 20px;
-		}
-		
-		#origin .mapboxgl-ctrl-geocoder {
-			z-index: 2;
-		}
-		
-		</style>
 	
-	
-		<style>
-		#calendar-top { 
-		  background-color: #333;
-		  color: #fff;
-		  padding: 20px 20px 25px 20px;
-		  line-height: 1em;
-		  text-transform: uppercase;
-		 }
-		#calendar-top label { 
-		  font-size: 12px; 
-		  font-weight: 100; 
-		  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-		  text-transform: uppercase; 
-		  display: block; 
-		  padding-bottom: 5px;
-		}
-		#calendar-top select { 
-		  font-size: 12px; 
-		  font-weight: 100; 
-		  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-		  border: 2.5px solid #ddd; 
-		  text-transform: uppercase; 
-		  padding: 5px; 
-		  width: 210px; 
-		  margin-bottom: 25px;
-		}
-		#calendar-top select option {}
-		#calendar-top select:last-child { 
-		  margin-bottom: 0;
-		}
-		#calendar-top svg { 
-		  display: block; 
-		  margin: auto; 
-		  height: 40px;
-		}
-		#calendar-top .active { 
-		  text-shadow: 0 0 150px #FFF, 0 0 60px #FFF, 0 0 10px #FFF;
-		}
-		#calendar-top .day { 
-		  font-size: 65px;
-		}
-		#calendar-top .month { 
-		  font-size: 10px;
-		}
-		#calendar-top .weekday { 
-		  font-size: 12px;
-		}
-		#calendar-top .start { 
-		  font-size: 26px;
-		}
-		#calendar-top .order { 
-		  font-size: 22px;
-		}
-		#calendar-top .left { 
-		  float: left; 
-		  padding-right: 20px;
-		}
-		#calendar-top .right { 
-		  float: left; 
-		  padding-right: 0;
-		}
-		#calendar-top .start-date { 
-		  cursor: pointer; 
-		  height: 60px;
-		}
-		#calendar-top .start-date .left { 
-		  padding-top: 15px; 
-		  width: 90px; 
-		  text-align: right;
-		}
-		#calendar-top .start-date .right { 
-		  width: 100px;
-		}
-		#calendar-top .start-date :after { 
-		  content: ""; 
-		  display: table; 
-		  clear: both;
-		}
-		#calendar-top .end-date { 
-		  cursor: pointer; 
-		  margin-top: 10px; 
-		  height: 60px;
-		}
-		#calendar-top .end-date .left { 
-		  padding-top: 15px; 
-		  width: 150px; 
-		  text-align: right;
-		}
-		#calendar-top .end-date .right { 
-		  width: 50px;
-		}
-		#calendar-top .end-date :after { 
-		  content: ""; 
-		  display: table; 
-		  clear: both;
-		}
-		#calendar-top .end { 
-		  font-size: 26px; 
-		  top: 30px;
-		  left: 170px; 
-		  position: relative;
-		}
-		
-		#calendar {
-			padding: 10px;
-		}
-		
-		#calendar .table-condensed, #calendar .datepicker-inline{
-			width: 100%;
-		}
-		
-		/* #calendar .datepicker-days .table-condensed .day.active ~ .day{
-			background: red;
-		}*/
-		
-		</style>
-		
 		<div id="select-date" class="input-block">
-			<div class="head">
+			<div class="head" data-locale="titleDate">
 				Travel Dates
 			</div>
 			<div class="body" style="padding: 0;">
 				<div id="calendar-top">
-					<!-- <span style="font-size: 26px;text-shadow: 0 0 150px #FFF, 0 0 60px #FFF, 0 0 10px #FFF;">START</span> -->
 					<div class="start-date active">
-						<span class="start"><span>start</span></span>
+						<span class="start"><span data-locale="dateStart">start</span></span>
 					</div>
 					<div style="text-align: center;">
 						<svg style="height: 40px; fill: currentColor;" version="1.1" id="Layer_1" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve"><path d="M694.4,242.4l249.1,249.1c11,11,11,21,0,32L694.4,772.7c-5,5-10,7-16,7c-6,0-11-2-16-7c-11-11-11-21,0-32l210.1-210.1H67.1c-13,0-23-10-23-23c0-13,10-23,23-23h805.4L662.4,274.5C641.4,253.4,673.4,221.4,694.4,242.4z"></path></svg>
 					</div>
 					<div class="end-date active">
-						<span class="end"><span>end</span></span>
+						<span class="end"><span data-locale="dateEnd">end</span></span>
 					</div>
 				</div>
 				<div id="calendar"></div>				
 			</div>
 		</div>
 		
-		
 		<div id="select-preference" class="input-block">
-			<div class="head">
+			<div class="head" data-locale="titlePreference">
 				Preferences
 			</div>
 			<div class="body clearfix">
@@ -391,118 +142,31 @@
 					<input id="pace" type="range"/>
 				</div> -->
 				<div class="form-group lightgreen-bar">
-					<label>NATURE</label>
+					<label data-locale="naturePreference">NATURE</label>
 					<input id="nature">
 				</div>
 				<div class="form-group black-bar">
-					<label>CULTURE</label>
+					<label data-locale="culturePreference">CULTURE</label>
 					<input id="culture">
 				</div>
 				<div class="form-group lightblue-bar">
-					<label>AMUSEMENT</label>
+					<label data-locale="amusementPreference">AMUSEMENT</label>
 					<input id="amusement">
 				</div>
 				<div class="form-group red-bar">
-					<label>SHOPPING</label>
+					<label data-locale="shoppingPreference">SHOPPING</label>
 					<input id="shopping">
 				</div>
 				<div class="form-group orange-bar">
-					<label>NIGHTLIFE</label>
+					<label data-locale="nightlifePreference">NIGHTLIFE</label>
 					<input id="nightlife">
 				</div>
-				<button class="btn btn-sm btn-primary" data-action="submit" style="float:right;background-color: #1FB5C7; border: none;">Submit</button>
+				<button class="btn btn-sm btn-primary" data-action="submit" data-locale="submitPreference" style="float:right;background-color: #1FB5C7; border: none;">
+					Submit
+				</button>
 			</div>
 		</div>
-		<style>
-		#select-preference [type=range] {
-			padding: 0;
-		}
-		
-		#select-preference .slider-horizontal {
-			width: 100%;
-		}
-		
-		#select-preference .slider-handle {
-			background-color: white;
-			background-image: none;
-			border: 2px solid #96dbfa;
-			cursor: pointer;
-		}
-		
-		#select-preference .lightgreen-bar .slider-selection {
-			background: #a1b968;
-		}
-		#select-preference .black-bar .slider-selection {
-			background: #073b56;
-		}
-		#select-preference .lightblue-bar .slider-selection {
-			background: #008eb8;
-		}
-		#select-preference .red-bar .slider-selection {
-			background: #c22c11;
-		}
-		#select-preference .orange-bar .slider-selection {
-			background: #f36c00;
-		}
-		</style>
-		
-		<style>
-		.block-with-text {
-		  /* hide text if it more than N lines  */
-		  overflow: hidden;
-		  /* for set '...' in absolute position */
-		  position: relative; 
-		  /* use this value to count block height */
-		  line-height: 1.2em;
-		  /* max-height = line-height (1.2) * lines max number (3) */
-		  max-height: 2.4em; 
-		  /* fix problem when last visible word doesn't adjoin right side  */
-		  text-align: justify;
-		  
-		  /* 
-		  margin-right: -1em;*/
-		  padding-right: 1em;
-		}
-		.block-with-text:before {
-		  /* points in the end */
-		  content: '...';
-		  /* absolute position */
-		  position: absolute;
-		  /* set position to right bottom corner of block */
-		  right: 0;
-		  bottom: 0;
-		}
-		.block-with-text:after {
-		  /* points in the end */
-		  content: '';
-		  /* absolute position */
-		  position: absolute;
-		  /* set position to right bottom corner of text */
-		  right: 0;
-		  width: 1em;
-		  /* set width and height */
-		  height: 1em;
-		  margin-top: 0.2em;
-		  background: white;
-		}
-		</style>
-		
-		<style>
-		.timeline-item .details {
-			max-height: 0; 
-			overflow-y: hidden;
-			-webkit-transition: max-height 0.5s; 
-		  -moz-transition: max-height 0.5s; 
-		  -ms-transition: max-height 0.5s; 
-		  -o-transition: max-height 0.5s; 
-		  transition: max-height 0.5s;  
-		}
-		.timeline-item:hover .details, .timeline-item.active .details {
-			max-height: 2000px;
-		}
-		</style>
-		
-		
+	
 		<div id="get-itinerary" class="input-block customized-scrollbar" style="width: 500px;overflow-y: auto; max-height:100%;">
 			<div class="head">
 				Itinerary
@@ -514,1092 +178,73 @@
 			</div>
 		</div>
 		
-		<style>
-		/* 自定义滚动条 */
-		.customized-scrollbar::-webkit-scrollbar-track {
-			-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-			border-radius: 5px;
-			background-color: #F5F5F5;
-		}
-
-		.customized-scrollbar::-webkit-scrollbar {
-			width: 6px;
-			background-color: #F5F5F5;
-		}
-
-		.customized-scrollbar::-webkit-scrollbar-thumb {
-			border-radius: 5px;
-			-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-			background-color: rgba(0,0,0,0.3);
-		}
-		/* End of 自定义滚动条 */
-		
-		.bg-blue {
-			color: white !important;
-			background-color: #007bff !important;
-		}
-		
-		.bg-navy {
-			color: white !important;
-			background-color: #001f3f !important;
-		}
-		.bg-teal {
-			color: white !important;
-			background-color: #39cccc !important;
-		}
-		.bg-olive {
-			color: white !important;
-			background-color: #3d9970 !important;
-		}
-		.bg-lime {
-			color: white !important;
-			background-color: #01ff70 !important;
-		}
-		.bg-orange {
-			color: white !important;
-			background-color: #ff851b !important;
-		}
-		.bg-fuchsia {
-			color: white !important;
-			background-color: #f012be !important;
-		}
-		.bg-purple {
-			color: white !important;
-			background-color: #605ca8 !important;
-		}
-		.bg-maroon {
-			color: white !important;
-			background-color: #d81b60 !important;
-		}
-		</style>
-		
-		
-		<style>
-		.timeline li.theme-bg-blue > i, .timeline li.theme-bg-blue .timeline-header {
-			color: white !important;
-			background-color: #007bff !important;
-		}
-		
-		.timeline li.theme-bg-maroon > i, .timeline li.theme-bg-maroon .timeline-header {
-			color: white !important;
-			background-color: #d81b60 !important;
-		}
-		
-		.timeline li.theme-bg-blue .time, 
-		.timeline li.theme-bg-blue .timeline-header a,
-		.timeline li.theme-bg-maroon .time, 
-		.timeline li.theme-bg-maroon .timeline-header a {
-			color: white !important;
-		}
-
-		.timeline-body .poster {
-			cursor: pointer;
-		}
-		
-		.timeline-body .poster img {
-			width: 100%;
-		}
-		
-		.timeline-body .detail-block {
-			margin-bottom: 5px;
-		}
-		
-		.timeline-body .detail-block .label {
-			font-weight: 600;
-		}
-		
-		.timeline-body .detail-block .text {
-			font-size: 14px;
-			margin-left: 15px;
-		}
-		
-		/* origin */
-		.timeline {
-		  position: relative;
-		  margin: 0 0 30px 0;
-		  padding: 0;
-		  list-style: none;
-		}
-		.timeline:before {
-		  content: '';
-		  position: absolute;
-		  top: 0;
-		  bottom: 0;
-		  width: 4px;
-		  background: #ddd;
-		  left: 31px;
-		  margin: 0;
-		  border-radius: 2px;
-		}
-		.timeline > li {
-		  position: relative;
-		  margin-right: 10px;
-		  margin-bottom: 15px;
-		}
-		.timeline > li:before,
-		.timeline > li:after {
-		  content: " ";
-		  display: table;
-		}
-		.timeline > li:after {
-		  clear: both;
-		}
-		.timeline > li > .timeline-item {
-		  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-		  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-		  border-radius: 3px;
-		  margin-top: 0;
-		  background: #fff;
-		  color: #444;
-		  margin-left: 60px;
-		  margin-right: 15px;
-		  padding: 0;
-		  position: relative;
-		}
-		.timeline > li > .timeline-item > .time {
-		  color: #999;
-		  float: right;
-		  padding: 10px;
-		  font-size: 12px;
-		}
-		.timeline > li > .timeline-item > .timeline-header {
-		  margin: 0;
-		  color: #555;
-		  border-bottom: 1px solid #f4f4f4;
-		  padding: 10px;
-		  font-size: 16px;
-		  line-height: 1.1;
-		}
-		.timeline > li > .timeline-item > .timeline-header > a {
-		  font-weight: 600;
-		}
-		.timeline > li > .timeline-item > .timeline-body,
-		.timeline > li > .timeline-item > .timeline-footer {
-		  padding: 10px;
-		}
-		.timeline > li > .fa,
-		.timeline > li > .glyphicon,
-		.timeline > li > .ion {
-		  width: 30px;
-		  height: 30px;
-		  font-size: 15px;
-		  line-height: 30px;
-		  position: absolute;
-		  color: #666;
-		  background: #d2d6de;
-		  border-radius: 50%;
-		  text-align: center;
-		  left: 18px;
-		  top: 0;
-		}
-		.timeline > .time-label > span {
-		  font-weight: 600;
-		  padding: 5px;
-		  display: inline-block;
-		  background-color: #fff;
-		  border-radius: 4px;
-		}
-		.timeline-inverse > li > .timeline-item {
-		  background: #f0f0f0;
-		  border: 1px solid #ddd;
-		  -webkit-box-shadow: none;
-		  box-shadow: none;
-		}
-		.timeline-inverse > li > .timeline-item > .timeline-header {
-		  border-bottom-color: #ddd;
-		}
-		/* ! origin */
-		</style>
-		
-		
-		<div class="loader-bg"></div>
-		<div class="loader"></div>
-		<style>
-		.loader-bg {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0,0,0,0.3);
-			display: none;
-			z-index: 1000;
-		}
-		
-		.loader {
-			margin-left: 50%;
-			margin-top: 30vh;
-			display: none;
-			z-index: 1001;
-		}
-		
-		/* origin */
-		.loader {
-		  border: 8px solid #f3f3f3;
-		  border-radius: 50%;
-		  border-top: 8px solid #F58123;
-		  width: 60px;
-		  height: 60px;
-		  -webkit-animation: spin 2s linear infinite; /* Safari */
-		  animation: spin 2s linear infinite;
-		}
-
-		/* Safari */
-		@-webkit-keyframes spin {
-		  0% { -webkit-transform: rotate(0deg); }
-		  100% { -webkit-transform: rotate(360deg); }
-		}
-
-		@keyframes spin {
-		  0% { transform: rotate(0deg); }
-		  100% { transform: rotate(360deg); }
-		}
-		/* ! origin */
-		</style>
-		
-		
-		
-		
-		
-		
 		<script>
-			var map = initializeMapbox('map', 'streets', [-98.2093396778871, 39.61233583451258], 4);
-			map.on('load', function(){
-			
-				/*
-				map.on('render', function(e){
-					delay(function(){
-						bindMaker(map);
-					}, 50);
-				});
-				*/
-			});
-			
-			const LEFT_NAV = ['select-city', 'select-date', 'input-traveler', 'select-preference', 'get-hotel', 'get-food', 'get-itinerary', 'get-weather'];
-			const INPUT_BLOCK_ID = LEFT_NAV.map(function(item){
-				return '#' + item;
-			});
-			
-			var disable_list = [2,4,5,7];
-			var enableFollow = function(nav_name, len=1){
-				var index = LEFT_NAV.indexOf(nav_name);
-				while(len != 0 && index + 1 < LEFT_NAV.length){
-					index += 1;
-					len -= 1;
-					if(!disable_list.includes(index))
-						$('[data-action="' + LEFT_NAV[index] + '"]').removeClass('disabled');
-				}
-			};
-			
-			var disableAllFollow = function(nav_name){
-				var index = LEFT_NAV.indexOf(nav_name) + 1;
-				for(; index<LEFT_NAV.length;index ++){
-					$('[data-action="' + LEFT_NAV[index] + '"]').addClass('disabled');
-				}
-			};
-			
-			$('.left-nav').on('click', '[data-action]:not(.disabled)', function(){
-				var action_type = $(this).attr('data-action');
-
-				$(INPUT_BLOCK_ID.join(', ')).css({
-					'display': 'none'
-				});
-				
-				$(INPUT_BLOCK_ID[LEFT_NAV.indexOf(action_type)]).css({'display': 'block'})
-
-				$(this).siblings().removeClass('active');
-				$(this).addClass('active');
-			});
-			
-			var form = {};
-			
-			// select-city
-			var initialCitySelection = function(form){
-				var completionCheck = function(){
-					if(form.origin == '' || form.origin == undefined  || form.destination == '' || form.destination == undefined)
-						return false;
-					else
-						return true;
-				};
-				
-				var completionCallback = function(){
-					if(completionCheck()){
-						enableFollow('select-city');
-					}else{
-						disableAllFollow('select-city');
-					}
-				};
-				
-				var geocoder1 = new MapboxGeocoder({
-					accessToken: mapboxgl.accessToken
-				});
-				$('#select-city #origin').append(geocoder1.onAdd(map));
-				var geocoder2 = new MapboxGeocoder({
-					accessToken: mapboxgl.accessToken
-				});
-				$('#select-city #destination').append(geocoder2.onAdd(map));
-				
-				
-				$('#select-city #origin input, #select-city #destination input').on('change', function(e){
-					var key = $(this).closest('[data-container]').attr('id');
-					var value = $(this).val();
-					form[key] = value;
-					completionCallback();
-				});
-
-				$('.geocoder-icon-close').on('click', function(e){
-					var id = $(this).closest('#origin, #destination').attr('id');
-					form[id] = '';
-					completionCallback();
-				});
-			};
-			
-			// select-date 
-			var initialDateSelection = function(form){
-				var completionCheck = function(){
-					if(form.start == '' || form.start == undefined  || form.end == '' || form.end == undefined)
-						return false;
-					else
-						return true;
-				};
-				
-				var validation = function(){
-					// var current_time = new Date().getTime();
-					var start_time = new Date(form.start).getTime()
-					var end_time = new Date(form.end).getTime()
-					if(start_time >= end_time)
-						return false;
-					else
-						return true;
-
-				};
-				
-				var completionCallback = function(){
-					if(completionCheck() && validation()){
-						enableFollow('select-date', 2);
-					}else{
-						disableAllFollow('select-date');
-					}
-				};
-				
-				var DateToYYYYMMDD = function(d){
-					var year = d.getFullYear();
-					var month = d.getMonth()+1;
-					month = month < 10 ? '0' + month : month;
-					var day = d.getDate();
-					day = day <10 ? '0' + day : day;
-					
-					
-					return year + '-' + month + '-' + day;
-				};
-				
-				var $calendar = $('#calendar');
-				var setRange = function(dates, language = 'en', $container = $('#calendar-top')){
-					var getMonthName = function(date) {
-						const monthNames = ["January", "February", "March", "April", "May", "June",
-						  "July", "August", "September", "October", "November", "December"
-						];
-						
-						return monthNames[date.getMonth()];
-					};
-					
-					var getWeekday = function(date) {
-						const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-						return weekdayNames[date.getDay()];
-					}
-					
-					var updateDateField = function(date, start_or_end) {
-						var $html;
-						if(date == ''){
-							$html = $(
-								'<span class="' + start_or_end + '"><span>' + start_or_end + '</span></span>\n'
-							);
-						}else{
-							$html = $(
-								'<div class="left">\n' +
-								'	<span class="day">' + date.getDate() + '</span>\n' +
-								'</div>\n' +
-								'<div class="right">\n' +
-								'	<span class="order"><span>' + start_or_end + '</span></span>\n' +
-								'	<span class="weekday">' + getWeekday(date) + '</span>\n' +
-								'	<span class="month">' + getMonthName(date) + '/' + date.getFullYear() + '</span>\n' +
-								'</div>\n'
-							);
-						}
-						
-						$container.find('.' + start_or_end + '-date')
-							.empty()
-							.append($html);
-					}
-					
-					dates.sort(function(d1, d2){
-						return d1.getTime() >= d2.getTime();
-					});
-					
-					if(dates.length == 0){
-						updateDateField('', 'start');
-						updateDateField('', 'end');
-					}else if(dates.length == 1){
-						updateDateField(dates[0], 'start');
-						updateDateField('', 'end');
-					}else if(dates.length == 2){
-						updateDateField(dates[0], 'start');
-						updateDateField(dates[1], 'end');
-					}else{
-						console.log('error');
-					}
-				};
-				
-				var setCalendarRangeView = function($container = $calendar){
-					var dates = $container.datepicker('getDates');
-					dates.sort(function(d1, d2){
-						return d1.getTime() >= d2.getTime();
-					});
-					if(dates.length < 2){
-						$container.find('.day.range').removeClass('range');
-					}else if(dates.length == 2){
-						var start_datetime = dates[0].getTime();
-						var end_datetime = dates[1].getTime();
-						$container.find('.day').each(function(index, day){
-							var dt = $(day).attr('data-date');
-							if(start_datetime < dt && end_datetime > dt)
-								$(this).addClass('range');
-						});
-					}else{
-						console.log('error');
-					}
-				};
-				
-				$calendar.datepicker({
-					// language: 'zh-CN'
-					multidate: true
-				}).on('changeDate', function(e) {
-					var dates = $(this).datepicker('getDates');
-					var d = $(this).datepicker('getDate');
-					
-					if(dates.length > 2){
-						$calendar.datepicker('update', d);
-					}
-					dates = $(this).datepicker('getDates');
-					setRange(dates);
-					setCalendarRangeView();
-					
-					// set form
-					if(dates.length == 0){
-						form.start = '';
-						form.end = '';
-					}else if(dates.length == 1){
-						form.start = DateToYYYYMMDD(dates[0]);
-						form.end = '';
-					}else if (dates.length == 2){
-						form.start = DateToYYYYMMDD(dates[0]);
-						form.end = DateToYYYYMMDD(dates[1]);
-					}else{
-						// console.log(1);
-					};
-					completionCallback();
-				});
-			};
-			
-			// select-preference
-			var intialPreferenceSelection = function(form){
-				var completionCallback = function(){
-					enableFollow('select-date', 4);
-				};
-
-				
-				$("#pace").slider({ id: "pace_bar", min: 0, max: 10, value: 5 });
-				$("#nature").slider({ id: "nature_bar", min: 0, max: 10, value: 5 });
-				$("#culture").slider({ id: "culture_bar", min: 0, max: 10, value: 5 });
-				$("#amusement").slider({ id: "amusement_bar", min: 0, max: 10, value: 5 });
-				$("#shopping").slider({ id: "shopping_bar", min: 0, max: 10, value: 5 });
-				$("#nightlife").slider({ id: "nightlife_bar", min: 0, max: 10, value: 5 });
-				
-				form.preference = {
-					'nature': 5,
-					'culture': 5,
-					'amusement': 5,
-					'shopping': 5,
-					'nightlife': 5
-				}
-				$('#select-preference').on('change', '[type=range]', function(e){
-					var key = $(this).attr('id');
-					var value = parseInt($(this).val());
-					form.preference[key] = value;
-				});
-				
-				$('#select-preference').on('click', '[data-action="submit"]', function(e){
-					form.waypoints = []
-					var $btn = $(this);
-					$btn.addClass('disabled');
-					
-					$('.loader, .loader-bg').css({'display': 'block'});
-					
-					$.ajax({
-						url : '/test5',
-						data: form,
-						type : "GET",
-						dataType : 'json',
-						success : function (result){
-							console.log(result);
-							initializeRouteLayer(map, 
-								[{route: result.path.coordinates}]
-							);
-							
-							initializePOILayer(map, result.solution);
-							// console.log(result);
-							/*
-							initializeBufferLayer(map, 
-								result.buffer.map(function(b){
-									return {points: b}
-								})
-							);
-							*/
-							loadItinerary(form.start, result.itinerary)
-							completionCallback();
-							
-							$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
-							$('[data-action="' + LEFT_NAV[3] + '"]').removeClass('active');							
-							$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
-							$(INPUT_BLOCK_ID[6]).css({'display': 'block'});							
-							
-							$btn.remove();
-							
-							
-							
-							map.fitBounds(result.bounds,{
-								  padding: {top: 100, bottom:50, left: 600, right: 50}
-								}
-							)
-							bindMaker_Static(map)
-							// map.moveLayer('buffer', 'route')
-							// console.log(result);
-						},
-						error: function(err){
-							console.log('error');
-						}
-					}).done(function() {
-						//console.log();
-					  })
-					  .fail(function() {
-						//console.log('fail')
-					  })
-					  .always(function() {
-						$('.loader, .loader-bg').css({'display': 'none'});
-					  });
-				});
-			}
-			
-			
-			var linkInternaryAndMark = function(){
-				$('#map').on('click', '.marker', function(){
-					var _id = $(this).attr('data-id');
-					$('#get-itinerary').animate({
-						scrollTop: $('#get-itinerary [data-id="' + _id + '"]').position().top
-					}, 2000);
-					
-					$('#map .marker').removeClass('active');
-					$(this)
-						.addClass('active')
-						siblings().removeClass('active');
-				});
-				
-				$('#map').on('click', ':not(.marker)' ,function(){
-					$('#map .marker').removeClass('active');
-				});
-				
-				
-				$('#get-itinerary').on('click', 'li[data-id]', function(){
-					var _id = $(this).attr('data-id');
-					$('#map .marker').removeClass('active');
-					var $marker = $('#map .marker[data-id="' + _id + '"]')
-					
-					$marker.addClass('active');
-					map.flyTo({
-						center: [
-							$marker.attr('data-lng'),
-							$marker.attr('data-lat')
-						],
-						zoom: 12,
-						speed: 0.8,
-						curve: 1,
-					});
-					
-				});
-			};
-			
-			var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul')) {
-				var getPOICard = function(data) {
-					// console.log(data);
-					var getRates = function(rates_list){
-						var total_scores = 0.0;
-						var total_number = 0;
-						rates_list.forEach(function(r, index){
-							total_number += parseInt(r);
-							total_scores += (rates_list.length-index) * parseInt(r);
-						});
-						
-						return total_scores/total_number;
-					};
-					
-					var getRatesText = function(rates){
-						// console.log(rates);
-						var $text = $('<span></span>');
-						var round_rates = rates.toFixed(1);
-						for(var i=1; i<=5; i++){
-							if(i <= rates){
-								$text.append('<i class="fa fa-star"></i>\n');
-							}else if(i > rates && i-1 < rates){
-								$text.append('<i class="fa fa-star-half-o"></i>\n');
-							}else{
-								$text.append('<i class="fa fa-star-o"></i>\n');
-							}
-						}
-						$text.append('<span>' + round_rates + '</span>\n');
-						//console
-						return $text.html();
-					};
-					
-					var $card = $(
-						'<li class="theme-bg-blue" data-id="' + data._id + '">\n' +
-						'	<i class="fa fa-university"></i>\n' +
-						'	<div class="timeline-item">\n' +
-						'		<!-- <span class="time"><i class="fa fa-clock-o"></i> 12:05</span> -->\n' +
-						'		<h3 class="timeline-header"><a href="#"><i class="fa fa-university"></i> ' + data.name + '</a></h3>\n' +
-						'		<div class="timeline-body">\n' +
-						'			<div class="poster">\n' +
-						'				<img src="' + data.poster + '" alt="...">\n' +
-						'			</div>\n' +
-						'			<div class="details">\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-building-o"></i> Description: </span>\n' +
-						'					<div class="text">\n' +
-						'						' + (data.description ? data.description : 'N/A') + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-table"></i> Rates: </span>\n' +
-						'					<div class="text" style="color: gold;">\n' +
-						'						' + getRatesText(getRates(data.ratings)) + '\n' +						
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-location-arrow"></i> Address: </span>\n' +
-						'					<div class="text">\n' +
-						'						' + data.address + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-child"></i> Length of Visit: </span>\n' +
-						'					<div class="text">\n' +
-						'						 ' + data.length_visit + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-globe"></i> Website: </span>\n' +
-						'					<div class="text">\n' +
-						'						 ' + data.website + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-calendar-times-o"></i> Hours: </span>\n' +
-						'					<div class="text">\n' +
-						'						 ' + data.hours + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-phone"></i> Phone: </span>\n' +
-						'					<div class="text">\n' +
-						'						 ' + data.phone + '\n' +
-						'					</div>\n' +
-						'				</div>\n' +
-						'			</div>\n' +
-						'		</div>\n' +
-						'		<!-- <div class="timeline-footer">\n' +
-						'			<a class="btn btn-primary btn-xs">Read more</a>\n' +
-						'			<a class="btn btn-danger btn-xs">Delete</a>\n' +
-						'		</div> -->\n' +
-						'	</div>\n' +
-						'</li>\n'
-					);
-					return $card;
-				};
-				
-				var getRouteCard = function(data) {
-					var secondToHourMinute = function(s) {
-						var s = parseInt(s);
-						var h = Math.floor(s/3600);
-						var m = Math.floor((s%3600) / 60);
-						
-						var result = '';
-						if(h > 0)
-							result += h + ' h ';
-						result += m + ' min';
-						return result;
-					};
-					
-					var meterToMile = function(m, fix= 1) {
-						var m = parseInt(m);
-						var result = (m / 1609).toFixed(fix);
-						if(result == 0 & fix<3)
-							return meterToMile(m, fix+1);
-						return result;
-					}
-					var $card = $(
-						'<li class="theme-bg-maroon">\n' +
-						'	<i class="fa fa-road"></i>\n' +
-						'	<div class="timeline-item">\n' +
-						'		<!-- <span class="time" style="color: white;"><i class="fa fa-clock-o"></i> 12:05</span> -->\n' +
-						'		<h3 class="timeline-header"><a href="#"><i class="fa fa-road"></i></a></h3>\n' +
-						'		<div class="timeline-body">\n' +
-						'			<div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-circle-o"></i> Start: </span>\n' +
-						'					<span class="text">\n' +
-						'						' + data.origin.address + '\n' +
-						'					</span>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span  class="label"><i class="fa fa-map-pin"></i> End: </span>\n' +
-						'					<span class="text">\n' +
-						'						' + data.destination.address + '\n' +
-						'					</span>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-table"></i> Time Cost: </span>\n' +
-						'					<span class="text">\n' +
-						'						' + secondToHourMinute(data.duration) + '\n' +
-						'					</span>\n' +
-						'				</div>\n' +
-						'				<div class="detail-block">\n' +
-						'					<span class="label"><i class="fa fa-car"></i> Distance: </span>\n' +
-						'					<span class="text">\n' +
-						'						' + meterToMile(data.distance) + ' miles\n' +
-						'					</span>\n' +
-						'				</div>\n' +
-						'		</div>\n' +
-						'		</div>\n' +
-						'	</div>\n' +
-						'</li>\n'
-					);
-					return $card;
-				};
-				
-				var getDayCard = function(date, index) {
-					var getRandomInt =  function(max) {
-					  return Math.floor(Math.random() * Math.floor(max));
-					}
-					
-					var randomTheme = function(){
-						var themes = ['bg-blue','bg-navy','bg-teal','bg-olive','bg-lime','bg-orange','bg-fuchsia','bg-purple','bg-maroon'];
-						return themes[getRandomInt(themes.length)];
-					};
-					
-					var getDate = function(start_date, index) {
-						var getMonthName_Short = function(date) {
-							const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-							  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-							];
-							
-							return monthNames[date.getMonth()];
-						};
-						
-						var date = new Date(start_date);
-						var next_day = new Date(date.getTime() + (index+1) * (24 * 60 * 60 * 1000));
-
-						return next_day.getDate() + ' ' + getMonthName_Short(next_day) + '. ' + next_day.getFullYear();
-					};
-					
-					return $(
-						'<li class="time-label">\n' +
-						'	<span class="' + randomTheme() + '">\n' +
-						'		' + getDate(date, index) + '\n' +
-						'	</span>\n' +
-						'</li>\n'
-					);
-				};
-				
-				data.forEach(function(list, index){
-					var $day_card = getDayCard(start_date, index);
-					$container.append($day_card);
-						// console.log(index);
-					list.forEach(function(item, index2){
-						// console.log(item);
-						var $card;
-						if(item['_type'] == 'route'){
-							$card = getRouteCard(item);
-						}else if(item['_type'] == 'poi'){
-							$card = getPOICard(item);
-						}
-						$container.append($card);
-					});
-				});
-				
-				$container.append(
-					'<li>\n' +
-					'	<i class="fa fa-clock-o bg-gray"></i>\n' +
-					'</li>\n'
+		var url_string = window.location.href
+		var url = new URL(url_string);
+		var _id = url.searchParams.get("_id");
+		// console.log(_id);
+		
+		$.ajax({
+			url : '/test11?_id=' + _id,
+			// data: form,
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+				initializeRouteLayer(map, 
+					[{route: result.path.coordinates}]
 				);
-			};
-			
-			
-			initialCitySelection(form);
-			initialDateSelection(form);
-			intialPreferenceSelection(form);
-			linkInternaryAndMark();
-			
-			// $('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
-			// $(INPUT_BLOCK_ID[0]).css({'display': 'block'});
-			
-			// form.waypoints = []
-			// var $btn = $(this);
-			// $btn.addClass('disabled');
-			
-			$('.loader, .loader-bg').css({'display': 'block'});
-			
-			var url_string = window.location.href
-			var url = new URL(url_string);
-			var _id = url.searchParams.get("_id");
-			// console.log(_id);
-			
-			$.ajax({
-				url : '/test11?_id=' + _id,
-				// data: form,
-				type : "GET",
-				dataType : 'json',
-				success : function (result){
-					console.log(result);
-					initializeRouteLayer(map, 
-						[{route: result.path.coordinates}]
-					);
-					
-					initializePOILayer(map, result.solution);
-					// console.log(result);
-					/*
-					initializeBufferLayer(map, 
-						result.buffer.map(function(b){
-							return {points: b}
-						})
-					);
-					*/
-					loadItinerary(result.start_date, result.itinerary)
-					// completionCallback();
-					
-					$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
-					$('[data-action="' + LEFT_NAV[3] + '"]').removeClass('active');							
-					$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
-					$(INPUT_BLOCK_ID[6]).css({'display': 'block'});							
-					
-					// $btn.remove();
-					
-					
-					
-					map.fitBounds(result.bounds,{
-							padding: {top: 100, bottom:50, left: 600, right: 50}
-						}
-					)
-					bindMaker_Static(map)
-					// map.moveLayer('buffer', 'route')
-					// console.log(result);
-				},
-				error: function(err){
-					console.log('error');
-				}
-			}).done(function() {
-				//console.log();
-				})
-				.fail(function() {
-				//console.log('fail')
-				})
-				.always(function() {
-				$('.loader, .loader-bg').css({'display': 'none'});
-				});
-			
-			
-			map.on('contextmenu', function(e){
-				console.log(map.getZoom());
-				console.log(map.getCenter());
-				/*
-				console.log(form);
 				
-				var test_data = { preference:
-				   { nature: '3',
-					 culture: '3',
-					 amusement: '3',
-					 shopping: '3',
-					 nightlife: '3' },
-				  origin: 'San Diego, California, United States',
-				  destination: 'Los Angeles, California, United States',
-				  start: '2018-06-15',
-				  end: '2018-06-17' }
-				  */
+				initializePOILayer(map, result.solution);
+				// console.log(result);
+				/*
+				initializeBufferLayer(map, 
+					result.buffer.map(function(b){
+						return {points: b}
+					})
+				);
+				*/
+				loadItinerary(result.start_date, result.itinerary)
+				// completionCallback();
+				
+				$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
+				$('[data-action="' + LEFT_NAV[3] + '"]').removeClass('active');							
+				$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
+				$(INPUT_BLOCK_ID[6]).css({'display': 'block'});							
+				
+				// $btn.remove();
+				
+				
+				
+				map.fitBounds(result.bounds,{
+						padding: {top: 100, bottom:50, left: 600, right: 50}
+					}
+				)
+				bindMaker_Static(map)
+				// map.moveLayer('buffer', 'route')
+				// console.log(result);
+			},
+			error: function(err){
+				console.log('error');
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+			$('.loader, .loader-bg').css({'display': 'none'});
 			});
-		
-		
-		</script>		
-		
-	<!-- Log In -->
-	<div class="modal" id="login">
-	  <div class="modal-dialog">
-		<div class="modal-content" style="min-width: 500px;">
-		  <div class="card">
-			<div class="card-body login-card-body">
-			  <div class="clearfix" style="margin-bottom: 10px;">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			  </div>
-			  <form action="../../index2.html" method="post">
-				<div class="form-group has-feedback">
-				  <input type="email" class="form-control" placeholder="Email">
-				  <span class="fa fa-envelope form-control-feedback"></span>
-				</div>
-				<div class="form-group has-feedback">
-				  <input type="password" class="form-control" placeholder="Password">
-				  <span class="fa fa-lock form-control-feedback"></span>
-				</div>
-				<div class="row">
-				  <div class="col-8">
-					<div class="checkbox icheck">
-					  <label>
-						<input type="checkbox"> Remember Me
-					  </label>
-					</div>
-				  </div>
-				  <!-- /.col -->
-				  <div class="col-4">
-					<button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
-				  </div>
-				  <!-- /.col -->
-				</div>
-			  </form>
-
-			  <div class="social-auth-links text-center mb-3">
-				<p>- OR -</p>
-				<a href="#" class="btn btn-block btn-success">
-				  <i class="fa fa-weixin mr-2"></i>
-				  Sign up using Wechat
-				</a>
-				<a href="#" class="btn btn-block btn-danger">
-				  <i class="fa fa-google-plus mr-2"></i> Sign in using Google+
-				</a>
-			  </div>
-			  <!-- /.social-auth-links -->
-
-			  <p class="mb-1">
-				<a href="#">I forgot my password</a>
-			  </p>
-			  <p class="mb-0">
-				<a href="register.html" class="text-center">Register a new membership</a>
-			  </p>
-			</div>
-			<!-- /.login-card-body -->
-		  </div>
-		</div>
-	  </div>
-	</div>
-	<script>
-	// $('#login').modal('show');
-	</script>
-	<style>
-	/* 模态框居中 */
-	.modal {
-		text-align: center;
-		padding: 0!important;
-		overflow: auto !important;
-	}
-
-	.modal:before {
-		content: '';
-		display: inline-block;
-		height: 100%;
-		vertical-align: middle;
-		margin-right: -4px;
-	}
-
-	.modal-dialog {
-		display: inline-block;
-		text-align: left;
-		vertical-align: middle;
-	}
-	/* !模态框居中 */
-	</style>
+		</script>
 	
-	<div class="modal" id="signup">
-	  <div class="modal-dialog">
-		<div class="modal-content" style="min-width: 500px;">
-		  <div class="card">
-			<div class="clearfix" style="margin-bottom: 10px;">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="card-body register-card-body">
-			  <p class="login-box-msg">Register a new membership</p>
-
-			  <form action="../../index.html" method="post">
-				<div class="form-group has-feedback">
-				  <input type="text" class="form-control" placeholder="Full name">
-				  <span class="fa fa-user form-control-feedback"></span>
-				</div>
-				<div class="form-group has-feedback">
-				  <input type="email" class="form-control" placeholder="Email">
-				  <span class="fa fa-envelope form-control-feedback"></span>
-				</div>
-				<div class="form-group has-feedback">
-				  <input type="password" class="form-control" placeholder="Password">
-				  <span class="fa fa-lock form-control-feedback"></span>
-				</div>
-				<div class="form-group has-feedback">
-				  <input type="password" class="form-control" placeholder="Retype password">
-				  <span class="fa fa-lock form-control-feedback"></span>
-				</div>
-				<div class="row">
-				  <div class="col-8">
-					<div class="checkbox icheck">
-					  <label>
-						<input type="checkbox"> I agree to the <a href="#">terms</a>
-					  </label>
-					</div>
-				  </div>
-				  <!-- /.col -->
-				  <div class="col-4">
-					<button type="submit" class="btn btn-primary btn-block btn-flat">Register</button>
-				  </div>
-				  <!-- /.col -->
-				</div>
-			  </form>
-
-			  <div class="social-auth-links text-center">
-				<p>- OR -</p>
-				<a href="#" class="btn btn-block btn-success">
-				  <i class="fa fa-weixin mr-2"></i>
-				  Sign up using Wechat
-				</a>
-				<a href="#" class="btn btn-block btn-danger">
-				  <i class="fa fa-google-plus mr-2"></i>
-				  Sign up using Google+
-				</a>
-			  </div>
-
-			  <a href="login.html" class="text-center">I already have a membership</a>
-			</div>
-			<!-- /.form-box -->
-		  </div><!-- /.card -->
-		</div>
-	  </div>
-	</div>
+	<script src="javascripts/main.js"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	
-	<script>
-	$('body').on('click', '[data-action]', function(e){
-		var actionType = $(this).attr('data-action');
-		if(actionType == 'signup' || actionType == 'login') {
-			$('#' + actionType).modal('show');
-		}
-	});
-	// $('#signup').modal('show');
-	</script>
 	
+	<% include module/login.ejs %>
+	<% include module/signup.ejs %>
+	
+	<% include module/loader.ejs %>
 	</body>
-</html>	
-
+</html>

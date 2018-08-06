@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<div class="modal" id="profile">
+	<div class="modal-dialog">
+		<div class="modal-content" style="min-width: 500px;">
+			<div class="card">
+				<div class="card-body login-card-body">
+					<div class="clearfix">
+						<button type="button" class="close" data-dismiss="modal" style="margin: 0 10px 10px;">
+							<span>&times;</span>
+						</button>
+					</div>
+					<div>
+						<h2>Profile Setting</h2>
+						<div class="form-group has-feedback">
+							<input type="text" name="firstName" class="form-control" placeholder="First name" data-locale="profileFirstname">
+							<span data-value="errorMsg" data-target="firstName"></span>
+						</div>
+						<div class="form-group has-feedback">
+							<input type="text" name="lastName" class="form-control" placeholder="Last name" data-locale="profileLastname">
+							<span data-value="errorMsg" data-target="lastName"></span>
+						</div>
+						<div class="row">
+							<div class="col-8">
+							</div>
+							<div class="col-4">
+							<button type="submit" class="btn btn-primary btn-block btn-flat" data-action="submit" data-locale="submitProfile">Submit</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+
+</style>
+<script>
+const ERRMSG_PROFILE_EN = {
+	firstName: ['', 'Charaters only.'],
+	lastName: ['', 'Charaters only.']
+};
+
+var loadData_Profile = function(data, $container = $('#profile')) {
+	$container.find('[name="firstName"]').val(data.first_name);
+	$container.find('[name="lastName"]').val(data.last_name);
+	$container.find('[data-value="errorMsg"]').html('');
+};
+
+var getData_Profile = function($container = $('#profile')) {
+	var data = {};
+	data.first_name = $container.find('[name="firstName"]').val();
+	data.last_name = $container.find('[name="lastName"]').val();
+	
+	return data;
+};
+
+var getErrMsg_Profile = function(data, $container = $('#profile'), locale='en') {
+	var err_index = {
+		firstName: 0,
+		lastName: 0
+	};
+	
+	if(! validateName(data.first_name)) {
+		err_index.firstName = 1;
+	}
+	
+	if(! validateName(data.last_name)) {
+		err_index.lastName = 1;
+	}
+	
+	var map = {
+		'en': ERRMSG_PROFILE_EN
+	}
+	
+	var dict = map[locale];
+	
+	return errorMap(err_index, dict);
+};
+
+
+
+$('#profile').on('click', '[data-action="submit"]', function(e){
+	var data = getData_Profile();
+	var err_msg = getErrMsg_Profile(data);
+	if(updateErrMsg(err_msg, $('#profile')) == 0) {
+		$.ajax({
+			url : '/update-user-profile',
+			data: data,
+			type : "POST",
+			dataType : 'json',
+			success : function (result){
+				if(result == 1){
+					callAlert('Success!','<i class="material-icons">done</i>', function(){
+						location.reload();
+					});
+				}
+			},
+			error: function(err){
+				console.log('error', err);
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+				$('.loader-bg').css({'display': 'none'});
+			});
+		
+	}else {
+		
+	}
+});
+
+var callProfile = function() {
+	$.ajax({
+		url : '/authenticate/check-authority',
+		data: {},
+		type : "POST",
+		dataType : 'json',
+		success : function (result){
+			if(result == 0){
+				window.location.href = '/';
+			}else{
+				loadData_Profile(result);
+				$('#profile').modal('show');
+			}
+		},
+		error: function(err){
+			console.log('error', err);
+		}
+	}).done(function() {
+		//console.log();
+		})
+		.fail(function() {
+		//console.log('fail')
+		})
+		.always(function() {
+			$('.loader-bg').css({'display': 'none'});
+		});
+};
+</script>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<div class="modal" id="login">
+	<div class="modal-dialog">
+		<div class="modal-content" style="min-width: 500px;">
+			<div class="card">
+				<div class="card-body login-card-body">
+					<div class="clearfix">
+						<button type="button" class="close" data-dismiss="modal" style="margin: 0 10px 10px;">
+							<span>&times;</span>
+						</button>
+					</div>
+					<div>
+						<span data-value="errorMsg" data-target="login"></span>
+						<div class="form-group has-feedback">
+							<input type="email" name="email" class="form-control" placeholder="Email" data-locale="emailLogin">
+							<span data-value="errorMsg" data-target="email"></span>
+						</div>
+						<div class="form-group has-feedback">
+							<input type="password" name="password" class="form-control" placeholder="Password" data-locale="passwordLogin">
+							<span data-value="errorMsg" data-target="password"></span>
+						</div>
+						<div class="row">
+							<div class="col-8">
+								<div class="checkbox icheck">
+									<label>
+										<input type="checkbox" data-locale="rememberLogin"> Remember Me
+									</label>
+								</div>
+							</div>
+							<div class="col-4">
+							<button type="submit" class="btn btn-primary btn-block btn-flat" data-action="submit" data-locale="submitLogin">Log In</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="social-auth-links text-center mb-3">
+					<p data-locale="orLogin">- OR -</p>
+					<a href="javascript: void(0);" class="btn btn-block btn-success">
+						<i class="fa fa-weixin mr-2"></i>
+						<span data-locale="wechatLogin">Sign up using Wechat</span>
+					</a>
+					<a href="javascript: void(0);" class="btn btn-block btn-danger">
+						<i class="fa fa-google-plus mr-2"></i> 
+						<span data-locale="googleLogin">Sign in using Google+</span>
+					</a>
+					</div>
+
+					<p class="mb-1">
+					<a href="javascript: void(0);" data-action="forgetPassword" data-locale="forgotPwdLogin">I forgot my password</a>
+					</p>
+					<p class="mb-0">
+					<a href="javascript: void(0);" class="text-center" data-action="toReg" data-locale="newRegLogin">Register a new membership</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+
+</style>
+<script>
+/* LOG IN */
+const ERRMSG_LOGIN_EN = {
+	email: ['', 'Email can\'t be empty.'],
+	password: ['', 'Password can\'t be empty.'],
+	login: ['', 'Invalid email or password. Please try again.']
+};
+
+var getData_Login = function($container = $('#login')){
+	var data = {};
+	data.email = $container.find('[name="email"]').val();
+	data.password = $container.find('[name="password"]').val();
+	return data;
+};
+
+var getErrMsg_Login = function(data, locale='en'){
+	var err_msg = {
+		email: 0,
+		password: 0,
+		login: 0
+	};
+	if(data.email == ''){
+		err_msg.email = 1;
+	}
+	if(data.password == ''){
+		err_msg.password = 1;
+	}
+	
+	var locale_map = {
+		'en': ERRMSG_LOGIN_EN
+	};
+	var dict = locale_map[locale];
+	
+	return errorMap(err_msg, dict)
+};
+	
+$('#login').on('click', '[data-action="toReg"]', function(e){
+	$('#signup').modal('show');
+	$('#login').modal('hide');
+});
+
+$('#login').on('click', '[data-action="submit"]', function(e){
+	var data = getData_Login();
+	var msg = getErrMsg_Login(data);
+	if(updateErrMsg(msg, $('#login')) == 0){
+		$('.loader-bg').css({'display': 'block'});
+		$.ajax({
+			url : '/authenticate/login',
+			data: data,
+			type : "POST",
+			dataType : 'json',
+			success : function (result){
+				loadNav(result);
+				callAlert('Success!','<i class="material-icons">done</i>', function(){
+					$('#login').modal('hide');
+				});
+			},
+			error: function(err){
+				if(err.status == 401){
+					updateErrMsg({
+						login: 'Invalid email or password. Please try again.'
+					}, $('#login'))
+				}
+				console.log('error', err.status);
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+			$('.loader-bg').css({'display': 'none'});
+			});
+	}
+});
+/* !LOG IN */
+</script>

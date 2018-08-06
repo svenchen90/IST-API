@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title>Filter features within map view</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<!-- mapbox-gl -->
+		<!-- <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' /> -->
+		<!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script> -->
+		
+		<!-- mapbox-geocoder -->
+		<!-- <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.min.js'></script> -->
+		<!-- <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.css' type='text/css' /> -->
+		
+		<!-- jquery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<!-- bootstrap 3.37 -->
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+		
+		<!-- bootstrap 4 -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<!-- s<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script> -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="javascripts/turf.min.js"></script> -->
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4&libraries=geometry"></script> -->
+		
+		
+		<!-- <script src="plugins/datepicker/js/bootstrap-datepicker.js"></script> -->
+		<!-- <script src="plugins/datepicker/locales/bootstrap-datepicker.zh-CN.js"></script> -->
+		<!-- <link rel="stylesheet" href="plugins/datepicker/css/bootstrap-datepicker3.css"> -->
+		
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script> -->
+		<!-- <script src="plugins/daterangepicker/daterangepicker.js"></script> -->
+		<!-- <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker-bs3.css"> -->
+		
+		<!-- Bootstrap slider -->
+		<!-- <script src="plugins/bootstrap-slider/bootstrap-slider.js"></script>
+		<link rel="stylesheet" href="plugins/bootstrap-slider/slider.css"> -->
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/bootstrap-slider.js"></script> -->
+		<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/css/bootstrap-slider.css"> -->
+		
+		
+		<!-- <script src="javascripts/mapbox-utility.js"></script> -->
+		<!-- <link href='stylesheets/mapbox-style.css' rel='stylesheet' /> -->
+		
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		
+		<link href='stylesheets/global.css' rel='stylesheet' />
+		<script src="javascripts/gear.js"></script>
+		
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		
+		<script type="text/javascript" src="javascripts/plugs/qrcode.js"></script>
+		<script type="text/javascript" src="javascripts/static.js"></script>
+	</head>
+	
+	<body>
+		<% include module/profile-setting.ejs %>
+		<% include module/password-setting.ejs %>
+		<% include module/qrcode.ejs %>
+		<% include module/nav-top.ejs %>
+		
+		<style>
+		.user-block {
+			text-align: center; 
+			padding: 50px 0 50px;
+		}
+		.user-block .username {
+			font-size: 50px;
+		}
+		.user-block .detail {
+			margin-top: 20px;
+		}
+		.user-block .detail .detail-item {
+			margin: 0 10px 0 10px;
+		}
+		</style>
+		
+		<div class="user-block">
+			<div class="username" data-field="fullname"></div>
+			<div><span data-field="second"></span> Seconds</div>
+			<div class="detail">
+				<span class="detail-item"><i class="fa fa-car"></i> <span data-field="mile"></span> Miles</span>
+				<span class="detail-item"><i class="fa fa-flag"></i> <span data-field="country"></span> Countries</span>
+				<span class="detail-item"><i class="fa fa-building-o"></i> <span data-field="city"></span> Cities</span>
+				<span class="detail-item"><i class="fa fa-star"></i> <span data-field="poi"></span> POIs</span>
+			</div>
+		</div>
+		
+		<style>
+		:root {
+			--trip-card-height: 280px
+		}
+		
+		.trip-card {
+			padding: 50px;
+		}
+		.trip-card .post-card {
+			height: var(--trip-card-height); 
+			background-image: url('temp/photo2.png'); 
+			background-size:contain; 
+			background-repeat: no-repeat;
+			background-position: center;
+		}
+		.trip-card .post-card .icon-row {
+			display: none;
+			height: 100%; 
+			margin: 0;
+			background-color: rgba(0,0,0,0.3)
+		}
+		
+		.trip-card .post-card .icon-row .icon{
+			text-align: center;
+		}
+		
+		.trip-card .post-card .icon-row i {
+			line-height: var(--trip-card-height); 
+			font-size: 40px;
+			color: rgba(255,255,255, .7);
+		}
+		
+		.trip-card .post-card .icon-row i:hover {
+			cursor: pointer;
+			color: rgba(255,255,255,1);
+		}
+		
+		.trip-card:hover .icon-row {
+			display: flex;
+		}
+		
+		.trip-card .title {
+			font-size: 25px;
+			cursor: pointer;
+		}
+		
+		.trip-card .datetime {
+			color: rgba(0,0,0,0.6)
+		}
+				
+		.trip-container {
+			padding: 0 200px 0 200px;
+		}
+		
+		.trip-container .title .line {
+			border-style: solid;
+			border-width: 1px;
+			padding: 0 200px 0 200px;
+		}
+		
+		.trip-container .title .text {
+			text-align: center;
+			position: relative;
+			top: -11px;
+		}
+		
+		.trip-container .title .text span {
+			padding: 10px 50px;
+			border-style: solid;
+			border-width: 1px;
+			background-color: white;
+		}
+		
+		</style>
+		
+		<div class="trip-container">
+			<div class="title">
+				<div class="line" style="border-color: orange;"></div>
+				<div class="text">
+					<span style="border-color: orange;">UPCOMING</span>
+				</div>
+			</div>
+			<div class="row" data-container="upcoming">
+				<!-- content -->
+			</div>
+		</div>
+		
+		<div class="trip-container" style="margin-top: 50px;">
+			<div class="title">
+				<div class="line" style="border-color: rgba(0,0,0,0.1);"></div>
+				<div class="text">
+					<span style="border-color: rgba(0,0,0,0.1); color:rgba(0,0,0,.6);">COMPLETE TRIPS</span>
+				</div>
+			</div>
+			<div class="row" data-container="complete">
+				<!-- content -->
+			</div>
+		</div>
+		
+		
+		<% include module/loader.ejs %>
+		
+		
+		<script>
+		var DateToMMDDYY = function(s){
+			var d = new Date(s);
+			var year = d.getFullYear() - 2000;
+			year = year < 10 ? '0' + year : year;
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate();
+			day = day <10 ? '0' + day : day;
+			
+			
+			return month + '|' + day + '|' + year;
+		};
+		var getTripCard = function(data){
+			var $html = $(
+				'<div class="col-md-4 trip-card" data-id="' + data._id + '">\n' +
+				'	<div class="post-card" style="background-image: url(\'' + data.solution[0].poster + '\');">\n' +
+				'		<div class="row icon-row">\n' +
+				'			<div class="col-sm-4 icon"><i class="fa fa-bookmark" data-action="itinerary"></i></div>\n' +
+				'			<div class="col-sm-4 icon"><i class="fa fa-camera" data-action="photo"></i></div>\n' +
+				'			<div class="col-sm-4 icon"><i class="fa fa-share" data-action="share"></i></div>\n' +
+				'		</div>\n' +
+				'	</div>\n' +
+				'	<div class="title" data-action="itinerary">\n' +
+				'		' + data.origin.address + ' - ' + data.destination.address + '\n' +
+				'	</div>\n' +
+				'	<div class="datetime">\n' +
+				'		' + DateToMMDDYY(data.start_date) + ' - ' + DateToMMDDYY(data.end_date) + '\n' +
+				'	</div>\n' +
+				'</div>\n'
+			);
+			
+			$html.on('click', '[data-action]', function(e){
+				var actionType = $(this).attr('data-action');
+				
+				if(actionType == 'itinerary') {
+					window.location.href = "/test10?_id=" + data._id;
+				}else if(actionType == 'photo') {
+					alert('In progress!');
+				}else if(actionType == 'share') {
+					var url = DOMIAN_URL + "/test10?_id=" + data._id;
+					callQRCode(url);
+				}else {
+					
+				}
+			});
+			
+			return $html;
+		};
+		
+		var loadUserBlock = function(user, $container=$('.user-block')){
+			$container.find('[data-field="fullname"]').html(user.first_name + ' ' + user.last_name);
+			var mile = Math.floor(user.travel_miles*0.000621371);
+			$container.find('[data-field="mile"]').html(mile);
+			$container.find('[data-field="city"]').html(user.travel_cities.length);
+			$container.find('[data-field="country"]').html(user.travel_countries.length);
+			$container.find('[data-field="poi"]').html(user.travel_POIs.length);
+			
+			var second = Math.floor((new Date().getTime() - new Date(user.date_create).getTime())/1000);
+			$container.find('[data-field="second"]').html(second);
+			// clearInterval(x);
+			var x = setInterval(function() {
+				second += 1;
+				$container.find('[data-field="second"]').html(second);
+			}, 1000);
+			
+		};
+		
+		$('.loader-bg').css({'display': 'block'});
+		$.ajax({
+			url : '/authenticate/check-authority',
+			data: {},
+			type : "POST",
+			dataType : 'json',
+			success : function (result){
+				if(result == 0){
+					window.location.href = '/';
+				}else{
+					$('[data-type="authorized"]').css({'display': 'list-item'});
+					$('[data-type="authorized"] [data-field="username"]').html(result.first_name);
+					loadUserBlock(result);
+					
+					
+				}
+			},
+			error: function(err){
+				console.log('error', err);
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+				$('.loader-bg').css({'display': 'none'});
+			});
+		
+		$.ajax({
+			url : '/get-user-routes',
+			data: {},
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+				$('[data-container="upcoming"]')
+				//	.empty();
+				$('[data-container="complete"]')
+					.empty();
+				var current_time = new Date().getTime();
+				result.forEach(function(item,index){
+					var time = new Date(item.end_date).getTime();
+					var $card = getTripCard(item);
+					if(time > current_time){
+						$('[data-container="upcoming"]').append($card);
+					}else{
+						$('[data-container="complete"]').append($card);
+					}
+					
+					
+				});
+			},
+			error: function(err){
+				console.log('error');
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+				$('.loader-bg').css({'display': 'none'});
+			});
+		</script>
+	</body>
+</html>
