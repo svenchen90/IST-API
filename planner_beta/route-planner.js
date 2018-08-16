@@ -197,7 +197,10 @@ var planner = function(data, chunks_size = 50){
 								
 								result2.schedule = schedule;
 								result2.itinerary = itinerary;
+								result2.preference = data.preference;
 								
+								result2.start_date = data.arrival_date;
+								result2.end_date = data.departure_date;
 								resolve(result2);
 							})
 							.catch(function(exception2){
@@ -438,7 +441,7 @@ var getRoute_alpha = function(origin, destination, waypoints, agent="GOOGLE", mo
 				
 				require('../planner_beta/agents/google').googleMapsClient.directions(routeRequest, function(err, result){
 					if(err){
-						reject('google agent error')
+						reject('google agent error', err)
 					}else{
 						var route = result.json.routes[0];
 						var data = {

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<div class="left-nav">
+	<ul>
+		<li class="disabled" data-action="select-city" data-locale="navLocation"><img src="img/cities-w@2x.png"></li>
+		<li class="disabled" data-action="select-date" data-locale="navDate"><img src="img/dates-w@2x.png"></li>
+		<li class="disabled" data-action="input-traveler" data-locale="navTraveler"><img src="img/travelers-w@2x.png"></li>
+		<li class="disabled" data-action="select-preference" data-locale="navPreference"><img src="img/preferences-w@2x.png"></li>
+		<li class="disabled" data-action="get-hotel" data-locale="navHotel"><img src="img/hotel-w@2x.png"></li>
+		<li class="disabled" data-action="get-food" data-locale="navFood><img src="img/food-w@2x.png"></li>
+		<li class="disabled" data-action="get-itinerary" data-locale="navItinerary"><img src="img/itinerary-w@2x.png"></li>
+		<li class="disabled" data-action="get-weather" data-locale="navWeather"><img src="img/weather-w@2x.png"></li>
+	</ul>
+</div>
+
+<style>
+.left-nav {
+	position: absolute;
+	display: block;
+	z-index: 3;
+	top: 0;
+	left: 0;
+	width: 70px;
+	height: 100%;
+	padding-top: 63px;
+	background-color: #F58123;
+	color: white;
+}
+.left-nav > ul {
+	list-style-type: none;
+	padding: 0;
+	text-align: center;
+}
+.left-nav li {
+	padding:12px;
+	cursor: pointer;
+}
+.left-nav li > img{
+	width: 20px;
+}
+.left-nav li.active > img {
+	-webkit-filter: invert(100%);
+	filter: invert(100%);
+	-webkit-filter: invert(100%);
+}
+.left-nav li.disabled > img {
+	opacity: 0.3;
+}
+</style>
+
+<script>
+
+</script>
+

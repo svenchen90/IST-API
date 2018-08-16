@@ -196,18 +196,6 @@
 		
 		
 		<script>
-		var DateToMMDDYY = function(s){
-			var d = new Date(s);
-			var year = d.getFullYear() - 2000;
-			year = year < 10 ? '0' + year : year;
-			var month = d.getMonth()+1;
-			month = month < 10 ? '0' + month : month;
-			var day = d.getDate();
-			day = day <10 ? '0' + day : day;
-			
-			
-			return month + '|' + day + '|' + year;
-		};
 		var getTripCard = function(data){
 			var $html = $(
 				'<div class="col-md-4 trip-card" data-id="' + data._id + '">\n' +
@@ -231,11 +219,11 @@
 				var actionType = $(this).attr('data-action');
 				
 				if(actionType == 'itinerary') {
-					window.location.href = "/test10?_id=" + data._id;
+					window.location.href = "/trip?_id=" + data._id;
 				}else if(actionType == 'photo') {
 					alert('In progress!');
 				}else if(actionType == 'share') {
-					var url = DOMIAN_URL + "/test10?_id=" + data._id;
+					var url = DOMIAN_URL + "/trip?_id=" + data._id;
 					callQRCode(url);
 				}else {
 					

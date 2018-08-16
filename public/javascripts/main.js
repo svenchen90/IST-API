@@ -105,17 +105,6 @@ var initialDateSelection = function(form){
 		}
 	};
 	
-	var DateToYYYYMMDD = function(d){
-		var year = d.getFullYear();
-		var month = d.getMonth()+1;
-		month = month < 10 ? '0' + month : month;
-		var day = d.getDate();
-		day = day <10 ? '0' + day : day;
-		
-		
-		return year + '-' + month + '-' + day;
-	};
-	
 	var $calendar = $('#calendar');
 	var setRange = function(dates, language = 'en', $container = $('#calendar-top')){
 		var getMonthName = function(date) {
@@ -244,10 +233,14 @@ var intialPreferenceSelection = function(form){
 		'shopping': 5,
 		'nightlife': 5
 	}
-	$('#select-preference').on('change', '[type=range]', function(e){
+	
+	// console.log(11);
+	$('#select-preference').on('change', '[data-container] input', function(e){
 		var key = $(this).attr('id');
 		var value = parseInt($(this).val());
 		form.preference[key] = value;
+		// console.log(form.preference)
+		getPieChart('#donut-chart', form.preference);
 	});
 	
 	$('#select-preference').on('click', '[data-action="submit"]', function(e){
@@ -277,7 +270,7 @@ var intialPreferenceSelection = function(form){
 					})
 				);
 				*/
-				loadItinerary(form.start, result.itinerary)
+				loadItinerary(result);
 				completionCallback();
 				
 				$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
@@ -310,7 +303,7 @@ var intialPreferenceSelection = function(form){
 			$('.loader, .loader-bg').css({'display': 'none'});
 			});
 	});
-}
+};
 
 var linkInternaryAndMark = function(){
 	$('#map').on('click', '.marker', function(){
@@ -323,6 +316,8 @@ var linkInternaryAndMark = function(){
 		$(this)
 			.addClass('active')
 			.siblings().removeClass('active');
+			
+			loadPOIInfo(_id);
 	});
 	
 	$('#map').on('click', ':not(.marker)' ,function(){
@@ -330,7 +325,7 @@ var linkInternaryAndMark = function(){
 	});
 	
 	
-	$('#get-itinerary').on('click', 'li[data-id]', function(){
+	/* $('#get-itinerary').on('click', 'li[data-id]', function(){
 		var _id = $(this).attr('data-id');
 		$('#map .marker').removeClass('active');
 		var $marker = $('#map .marker[data-id="' + _id + '"]')
@@ -346,41 +341,36 @@ var linkInternaryAndMark = function(){
 			curve: 1,
 		});
 		
-	});
+		loadPOIInfo();
+		
+	}); */
 };
 
-var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul')) {
+var loadItinerary = function(data, $container = $('#get-itinerary')) {	
+	$container.on('click', '[data-action]', function(e){
+		var actionType = $(this).attr('data-action');
+		if(actionType == 'share') {
+			var url = DOMIAN_URL + "/trip?_id=" + data._id;
+			callQRCode(url);
+		}else if(actionType == 'save') {
+			getItineraryPDF(data);
+		}
+	});
+	
+	var $summary = $container.find('.summary');
+	$summary.find('[data-type="origin"]').html(data.origin.address);
+	$summary.find('[data-type="destination"]').html(data.destination.address);
+	$summary.find('[data-type="startDate"]').html(DateToMMDDYY(new Date(data.start_date))); // getDuration(data.start_date, data.end_date)
+	$summary.find('[data-type="endDate"]').html(DateToMMDDYY(new Date(data.end_date))); // getDuration(data.start_date, data.end_date)
+	$summary.find('[data-type="time"]').html(Math.ceil(data.duration/3600));
+	$summary.find('[data-type="poi"]').html(data.solution.length);
+	$summary.find('[data-type="mile"]').html(Math.ceil(data.distance/1600));
+	
+	getPieChart('#donut-chart2', data.preference, true, 0, true)
+	
 	var getPOICard = function(data) {
 		// console.log(data);
-		var getRates = function(rates_list){
-			var total_scores = 0.0;
-			var total_number = 0;
-			rates_list.forEach(function(r, index){
-				total_number += parseInt(r);
-				total_scores += (rates_list.length-index) * parseInt(r);
-			});
-			
-			return total_scores/total_number;
-		};
-		
-		var getRatesText = function(rates){
-			// console.log(rates);
-			var $text = $('<span></span>');
-			var round_rates = rates.toFixed(1);
-			for(var i=1; i<=5; i++){
-				if(i <= rates){
-					$text.append('<i class="fa fa-star"></i>\n');
-				}else if(i > rates && i-1 < rates){
-					$text.append('<i class="fa fa-star-half-o"></i>\n');
-				}else{
-					$text.append('<i class="fa fa-star-o"></i>\n');
-				}
-			}
-			$text.append('<span>' + round_rates + '</span>\n');
-			//console
-			return $text.html();
-		};
-		
+
 		var $card = $(
 			'<li class="theme-bg-blue" data-id="' + data._id + '">\n' +
 			'	<i class="fa fa-university"></i>\n' +
@@ -391,7 +381,7 @@ var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul
 			'			<div class="poster">\n' +
 			'				<img src="' + data.poster + '" alt="...">\n' +
 			'			</div>\n' +
-			'			<div class="details">\n' +
+			'			<!-- <div class="details">\n' +
 			'				<div class="detail-block">\n' +
 			'					<span class="label"><i class="fa fa-building-o"></i> Description: </span>\n' +
 			'					<div class="text">\n' +
@@ -434,7 +424,7 @@ var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul
 			'						 ' + data.phone + '\n' +
 			'					</div>\n' +
 			'				</div>\n' +
-			'			</div>\n' +
+			'			</div> -->\n' +
 			'		</div>\n' +
 			'		<!-- <div class="timeline-footer">\n' +
 			'			<a class="btn btn-primary btn-xs">Read more</a>\n' +
@@ -443,29 +433,31 @@ var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul
 			'	</div>\n' +
 			'</li>\n'
 		);
+		
+		$card.on('click', function(){
+			var _id = $(this).attr('data-id');
+			$('#map .marker').removeClass('active');
+			var $marker = $('#map .marker[data-id="' + _id + '"]')
+			
+			$marker.addClass('active');
+			map.flyTo({
+				center: [
+					$marker.attr('data-lng'),
+					$marker.attr('data-lat')
+				],
+				zoom: 12,
+				speed: 0.8,
+				curve: 1,
+			});
+			
+			loadPOIInfo(_id);
+			
+		});
+		
 		return $card;
 	};
 	
 	var getRouteCard = function(data) {
-		var secondToHourMinute = function(s) {
-			var s = parseInt(s);
-			var h = Math.floor(s/3600);
-			var m = Math.floor((s%3600) / 60);
-			
-			var result = '';
-			if(h > 0)
-				result += h + ' h ';
-			result += m + ' min';
-			return result;
-		};
-		
-		var meterToMile = function(m, fix= 1) {
-			var m = parseInt(m);
-			var result = (m / 1609).toFixed(fix);
-			if(result == 0 & fix<3)
-				return meterToMile(m, fix+1);
-			return result;
-		}
 		var $card = $(
 			'<li class="theme-bg-maroon">\n' +
 			'	<i class="fa fa-road"></i>\n' +
@@ -540,9 +532,10 @@ var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul
 		);
 	};
 	
-	data.forEach(function(list, index){
-		var $day_card = getDayCard(start_date, index);
-		$container.append($day_card);
+	var $ul = $container.find('ul');
+	data.itinerary.forEach(function(list, index){
+		var $day_card = getDayCard(data.start_date, index);
+		$ul.append($day_card);
 			// console.log(index);
 		list.forEach(function(item, index2){
 			// console.log(item);
@@ -552,11 +545,11 @@ var loadItinerary = function(start_date, data, $container = $('#get-itinerary ul
 			}else if(item['_type'] == 'poi'){
 				$card = getPOICard(item);
 			}
-			$container.append($card);
+			$ul.append($card);
 		});
 	});
 	
-	$container.append(
+	$ul.append(
 		'<li>\n' +
 		'	<i class="fa fa-clock-o bg-gray"></i>\n' +
 		'</li>\n'

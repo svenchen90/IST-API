@@ -282,7 +282,8 @@ router.route('/test5')
 						duration: result.duration,
 						itinerary: result.itinerary,
 						solution: result.solution,
-						bounds: result.bounds
+						bounds: result.bounds,
+						preference: result.preference
 					}).save(function(err){
 						if (err) return handleError(err);
 						User.findById(req.user.id, function (err, user) {
@@ -353,13 +354,9 @@ router.route('/test6')
 
 
 	
-router.route('/test10')
-	.get(function(req, res, next){
-		//console.log(req.query);
-		res.render('test10', {abc: req.query._id});
-	});
+
 	
-router.route('/test11')
+router.route('/get-trip-by-id')
 	.get(function(req, res, next){
 		Route_Temp.findOne({_id : req.query._id})
 			.exec(function(err, result){
@@ -368,10 +365,43 @@ router.route('/test11')
 			});
 	});
 
-	
+
+router.route('/test-google')
+	.get(function(req, res, next){
+		googleMapsClient.directions(
+			{
+				origin: 'San Diego, CA',
+				destination: 'Los Angeles, CA',
+			}
+			, function(err, result){
+			if(err)
+				res.json(err);
+			res.json(result);
+			
+		});
+
+	});
 	
 
+router.route('/get-poi-by-id')
+	.get(function(req, res, next){
+		POI.findById(req.query.id, function (err, poi) {
+			if (err) return handleError(err);
+			res.json(poi);
+		});
+	});
 
+router.route('/trip')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		if(req.device.type == 'desktop') {
+			res.render('trip-share', {});
+		}else {
+			res.render('mobile/trip-share', {});
+		}
+	});
+	
+	
 router.route('/')
 	.get(function(req, res, next){
 		res.render('test3',{});
@@ -445,7 +475,6 @@ router.route('/signup')
 	});
 
 
-	
 router.route('/validateEmail')
 	.post(function(req, res, next){
 		User.findOne({ email: req.body.email }, function (err, user) {

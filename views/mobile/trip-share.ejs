@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title data-locale="pageTitle">IST</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<!-- mapbox-gl -->
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+		
+		<!-- mapbox-geocoder -->
+		<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.min.js'></script>
+		<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.css' type='text/css' />
+		
+		<!-- jquery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<!-- bootstrap 3.37 -->
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+		
+		<!-- bootstrap 4 -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<!-- s<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script> -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="javascripts/turf.min.js"></script> -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4&libraries=geometry"></script>
+		
+		
+		<script src="plugins/datepicker/js/bootstrap-datepicker.js"></script>
+		<script src="plugins/datepicker/locales/bootstrap-datepicker.zh-CN.js"></script>
+		<link rel="stylesheet" href="plugins/datepicker/css/bootstrap-datepicker3.css">
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+		<script src="plugins/daterangepicker/daterangepicker.js"></script>
+		<link rel="stylesheet" href="plugins/daterangepicker/daterangepicker-bs3.css">
+		
+		<!-- Bootstrap slider -->
+		<!-- <script src="plugins/bootstrap-slider/bootstrap-slider.js"></script>
+		<link rel="stylesheet" href="plugins/bootstrap-slider/slider.css"> -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/bootstrap-slider.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/css/bootstrap-slider.css">
+		
+		
+		<script src="javascripts/mapbox-utility.js"></script>
+		<link href='stylesheets/mapbox-style.css' rel='stylesheet' />
+		
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		
+		<!-- <link href='stylesheets/global.css' rel='stylesheet' /> -->
+		<!-- <link href='stylesheets/main.css' rel='stylesheet' /> -->
+		<script src="javascripts/gear.js"></script>
+		
+		
+		<!-- FLOT CHARTS -->
+		<script src="plugins/Flot/jquery.flot.js"></script>
+		<!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+		<!-- <script src="plugins/Flot/jquery.flot.resize.js"></script> -->
+		<!-- FLOT PIE PLUGIN - also used to draw donut charts -->
+		<script src="plugins/Flot/jquery.flot.pie.js"></script>
+		<!-- FLOT CATEGORIES PLUGIN - Used to draw bar charts -->
+		<!-- <script src="plugins/Flot/jquery.flot.categories.js"></script> -->
+		
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		
+		<script type="text/javascript" src="javascripts/plugs/qrcode.js"></script>
+		<script type="text/javascript" src="javascripts/static.js"></script>
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+		<script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+	</head>
+	
+	<body>
+		<div id="map"></div>
+		
+		<div class="nav-date-mobile">
+			<div class="item" style="border-radius: 23px 23px 0 0;">
+				<a href="javascript:void(0);" data-action="up">
+					<i class="fa fa-chevron-up"></i>
+				</a>
+			</div>
+			<div class="body">
+				
+			</div>
+			<div class="item" style="border-radius: 0 0 23px 23px ;">
+				<a href="javascript:void(0);" data-action="down">
+					<i class="fa fa-chevron-down"></i>
+				</a>
+			</div>
+		</div>
+		
+		<div class="box-detail-mobile">
+			<table>
+				<tr>
+					<td class="arrow" data-action="prev"><i class="fa fa-chevron-left"></i></td>
+					<td style="width: 100%;">
+						<div class="detail-box">
+							
+						</div>
+					</td>
+					<td class="arrow" data-action="next"><i class="fa fa-chevron-right"></i></td>
+				</tr>
+			</table>
+			
+		</div>
+		
+		<style>
+		.box-detail-mobile {
+			position: absolute;
+			display: block;
+			z-index: 4;
+			width: 100%;
+			bottom: 5px;
+		}
+		
+		.box-detail-mobile .arrow {
+			font-size: 24px;
+			color: rgba(0,0,0,0.3);
+		}
+		
+		
+		.detail-box {
+			
+		}
+		
+		.detail-box .route-card, .detail-box .poi-card {
+			background-color: rgba(255,255,255,0.8);
+			border-radius: 5px;
+		}
+		.detail-box .route-card .head, .detail-box .poi-card .head {
+			padding: 5px 15px;
+			font-size: 20px;
+			text-align: left;
+			border-radius: 5px 5px 0 0;
+		}
+		.detail-box .route-card .body, .detail-box .poi-card .body {
+			padding: 10px 15px;
+			text-align: left;
+		}
+		
+		.detail-box .poi-card .body .brief {
+			min-height: 100px;
+			background-size:contain; 
+			background-repeat: no-repeat;
+			background-position: center;
+		}
+		
+		.detail-box .poi-card .body .detail {
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+		
+		</style>
+		
+		
+		
+		<style>
+		:root {
+			--margin-top: 50px;
+		}
+				
+		#map { 
+			position:absolute; 
+			top:0;
+			left: 0;
+			width:100%;
+			bottom:0;  
+		}
+		
+		.nav-date-mobile {
+			position: absolute;
+			display: block;
+			z-index: 3;
+			top: var(--margin-top);
+			margin-left: 10px;
+		}
+		
+		.nav-date-mobile .item {
+			text-align: center;
+			padding: 3px 5px;
+			background: rgba(255,255,255, 1);
+		}
+		.nav-date-mobile .item.active {
+			background-color: #007bff;
+			
+		}
+		.nav-date-mobile .item.active a {
+			color: #fff;
+		}
+		
+		</style>
+		<script>
+		var map = initializeMapbox('map', 'streets', [-98.2093396778871, 39.61233583451258], 4);
+		
+		var loadItinerary_Mobile = function (data, index1=0, index2=0, $container = $('.box-detail-mobile'), $nav = $('.nav-date-mobile'), date_range=3) {
+			/* itinerary */
+			var flag =true;
+			var getRouteCard = function(data) {
+				var $card = $(
+					'<div class="route-card">\n' +
+					'	<div class="head" style="color: white !important;background-color: #d81b60 !important;">\n' +
+					'		<i class="fa fa-road"></i>\n' +
+					'	</div>\n' +
+					'	<div class="body">\n' +
+					'		<div class="detail-block">\n' +
+					'			<span class="label"><i class="fa fa-circle-o"></i> Start: </span>\n' +
+					'			<span class="text">\n' +
+					'				' + data.origin.address + '\n' +
+					'			</span>\n' +
+					'		</div>\n' +
+					'		<div class="detail-block">\n' +
+					'			<span class="label"><i class="fa fa-map-pin"></i> End: </span>\n' +
+					'			<span class="text">\n' +
+					'				' + data.destination.address + '\n' +
+					'			</span>\n' +
+					'		</div>\n' +
+					'		<div class="detail-block">\n' +
+					'			<span class="label"><i class="fa fa-table"></i> Time Cost: </span>\n' +
+					'			<span class="text">\n' +
+					'				' + secondToHourMinute(data.duration) + '\n' +
+					'			</span>\n' +
+					'		</div>\n' +
+					'		<div class="detail-block">\n' +
+					'			<span class="label"><i class="fa fa-car"></i> Distance: </span>\n' +
+					'			<span class="text">\n' +
+					'				' + meterToMile(data.distance) + ' miles\n' +
+					'			</span>\n' +
+					'		</div>\n' +
+					'	</div>\n' +
+					'</div>\n'
+				);
+				
+				return $card;
+			};
+			
+			var getPOICard = function(data, brief=true) {
+				var $card = $(
+					'<div class="poi-card">\n' +
+					'	<div class="head" style="color: white !important; background-color: #007bff !important;">\n' +
+					'		' + data.name + '\n' +
+					'	</div>\n' +
+					'	<div class="body">\n' +
+					'		<!-- body -->\n' +
+					'	</div>\n' +
+					'</div>\n'
+				);
+				
+				var loadBrief = function() {
+					var $brief = $(
+						'<div class="brief"></div>'
+					);
+					$brief.css({
+						'background-image': 'url("' + data.poster + '")'
+					});
+					$card.find('.body')
+						.empty()
+						.append($brief);
+				};
+				
+				var loadDetail = function() {
+					var $detail = $(
+						'<div class="detail">\n' +
+						'<div class="poster">\n' +
+						'	<img src="' + data.poster + '" alt="..." style="width: 100%;">\n' +
+						'</div>\n' +
+						'<div class="details" style="padding: 0 15px 15px 15px;">\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-building-o"></i> Description: </span>\n' +
+						'		<div class="text">\n' +
+						'			' + (data.description ? data.description : 'N/A') + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-table"></i> Rates: </span>\n' +
+						'		<div class="text" style="color: gold;">\n' +
+						'			' + getRatesText(getRates(data.ratings)) + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-location-arrow"></i> Address: </span>\n' +
+						'		<div class="text">\n' +
+						'			' + data.address + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-child"></i> Length of Visit: </span>\n' +
+						'		<div class="text">\n' +
+						'			 ' + data.length_visit + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-globe"></i> Website: </span>\n' +
+						'		<div class="text">\n' +
+						'			 ' + data.website + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-calendar-times-o"></i> Hours: </span>\n' +
+						'		<div class="text">\n' +
+						'			 ' + data.hours + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'	<div class="detail-block">\n' +
+						'		<span class="label"><i class="fa fa-phone"></i> Phone: </span>\n' +
+						'		<div class="text">\n' +
+						'			 ' + data.phone + '\n' +
+						'		</div>\n' +
+						'	</div>\n' +
+						'</div>\n' +
+						'</div>\n'
+					);
+					$card.find('.body')
+						.empty()
+						.append($detail);
+				};
+				
+				if(brief){
+					loadBrief();
+				}else{
+					loadDetail();
+				}
+				
+				var lastY;
+				$card.on('touchstart', '.head', function (e){
+					lastY = e.originalEvent.touches[0].clientY;
+				});
+				
+				$card.on('touchend', '.head', function (e){
+					// e.preventDefault();
+					// e.stopPropagation();
+					var currentY = e.changedTouches[0].clientY;
+					if(currentY > lastY){
+						loadBrief();
+						flag = true;
+					}else if(currentY < lastY){
+						loadDetail();
+						flag = false;
+					}
+				});
+				
+				
+				var _id = data._id;
+				$('#map .marker').removeClass('active');
+				var $marker = $('#map .marker[data-id="' + _id + '"]')
+				
+				$marker.addClass('active');
+				
+				$card.on('click', function (e){
+					map.flyTo({
+						center: [
+							$marker.attr('data-lng'),
+							$marker.attr('data-lat')
+						],
+						zoom: 12,
+						speed: 0.8,
+						curve: 1,
+					});
+				});
+
+
+				return $card;
+			};
+			
+			var prev = function() {
+				if(index2 == 0) {
+					if(index1 == 0) {
+
+					}else {
+						index1 -= 1;
+						index2 = data.itinerary[index1].length - 1;
+					}
+				}else{
+					index2 -= 1;
+				}
+			};
+			
+			var next = function() {
+				var length1 = data.itinerary.length;
+				var length2 = data.itinerary[index1].length;
+				if(index2 == (length2-1)){
+					if(index1 == length1-1){
+						
+					}else{
+						index1 += 1;
+						index2 = 0;
+					}
+				}else{
+					index2 += 1;
+				}
+			};
+			
+			var load = function(index1, index2) {
+				var item = data.itinerary[index1][index2];
+				var cardMap = {
+					'route': getRouteCard,
+					'poi': getPOICard
+				};
+				var $card = cardMap[item._type](item, flag);
+				$container.find('.detail-box').html($card);
+			};
+			
+			$container.on('click', '[data-action]', function(e){
+				var actionType = $(this).attr('data-action');
+				var pre_index = index1;
+				if(actionType == 'prev') {
+					prev();
+				}else if(actionType == 'next') {
+					next();
+				}else {
+				
+				}
+				
+				if(index1 > pre_index) {
+					down();
+				}else if(index1 < pre_index) {
+					up();
+				}
+				
+				load(index1, index2);
+			});
+			
+			load(index1, index2);
+			/* !itinerary */
+			
+			/* nav-date */
+			var date_list = [];
+			var head_index = index1;
+			for(var i=0; i<data.itinerary.length; i++){
+				var nextDay = new Date(data.start_date);
+				nextDay.setDate(nextDay.getDate()+i);
+				date_list.push(DateToMMDD(nextDay));
+			};
+			date_range = Math.min(date_list.length, date_range);
+			
+			var getDateCard = function(index){
+				var $card = $(
+					'<div class="item ' + (index==index1 ? 'active': '') + '" data-action="jump" data-index=' + index + '>\n' +
+					'	<a href="javascript:void(0);">\n' +
+					'		' + date_list[index] + '\n' +
+					'	</a>\n' +
+					'</div>\n'
+				);
+				return $card;
+			};
+			var loadNav = function() {
+				head_index = Math.min(head_index, date_list.length - date_range);
+				head_index = Math.max(head_index, 0);
+				var $temp = $nav.find('.body').empty();
+				for(var i=head_index; i<head_index+date_range; i++) {
+					$temp.append(getDateCard(i));
+				}
+			};
+			var up = function(){
+				head_index -= 1;
+				loadNav();
+			};
+			var down = function(){
+				head_index +=1;
+				loadNav();
+			};
+			$nav.on('click', '[data-action]', function(e){
+				var actionType = $(this).attr('data-action');
+				
+				if(actionType == 'up') {
+					up();
+				}else if(actionType == 'down') {
+					down();
+				}else if(actionType == 'jump') {
+					index1 = $(this).attr('data-index');
+					index2 = 0;
+					load(index1, index2);
+					loadNav(head_index);
+				}else {
+				}
+			});
+			
+			
+			
+			// load(index1, index2);
+			
+			loadNav(head_index);
+			/* !nav-date */
+			
+			/* map */
+			var updateIndexsById = function(id){
+				var length1 = data.itinerary.length;
+				for(var m=0; m<length1; m++){
+					for(var n=0; n<data.itinerary[m].length; n++){
+						if(data.itinerary[m][n]._id == id){
+							index1 = m;
+							index2 = n;
+							return;
+						}
+					}
+				};
+			};
+			
+			$('#map').on('click', '.marker', function(){
+				var _id = $(this).attr('data-id');
+				
+				updateIndexsById(_id);
+				load(index1, index2);
+				head_index = index1;
+				loadNav(head_index);
+				
+				var $marker = $('#map .marker[data-id="' + _id + '"]')
+				map.flyTo({
+					center: [
+						$marker.attr('data-lng'),
+						$marker.attr('data-lat')
+					],
+					zoom: 12,
+					speed: 0.8,
+					curve: 1,
+				});
+				
+				/*
+				$('#get-itinerary').animate({
+					scrollTop: $('#get-itinerary [data-id="' + _id + '"]').position().top
+				}, 2000);
+				*/
+				$('#map .marker').removeClass('active');
+				$(this)
+					.addClass('active')
+					.siblings().removeClass('active');
+					
+					// loadPOIInfo(_id);
+			});
+			
+			$('#map').on('click', ':not(.marker)' ,function(){
+				$('#map .marker').removeClass('active');
+			});
+			/* !map */
+			
+			
+		};
+		
+		var url_string = window.location.href
+		var url = new URL(url_string);
+		var _id = url.searchParams.get("_id");
+
+		$.ajax({
+			url : '/get-trip-by-id?_id=' + _id,
+			// data: form,
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+				initializeRouteLayer(map, 
+					[{route: result.path.coordinates}]
+				);
+				
+				initializePOILayer(map, result.solution);
+
+				loadItinerary_Mobile(result)
+
+				map.fitBounds(result.bounds,{
+						padding: {top: 10, bottom:200, left: 10, right: 10}
+					}
+				)
+				bindMaker_Static(map)
+
+			},
+			error: function(err){
+				console.log('error');
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+			$('.loader, .loader-bg').css({'display': 'none'});
+			});
+		
+		</script>
+		
+	</body>
+</html>	

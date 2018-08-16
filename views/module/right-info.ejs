@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<div class="right-info customized-scrollbar">
+	<div class="body">
+	</div>
+</div>
+
+
+<style>
+.right-info {
+	position: absolute;
+	z-index: 2;
+	top: 0;
+	right: 0px;
+	display: none;
+	width: 288px;
+	height: 100%;
+	padding-top: 63px;
+	background-color: rgba(000,000,000,0.75);
+	color: white;
+	overflow-y: auto;
+}
+
+.right-info .detail-block {
+	padding-top: 10px;
+}
+
+
+
+</style>
+
+<script>
+var loadPOIInfo = function(id, $container=$('.right-info')) {
+	$.ajax({
+		url : '/get-poi-by-id',
+		data: {id: id},
+		type : "GET",
+		dataType : 'json',
+		success : function (data){
+			var $card = $(
+				'<div style="">\n' +
+				'	<div class="body">\n' +
+				'		<div class="poster">\n' +
+				'			<img src="' + data.poster + '" alt="..." style="width: 100%;">\n' +
+				'		</div>\n' +
+
+				'		<div class="details" style="padding: 0 15px 15px 15px;">\n' +
+				'			<div class="clearfix"><span class="pull-right" style="cursor:pointer;" data-action="close">&times</span></div>\n' +
+				'			<h4 class="head" style="text-align: center;"> ' + data.name + '</h4>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-building-o"></i> Description: </span>\n' +
+				'				<div class="text">\n' +
+				'					' + (data.description ? data.description : 'N/A') + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-table"></i> Rates: </span>\n' +
+				'				<div class="text" style="color: gold;">\n' +
+				'					' + getRatesText(getRates(data.ratings)) + '\n' +						
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-location-arrow"></i> Address: </span>\n' +
+				'				<div class="text">\n' +
+				'					' + data.address + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-child"></i> Length of Visit: </span>\n' +
+				'				<div class="text">\n' +
+				'					 ' + data.length_visit + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-globe"></i> Website: </span>\n' +
+				'				<div class="text">\n' +
+				'					 ' + data.website + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-calendar-times-o"></i> Hours: </span>\n' +
+				'				<div class="text">\n' +
+				'					 ' + data.hours + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'			<div class="detail-block">\n' +
+				'				<span class="label"><i class="fa fa-phone"></i> Phone: </span>\n' +
+				'				<div class="text">\n' +
+				'					 ' + data.phone + '\n' +
+				'				</div>\n' +
+				'			</div>\n' +
+				'		</div>\n' +
+				'	</div>\n' +
+				'</div>\n'
+			);
+			
+			$card.on('click', '[data-action="close"]', function(e){
+				$container.css({display: 'none'});
+			});
+			
+			$container.find('.body').html($card);
+			$container.css({display: 'block'});
+		},
+		error: function(err){
+			console.log('error');
+		}
+	}).done(function() {
+		//console.log();
+		})
+		.fail(function() {
+		//console.log('fail')
+		})
+		.always(function() {
+		$('.loader, .loader-bg').css({'display': 'none'});
+		});	
+};
+</script>
+

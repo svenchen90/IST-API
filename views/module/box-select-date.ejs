@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<div id="select-date" class="input-block">
+	<div class="head" data-locale="titleDate">
+		Travel Dates
+	</div>
+	<div class="body" style="padding: 0;">
+		<div id="calendar-top">
+			<div class="start-date active">
+				<span class="start"><span data-locale="dateStart">start</span></span>
+			</div>
+			<div style="text-align: center;">
+				<svg style="height: 40px; fill: currentColor;" version="1.1" id="Layer_1" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve"><path d="M694.4,242.4l249.1,249.1c11,11,11,21,0,32L694.4,772.7c-5,5-10,7-16,7c-6,0-11-2-16-7c-11-11-11-21,0-32l210.1-210.1H67.1c-13,0-23-10-23-23c0-13,10-23,23-23h805.4L662.4,274.5C641.4,253.4,673.4,221.4,694.4,242.4z"></path></svg>
+			</div>
+			<div class="end-date active">
+				<span class="end"><span data-locale="dateEnd">end</span></span>
+			</div>
+		</div>
+		<div id="calendar"></div>				
+	</div>
+</div>
+
+<style>
+/* calender */
+#calendar-top {
+	background-color: #333;
+	color: #fff;
+	padding: 20px 20px 25px 20px;
+	line-height: 1em;
+	text-transform: uppercase;
+ }
+#calendar-top label { 
+	font-size: 12px; 
+	font-weight: 100; 
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+	text-transform: uppercase; 
+	display: block; 
+	padding-bottom: 5px;
+}
+#calendar-top select { 
+	font-size: 12px; 
+	font-weight: 100; 
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+	border: 2.5px solid #ddd; 
+	text-transform: uppercase; 
+	padding: 5px; 
+	width: 210px; 
+	margin-bottom: 25px;
+}
+#calendar-top select option {}
+#calendar-top select:last-child { 
+	margin-bottom: 0;
+}
+#calendar-top svg { 
+	display: block; 
+	margin: auto; 
+	height: 40px;
+}
+#calendar-top .active { 
+	text-shadow: 0 0 150px #FFF, 0 0 60px #FFF, 0 0 10px #FFF;
+}
+#calendar-top .day { 
+	font-size: 65px;
+}
+#calendar-top .month { 
+	font-size: 10px;
+}
+#calendar-top .weekday { 
+	font-size: 12px;
+}
+#calendar-top .start { 
+	font-size: 26px;
+}
+#calendar-top .order { 
+	font-size: 22px;
+}
+#calendar-top .left { 
+	float: left; 
+	padding-right: 20px;
+}
+#calendar-top .right { 
+	float: left; 
+	padding-right: 0;
+}
+#calendar-top .start-date { 
+	cursor: pointer; 
+	height: 60px;
+}
+#calendar-top .start-date .left { 
+	padding-top: 15px; 
+	width: 90px; 
+	text-align: right;
+}
+#calendar-top .start-date .right { 
+	width: 100px;
+}
+#calendar-top .start-date :after { 
+	content: ""; 
+	display: table; 
+	clear: both;
+}
+#calendar-top .end-date { 
+	cursor: pointer; 
+	margin-top: 10px; 
+	height: 60px;
+}
+#calendar-top .end-date .left { 
+	padding-top: 15px; 
+	width: 150px; 
+	text-align: right;
+}
+#calendar-top .end-date .right { 
+	width: 50px;
+}
+#calendar-top .end-date :after { 
+	content: ""; 
+	display: table; 
+	clear: both;
+}
+#calendar-top .end { 
+	font-size: 26px; 
+	top: 30px;
+	left: 170px; 
+	position: relative;
+}
+#calendar {
+	padding: 10px;
+}
+#calendar .table-condensed, #calendar .datepicker-inline{
+	width: 100%;
+}
+/* #calendar .datepicker-days .table-condensed .day.active ~ .day{
+	background: red;
+}*/
+/* !calender */
+</style>
+
+<script>
+
+</script>
+

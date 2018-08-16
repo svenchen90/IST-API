@@ -14,6 +14,9 @@ var users = require('./routes/users');
 
 
 var app = express();
+// device detection
+var device = require('express-device');
+app.use(device.capture());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

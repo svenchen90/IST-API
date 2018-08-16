@@ -112,6 +112,7 @@ var RouteTempSchema = new Schema({
 	},
 	start_date: Date,
 	end_date: Date,
+	preference: Schema.Types.Mixed,
 	path: {
 		coordinates: [[Number]],
 		encodedPath: String

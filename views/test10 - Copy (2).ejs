@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title data-locale="pageTitle">IST</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<!-- mapbox-gl -->
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+		
+		<!-- mapbox-geocoder -->
+		<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.min.js'></script>
+		<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.css' type='text/css' />
+		
+		<!-- jquery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<!-- bootstrap 3.37 -->
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+		
+		<!-- bootstrap 4 -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<!-- s<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script> -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="javascripts/turf.min.js"></script> -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4&libraries=geometry"></script>
+		
+		
+		<script src="plugins/datepicker/js/bootstrap-datepicker.js"></script>
+		<script src="plugins/datepicker/locales/bootstrap-datepicker.zh-CN.js"></script>
+		<link rel="stylesheet" href="plugins/datepicker/css/bootstrap-datepicker3.css">
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+		<script src="plugins/daterangepicker/daterangepicker.js"></script>
+		<link rel="stylesheet" href="plugins/daterangepicker/daterangepicker-bs3.css">
+		
+		<!-- Bootstrap slider -->
+		<!-- <script src="plugins/bootstrap-slider/bootstrap-slider.js"></script>
+		<link rel="stylesheet" href="plugins/bootstrap-slider/slider.css"> -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/bootstrap-slider.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/css/bootstrap-slider.css">
+		
+		
+		<script src="javascripts/mapbox-utility.js"></script>
+		<link href='stylesheets/mapbox-style.css' rel='stylesheet' />
+		
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		
+		<link href='stylesheets/global.css' rel='stylesheet' />
+		<link href='stylesheets/main.css' rel='stylesheet' />
+		<script src="javascripts/gear.js"></script>
+		
+		
+		<!-- FLOT CHARTS -->
+		<script src="plugins/Flot/jquery.flot.js"></script>
+		<!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+		<!-- <script src="plugins/Flot/jquery.flot.resize.js"></script> -->
+		<!-- FLOT PIE PLUGIN - also used to draw donut charts -->
+		<script src="plugins/Flot/jquery.flot.pie.js"></script>
+		<!-- FLOT CATEGORIES PLUGIN - Used to draw bar charts -->
+		<!-- <script src="plugins/Flot/jquery.flot.categories.js"></script> -->
+		
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		
+		<script type="text/javascript" src="javascripts/plugs/qrcode.js"></script>
+		<script type="text/javascript" src="javascripts/static.js"></script>
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+		<script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+	</head>
+	
+	<body>
+		<div id="map"></div>		
+		
+		<% include module/profile-setting.ejs %>
+		<% include module/password-setting.ejs %>
+		<% include module/nav-top.ejs %>
+		
+		<% include module/nav-left.ejs %>
+		
+		<% include module/box-select-city.ejs %>
+		<% include module/box-select-date.ejs %>
+		<% include module/box-select-preference.ejs %>
+		<% include module/box-select-itinerary.ejs %>
+		<% include module/right-info.ejs %>
+		
+		<% include module/login.ejs %>
+		<% include module/signup.ejs %>
+			
+		<% include module/loader.ejs %>
+		<% include module/qrcode.ejs %>
+		<script src="javascripts/main.js"></script>
+		
+		<script>
+		$('[data-action="' + LEFT_NAV[0] + '"]').addClass('disabled');
+		$(INPUT_BLOCK_ID[0]).css({'display': 'none'});
+		$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
+		$(INPUT_BLOCK_ID[6]).css({'display': 'block'});		
+
+		var url_string = window.location.href
+		var url = new URL(url_string);
+		var _id = url.searchParams.get("_id");
+		// console.log(_id);
+
+		$.ajax({
+			url : '/test11?_id=' + _id,
+			// data: form,
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+				initializeRouteLayer(map, 
+					[{route: result.path.coordinates}]
+				);
+				
+				initializePOILayer(map, result.solution);
+				// console.log(result);
+				/*
+				initializeBufferLayer(map, 
+					result.buffer.map(function(b){
+						return {points: b}
+					})
+				);
+				*/
+				loadItinerary(result)
+				// completionCallback();
+						
+				
+				// $btn.remove();
+				
+				
+				
+				map.fitBounds(result.bounds,{
+						padding: {top: 100, bottom:50, left: 600, right: 50}
+					}
+				)
+				bindMaker_Static(map)
+				// map.moveLayer('buffer', 'route')
+				// console.log(result);
+			},
+			error: function(err){
+				console.log('error');
+			}
+		}).done(function() {
+			//console.log();
+			})
+			.fail(function() {
+			//console.log('fail')
+			})
+			.always(function() {
+			$('.loader, .loader-bg').css({'display': 'none'});
+			});
+		</script>
+	</body>
+</html>	
