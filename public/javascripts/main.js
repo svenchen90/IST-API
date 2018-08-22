@@ -270,17 +270,17 @@ var intialPreferenceSelection = function(form){
 					})
 				);
 				*/
-				loadItinerary(result);
-				completionCallback();
+				
 				
 				$(INPUT_BLOCK_ID[3]).css({'display': 'none'});
 				$('[data-action="' + LEFT_NAV[3] + '"]').removeClass('active');							
 				$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
 				$(INPUT_BLOCK_ID[6]).css({'display': 'block'});							
 				
+				loadItinerary(result);
+				completionCallback();
+				
 				$btn.remove();
-				
-				
 				
 				map.fitBounds(result.bounds,{
 						padding: {top: 100, bottom:50, left: 600, right: 50}
