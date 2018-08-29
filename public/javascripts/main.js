@@ -35,7 +35,7 @@ $('.left-nav').on('click', '[data-action]:not(.disabled)', function(){
 });
 
 var form = {};
-
+var current_trip;
 // 1. select-city
 var initialCitySelection = function(form){
 	var completionCheck = function(){
@@ -196,6 +196,17 @@ var initialDateSelection = function(form){
 		setRange(dates);
 		setCalendarRangeView();
 		
+		var DateToYYYYMMDD = function(d){
+			var year = d.getFullYear();
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate();
+			day = day <10 ? '0' + day : day;
+			
+			
+			return year + '-' + month + '-' + day;
+		};
+		
 		// set form
 		if(dates.length == 0){
 			form.start = '';
@@ -209,6 +220,7 @@ var initialDateSelection = function(form){
 		}else{
 			// console.log(1);
 		};
+		
 		completionCallback();
 	});
 };
@@ -251,12 +263,14 @@ var intialPreferenceSelection = function(form){
 		$('.loader, .loader-bg').css({'display': 'block'});
 		
 		$.ajax({
-			url : '/test5',
+			url : '/generate-trip',
 			data: form,
 			type : "GET",
 			dataType : 'json',
 			success : function (result){
-				console.log(result);
+				current_trip = result;
+				// console.log(form);
+				// console.log(result);
 				initializeRouteLayer(map, 
 					[{route: result.path.coordinates}]
 				);
@@ -592,5 +606,9 @@ map.on('contextmenu', function(e){
 		start: '2018-06-15',
 		end: '2018-06-17' }
 		*/
+});
+
+map.on('click', function(e){
+	// console.log(current_trip);
 });
 /* ! initial */

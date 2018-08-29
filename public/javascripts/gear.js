@@ -180,7 +180,7 @@ var DateToYYYYMMDD = function(d){
 	var year = d.getFullYear();
 	var month = d.getMonth()+1;
 	month = month < 10 ? '0' + month : month;
-	var day = d.getDate();
+	var day = d.getDate() + 1;
 	day = day <10 ? '0' + day : day;
 	
 	
@@ -193,7 +193,7 @@ var DateToMMDDYY = function(s){
 	year = year < 10 ? '0' + year : year;
 	var month = d.getMonth()+1;
 	month = month < 10 ? '0' + month : month;
-	var day = d.getDate();
+	var day = d.getDate() + 1;
 	day = day <10 ? '0' + day : day;
 	
 	
@@ -204,7 +204,7 @@ var DateToMMDD = function(s){
 	var d = new Date(s);
 	var month = d.getMonth()+1;
 	month = month < 10 ? '0' + month : month;
-	var day = d.getDate();
+	var day = d.getDate() + 1;
 	day = day <10 ? '0' + day : day;
 	
 	return month + '-' + day

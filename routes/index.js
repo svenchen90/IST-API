@@ -108,11 +108,10 @@ router.route('/test_mine')
 		res.render('ui-api',{});
 	});
 
-router.route('/test')
+/* router.route('/test')
 	.get(function(req, res, next){
-		//console.log(req.query);
 		res.render('test',{});
-	});
+	}); */
 
 router.route('/test2')
 	.get(function(req, res, next){
@@ -245,90 +244,6 @@ router.route('/test4')
 		}
 	});
 	
-router.route('/test5')
-	.get(function(req, res, next){
-		try{
-			//console.log(req.query);
-			req.query.waypoints = [];
-			req.query.departure_date = req.query.start;
-			req.query.arrival_date = req.query.end;
-			require('../planner_beta/route-planner').planner(
-				req.query
-			/* {
-				origin: 'New York, NY', //'San Diego, CA', 
-				destination: 'Chicago, IL', //'Los Angeles, CA',
-				waypoints: [],
-				departure_date: '2018-05-20',
-				arrival_date: '2018-05-28',
-				preference: {
-					NATURE: 1,
-					CULTURE: 2,
-					AMUSEMENT: 3,
-					SHOPPING: 4,
-					NIGHTLIFE: 5
-				}
-			} */
-			).then(function(result){
-				//console.log(req.query);
-				if(req.user){
-					new Route_Temp({
-						_userId: req.user.id,
-						origin:  result.origin,
-						destination: result.destination,
-						start_date: req.query.start,
-						end_date: req.query.end,
-						path: result.path,
-						distance: result.distance,
-						duration: result.duration,
-						itinerary: result.itinerary,
-						solution: result.solution,
-						bounds: result.bounds,
-						preference: result.preference
-					}).save(function(err){
-						if (err) return handleError(err);
-						User.findById(req.user.id, function (err, user) {
-							if (err) return handleError(err);
-							
-							user.travel_miles = user.travel_miles + result.distance;
-							
-							result.solution.forEach(function(item, index){
-								var temp = item.address.split(',');
-								var city = temp[temp.length-2].trim();
-								var country = 'USA';
-								
-								if(!user.travel_countries.includes(country)) {
-									user.travel_countries.push(country);
-								}
-								if(!user.travel_cities.includes(city)) {
-									user.travel_cities.push(city);
-								}
-								
-								user.travel_POIs = user.travel_POIs.map(function(item, index){
-									return String(item);
-								});
-								
-								if(!user.travel_POIs.includes(item._id)) {
-									user.travel_POIs.push(item._id);
-								}
-							});												
-							user.save(function (err, updatedUser) {
-								if (err) return handleError(err);
-								// console.log(updatedUser);
-								// res.send(updatedTank);
-							});
-						});
-					});
-				}
-				// Route_Temp.remove({}, function(){});
-				res.json(result);
-			}).catch(function(exception){
-				console.log('error', exception);
-				res.json(exception);
-			});
-		}catch(e){
-			console.log(e);
-		}
-	});
 
 router.route('/test6')
 	.get(function(req, res, next){
@@ -400,11 +315,96 @@ router.route('/trip')
 			res.render('mobile/trip-share', {});
 		}
 	});
-	
+
+router.route('/generate-trip')
+	.get(function(req, res, next){
+		try{
+			//console.log(req.query);
+			req.query.waypoints = [];
+			req.query.departure_date = req.query.start;
+			req.query.arrival_date = req.query.end;
+			require('../planner_beta/route-planner').planner(
+				req.query
+			/* {
+				origin: 'New York, NY', //'San Diego, CA', 
+				destination: 'Chicago, IL', //'Los Angeles, CA',
+				waypoints: [],
+				departure_date: '2018-05-20',
+				arrival_date: '2018-05-28',
+				preference: {
+					NATURE: 1,
+					CULTURE: 2,
+					AMUSEMENT: 3,
+					SHOPPING: 4,
+					NIGHTLIFE: 5
+				}
+			} */
+			).then(function(result){
+				//console.log(req.query);
+				if(req.user){
+					// console.log(req.query.start, req.query.end);
+					new Route_Temp({
+						_userId: req.user.id,
+						origin:  result.origin,
+						destination: result.destination,
+						start_date: req.query.start,
+						end_date: req.query.end,
+						path: result.path,
+						distance: result.distance,
+						duration: result.duration,
+						itinerary: result.itinerary,
+						solution: result.solution,
+						bounds: result.bounds,
+						preference: result.preference
+					}).save(function(err){
+						if (err) return handleError(err);
+						User.findById(req.user.id, function (err, user) {
+							if (err) return handleError(err);
+							
+							user.travel_miles = user.travel_miles + result.distance;
+							
+							result.solution.forEach(function(item, index){
+								var temp = item.address.split(',');
+								var city = temp[temp.length-2].trim();
+								var country = 'USA';
+								
+								if(!user.travel_countries.includes(country)) {
+									user.travel_countries.push(country);
+								}
+								if(!user.travel_cities.includes(city)) {
+									user.travel_cities.push(city);
+								}
+								
+								user.travel_POIs = user.travel_POIs.map(function(item, index){
+									return String(item);
+								});
+								
+								if(!user.travel_POIs.includes(item._id)) {
+									user.travel_POIs.push(item._id);
+								}
+							});												
+							user.save(function (err, updatedUser) {
+								if (err) return handleError(err);
+								// console.log(updatedUser);
+								// res.send(updatedTank);
+							});
+						});
+					});
+				}
+				// Route_Temp.remove({}, function(){});
+				res.json(result);
+			}).catch(function(exception){
+				console.log('error', exception);
+				res.json(exception);
+			});
+		}catch(e){
+			console.log(e);
+		}
+	});
 	
 router.route('/')
 	.get(function(req, res, next){
-		res.render('test3',{});
+		res.render('index',{});
 	});
 
 router.route('/user-main')
@@ -497,5 +497,33 @@ router.route('/email')
 			);
 	});	
 	
+router.route('/lodging')
+	.get(function(req, res, next){
+			var NearBySearch = require("googleplaces/lib/NearBySearch");
+
+			var nearBySearch = new NearBySearch('AIzaSyAOfXmpPxCXjGchGCtmEZHQHeqyKqe5vnc', 'json');
+
+			var parameters = {
+					location: [40.7127, -74.0059],
+					// keyword: "doctor",
+					type: 'lodging',
+					radius: 1000,
+					// rankby: 'distance'
+			};
+
+			nearBySearch(parameters, function (error, response) {
+					if (error) throw error;
+					res.json(response);
+					//assert.notEqual(response.results.length, 0, "Place search must not return 0 results");
+			});
+	});	
+
+
+// test
+router.route('/test')
+	.get(function(req, res, next){
+		//console.log(req.query);
+		res.render('test-console',{});
+	});
 	
 module.exports = router;

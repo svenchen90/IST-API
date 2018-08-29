@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title>Filter features within map view</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="javascripts/turf.min.js"></script> -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4&libraries=geometry"></script>
+	</head>
+	
+	<body>
+
+		<script>
+		var DateToMMDDYY = function(s){
+			var d = new Date(s);
+			var year = d.getFullYear() - 2000;
+			year = year < 10 ? '0' + year : year;
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate() + 1;
+			day = day <10 ? '0' + day : day;
+			
+			
+			return month + '|' + day + '|' + year;
+		};
+		
+		console.log(DateToMMDDYY(new Date('2018-08-14')))
+		
+		
+		var DateToYYYYMMDD = function(d){
+			var year = d.getFullYear();
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate() + 1;
+			day = day <10 ? '0' + day : day;
+			
+			
+			return year + '-' + month + '-' + day;
+		};
+		
+		console.log(DateToYYYYMMDD(new Date('2018-08-14')))
+		
+		
+		var DateToMMDD = function(s){
+			var d = new Date(s);
+			var month = d.getMonth()+1;
+			month = month < 10 ? '0' + month : month;
+			var day = d.getDate() + 1;
+			day = day <10 ? '0' + day : day;
+			
+			return month + '-' + day
+		};
+		
+		console.log(DateToMMDD(new Date('2018-08-14')))
+		
+		console.log((new Date('2018-08-14') - new Date('2018-08-08') + 1000*3600*24)/1000/3600/24)
+		$.ajax({
+			url : '/lodging',
+			data: {},
+			type : "GET",
+			dataType : 'json',
+			success : function (result){
+				console.log(result);
+			},
+			error: function(err){
+				console.log('请求失败2');
+			}
+		});
+		</script>
+	
+	</body>
+</html>	
+

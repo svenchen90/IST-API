@@ -66,7 +66,7 @@ var planner = function(data, chunks_size = 50){
 	return new Promise(function(resolve, reject){
 		getRoute(data)
 			.then(function(result){
-				var duration_overall = Math.abs(new Date(data.arrival_date) - new Date(data.departure_date))/1000;
+				var duration_overall = Math.abs(new Date(data.arrival_date) - new Date(data.departure_date)+ 1000*3600*24)/1000;
 				var radius = getRadius(result.distance, duration_overall);
 				
 				var duration_day = duration_overall/24/60/60;
@@ -199,8 +199,8 @@ var planner = function(data, chunks_size = 50){
 								result2.itinerary = itinerary;
 								result2.preference = data.preference;
 								
-								result2.start_date = data.arrival_date;
-								result2.end_date = data.departure_date;
+								result2.start_date = data.departure_date;
+								result2.end_date = data.arrival_date;
 								resolve(result2);
 							})
 							.catch(function(exception2){
