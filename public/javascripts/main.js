@@ -2,7 +2,7 @@ const LEFT_NAV = ['select-city', 'select-date', 'input-traveler', 'select-prefer
 const INPUT_BLOCK_ID = LEFT_NAV.map(function(item){
 	return '#' + item;
 });
-var disable_list = [2,4,5,7];
+var disable_list = [2,5,7];
 
 var enableFollow = function(nav_name, len=1){
 	var index = LEFT_NAV.indexOf(nav_name);
@@ -586,8 +586,10 @@ initialDateSelection(form);
 intialPreferenceSelection(form);
 linkInternaryAndMark();
 
-$('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
-$(INPUT_BLOCK_ID[0]).css({'display': 'block'});
+// $('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
+// $(INPUT_BLOCK_ID[0]).css({'display': 'block'});
+$('[data-action="' + LEFT_NAV[4] + '"]').removeClass('disabled');
+$(INPUT_BLOCK_ID[4]).css({'display': 'block'});
 
 map.on('contextmenu', function(e){
 	console.log(map.getZoom());
