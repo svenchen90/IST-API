@@ -93,10 +93,6 @@ var loadPOIInfo = function(id, $container=$('.right-info')) {
 				'</div>\n'
 			);
 			
-			$card.on('click', '[data-action="close"]', function(e){
-				$container.css({display: 'none'});
-			});
-			
 			$container.find('.body').html($card);
 			$container.css({display: 'block'});
 		},
@@ -113,5 +109,12 @@ var loadPOIInfo = function(id, $container=$('.right-info')) {
 		$('.loader, .loader-bg').css({'display': 'none'});
 		});	
 };
+
+(function(){
+	$('.right-info').on('click', '[data-action="close"]', function(){
+		$('.right-info').css({display: 'none'});
+	});
+})();
+
 </script>
 

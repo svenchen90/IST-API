@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<div id="get-hotel" class="input-block customized-scrollbar" style="width: 500px;overflow-y: auto; max-height:100%;">
+<div id="get-hotel" class="input-block customized-scrollbar" style="width: 300px;overflow-y: auto; max-height:100%;">
 	<div class="head">
 		Hotel
 	</div>
 	<div class="body">
-		<div>
-			<div class="date-card" style="">
-				<div style="text-align: center; font-size: 30px;">15</div>
-				<div style="text-align: center; font-size: 20px;">Fri</div>
-			</div>
-			<div style="display: inline-block; border: 2px solid #1FB5C7; border-radius: 3px; width: 77px; color: #1FB5C7; cursor: pointer;">
-				<div style="text-align: center; font-size: 30px;">15</div>
-				<div style="text-align: center; font-size: 20px;">Fri</div>
-			</div>
+		<div data-container="date">
+		
+		</div>
+		<div data-container="hotel">
+		
 		</div>
 	</div>
 </div>
@@ -20,19 +16,315 @@
 <style>
 .date-card {
 	display: inline-block;
-	width: 77px;
+	width: 70px;
 	border-radius: 3px;
+	margin: 10px 5px;
 	cursor: pointer;
 }
 
 .date-card.active {
 	color: #1FB5C7;
-	border: 2px solid #1FB5C7; 
+	border: 2px solid #1FB5C7;
 }
 
+.date-card .date-day {
+	text-align: center;
+	font-size: 30px;
+}
+
+.date-card .date-week {
+	text-align: center;
+	font-size: 20px;
+}
+
+.hotel-card {
+	margin: 5px 0;
+	cursor: pointer;
+}
+
+.hotel-card img {
+	width: 100%;
+}
+
+.hotel-card .name {
+	font-size: 16px;
+	font-weight: 600;
+	
+}
 </style>
 
 <script>
 
+
+var getWeekday = function(date, lang='en'){
+	var weekday_en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	return weekday_en[new Date(date).getDay()];
+};
+
+var getDateCard = function(date){
+	var $card = $(
+		'<div class="date-card">\n' +
+		'	<div class="date-day">' + new Date(date).getDate() + '</div>\n' +
+		'	<div class="date-week">' + getWeekday(date) + '</div>\n' +
+		'</div>\n'
+	);
+	
+	return $card;
+};
+
+var getDateBetween_inclusive = function(start_date, end_date){
+	var number_day = (new Date(end_date).getTime() - new Date(start_date).getTime()) / (3600*24*1000) + 1;
+	var dateList = [];
+	var first_day = new Date(start_date);
+	for(var i=0; i< number_day; i++){
+		var nextDay = new Date(first_day);
+		nextDay.setDate(first_day.getDate()+i+1);
+		dateList.push(nextDay);
+	}
+	
+	return dateList;
+};
+
+var loadDate = function(start_date, end_date, geo_list, $container=$('#get-hotel [data-container="date"]')){
+	var dateList = getDateBetween_inclusive(start_date, end_date);
+	
+	$container.empty();
+	
+	dateList.forEach(function(item, index){
+		var $card = getDateCard(item);
+		
+		$card
+			.attr('lng', geo_list[index].lng)
+			.attr('lat', geo_list[index].lat);
+		
+		$container.append($card);
+	});
+};
+
+var PHOTO_CASH = {};
+var getHotelCard_simple = function(data){
+	var $card = $(
+		'<div class="hotel-card" ref="' + data.ref + '">\n' +
+		'	<img>\n' +
+		'	<div class="name">' + data.name + '</div>\n' +
+		'</div>\n'
+	);
+	loadPhoto(data.ref, data.photo_ref, $card.find('img'));
+	
+	return $card;
+};
+
+var getHotelCard_detail = function(data){
+	var $card = $(
+		'<div>\n' +
+		'	<div class="body">\n' +
+		'		<div class="poster">\n' +
+		'			<img style="width: 100%;">\n' +
+		'		</div>\n' +
+		'		<div class="details" style="padding: 0 15px 15px 15px;">\n' +
+		'			<div class="clearfix"><span class="pull-right" style="cursor:pointer;" data-action="close">&times</span></div>\n' +
+		'			<h4 class="head" style="text-align: center;"> ' + 	data.name + '</h4>\n' +
+		'			<!-- <div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-building-o"></i> Description: </span>\n' +
+		'				<div class="text">\n' +
+		'					' + (data.description ? data.description : 'N/A') + '\n' +
+		'				</div>\n' +
+		'			</div> -->\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-table"></i> Rates: </span>\n' +
+		'				<div class="text" style="color: gold;">\n' +
+		'					' + getRatesText(data.rating) + '\n' +						
+		'				</div>\n' +
+		'			</div>\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-location-arrow"></i> Address: </span>\n' +
+		'				<div class="text">\n' +
+		'					' + data.address + '\n' +
+		'				</div>\n' +
+		'			</div>\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-globe"></i> Website: </span>\n' +
+		'				<div class="text">\n' +
+		'					 <a href="' + data.website + '">' + data.website + '</a>\n' +
+		'				</div>\n' +
+		'			</div>\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-calendar-times-o"></i> Hours: </span>\n' +
+		'				<div class="text" data-container="hours"></div>\n' +
+		'			</div>\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-phone"></i> Phone: </span>\n' +
+		'				<div class="text">\n' +
+		'					 ' + data.phone + '\n' +
+		'				</div>\n' +
+		'			</div>\n' +
+		'			<div class="detail-block">\n' +
+		'				<span class="label"><i class="fa fa-phone"></i> International phone: </span>\n' +
+		'				<div class="text">\n' +
+		'					 ' + data.international_phone + '\n' +
+		'				</div>\n' +
+		'			</div>\n' +
+		'		</div>\n' +
+		'	</div>\n' +
+		'</div>\n'
+	);
+	
+	var $hours = $card.find('[data-container="hours"]');
+	data.open_hours.forEach(function(item, index){
+		$hours.append(item + '<br>');
+	});
+	
+	/* if(data.photos.length > 0){
+		console.log(data.photos[0])
+		loadPhoto(data.ref, data.photos[0], $card.find('.poster img'))
+	}; */
+	if(PHOTO_CASH[data.ref] != undefined){
+		$card.find('.poster img').prop('src', PHOTO_CASH[data.ref]);
+	}
+	
+	return $card;
+};
+
+var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]'), callback){
+	$.ajax({
+		url : '/place',
+		data: data,
+		type : "GET",
+		dataType : 'json',
+		success : function (data){
+			$container.empty();
+			data.results.forEach(function(item,index){
+				var json = {
+					lng: item.geometry.location.lng,
+					lat: item.geometry.location.lat,
+					name: item.name,
+					ref: item.reference,
+					photo_ref: item.photos.length > 0 ? item.photos[0].photo_reference : ''
+				};
+				
+				var $card = getHotelCard_simple(json)
+				$container.append($card);
+			});
+			callback();
+		},
+		error: function(err){
+			console.log('error');
+		}
+	}).done(function() {
+		//console.log();
+		})
+		.fail(function() {
+		//console.log('fail')
+		})
+		.always(function() {
+		// $('.loader, .loader-bg').css({'display': 'none'});
+		});	
+};
+
+var loadPhoto = function(ref, photo_ref, $img){
+	$.ajax({
+		url : '/google-place-photo',
+		data: {ref: photo_ref},
+		type : "GET",
+		dataType : 'json',
+		success : function (data){
+			$img.prop('src', data);
+			PHOTO_CASH[ref] = data;
+			// console.log(data);
+		},
+		error: function(err){
+			console.log('error');
+		}
+	}).done(function() {
+		//console.log();
+		})
+		.fail(function() {
+		//console.log('fail')
+		})
+		.always(function() {
+		// $('.loader, .loader-bg').css({'display': 'none'});
+		});	
+};
+
+var loadDetail = function(ref, $container){
+	$.ajax({
+		url : '/google-place-detail',
+		data: {ref: ref},
+		type : "GET",
+		dataType : 'json',
+		success : function (data){
+			var result = data.result;
+			// console.log(result)
+			var json = {
+				ref: result.reference,
+				name: result.name,
+				open_hours: result.opening_hours.weekday_text,
+				address: result.formatted_address,
+				phone: result.formatted_phone_number,
+				international_phone: result.international_phone_number,
+				rating: result.rating,
+				website: result.website,
+				lng: result.geometry.location.lng,
+				lat: result.geometry.location.lat,
+				photos: result.photos.map(function(item, index){
+					return item.photo_reference;
+				})
+			}
+			// console.log(json)
+			var $card = getHotelCard_detail(json);
+			$container.find('.body').html($card);
+			$container.css({display: 'block'});
+		},
+		error: function(err){
+			console.log('error');
+		}
+	}).done(function() {
+		//console.log();
+		})
+		.fail(function() {
+		//console.log('fail')
+		})
+		.always(function() {
+		// $('.loader, .loader-bg').css({'display': 'none'});
+		});	
+};
+
+(function(){
+	/* 
+	loadHotel({
+		lng: -74.0059,
+		lat: 40.7127,
+		distance: 1000,
+		type: 'lodging'
+	}, 
+	$('#get-hotel [data-container="hotel"]'),
+	function(){
+		PHOTO_CASH = {}
+	});
+	*/
+	
+	$('#get-hotel').on('click', '.hotel-card', function(e){
+		var ref = $(this).attr('ref')
+		loadDetail(ref, $('.right-info'));
+		// console.log(data);
+	});
+	
+	$('#get-hotel').on('click', '.date-card', function(e){
+		$(this).siblings().removeClass('active');
+		$(this).addClass('active');
+		
+		loadHotel({
+			lng: $(this).attr('lng'),
+			lat: $(this).attr('lat'),
+			distance: 5000,
+			type: 'lodging'
+		}, 
+		$('#get-hotel [data-container="hotel"]'),
+		function(){
+			PHOTO_CASH = {}
+		});
+	});
+})();
 </script>
+https://www.booking.com/searchresults.html?label=gen173nr-1FCAEoggJCAlhYSDNYBHIFdXNfaWyIAQGYATHCAQp3aW5kb3dzIDEwyAEM2AEB6AEB-AECkgIBeagCAw;sid=3e76ce7ca2ffc30e5bbfda69b7ccbc6e;checkin_month=9&checkin_monthday=27&checkin_year=2018&checkout_month=9&checkout_monthday=28&checkout_year=2018&class_interval=1&dest_id=20033173&dest_type=city&dtdisc=0&from_sf=1&group_adults=2&group_children=0&iata=CHI&inac=0&index_postcard=0&label_click=undef&no_rooms=1&offset=0&postcard=0&raw_dest_type=city&room1=A%2CA&sb_price_type=total&search_selected=1&src=index&src_elem=sb&ss=Chicago%2C%20Illinois%2C%20USA&ss_all=0&ss_raw=chic&ssb=empty&sshis=0&
 

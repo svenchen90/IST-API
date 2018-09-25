@@ -5,9 +5,4 @@ var googleMapsClient = require('@google/maps').createClient({
 	
 });
 
-
-
-
-
-
 exports.googleMapsClient = googleMapsClient;

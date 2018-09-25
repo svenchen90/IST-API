@@ -10,8 +10,6 @@ var googleMapsClient = require('@google/maps').createClient({
   key: 'AIzaSyD1LCWyuLkzDMvyOYxBIvmjyBJsqLDnPA4'
 });
 
-
-
 var models = require('../models/models');
 var Route_Temp = models.Route_Temp;
 var POI = models.POI;
@@ -497,24 +495,50 @@ router.route('/email')
 			);
 	});	
 	
-router.route('/lodging')
+// google place
+var NearBySearch = require('../planner_beta/agents/google-place').NearBySearch;
+var ImageFetch = require('../planner_beta/agents/google-place').ImageFetch;
+var PlaceDetailsRequest = require('../planner_beta/agents/google-place').PlaceDetailsRequest;
+router.route('/place')
 	.get(function(req, res, next){
-			var NearBySearch = require("googleplaces/lib/NearBySearch");
-
-			var nearBySearch = new NearBySearch('AIzaSyAOfXmpPxCXjGchGCtmEZHQHeqyKqe5vnc', 'json');
-
 			var parameters = {
-					location: [40.7127, -74.0059],
+					location: [req.query.lat, req.query.lng],
+					type: req.query.type,
+					radius: req.query.distance,
 					// keyword: "doctor",
-					type: 'lodging',
-					radius: 1000,
 					// rankby: 'distance'
 			};
-
-			nearBySearch(parameters, function (error, response) {
+			
+			NearBySearch(parameters, function (error, response) {
 					if (error) throw error;
 					res.json(response);
 					//assert.notEqual(response.results.length, 0, "Place search must not return 0 results");
+			});
+	});	
+	
+router.route('/google-place-photo')
+	.get(function(req, res, next){
+			// console.log(req.query.ref);
+			var parameters = {
+				photoreference: req.query.ref,
+				sensor: false
+			};
+
+			ImageFetch(parameters, function (error, response) {
+				if (error) throw error;
+				res.json(response);
+			});
+	});	
+	
+router.route('/google-place-detail')
+	.get(function(req, res, next){
+			var parameters = {
+					reference: req.query.ref
+			};
+		
+			PlaceDetailsRequest(parameters, function (error, response) {
+					if (error) throw error;
+					res.json(response);
 			});
 	});	
 
@@ -527,3 +551,4 @@ router.route('/test')
 	});
 	
 module.exports = router;
+

@@ -303,6 +303,10 @@ var intialPreferenceSelection = function(form){
 				bindMaker_Static(map)
 				// map.moveLayer('buffer', 'route')
 				// console.log(result);
+				
+				//hotel
+				initialHotel(result);
+				
 			},
 			error: function(err){
 				console.log('error');
@@ -570,6 +574,30 @@ var loadItinerary = function(data, $container = $('#get-itinerary')) {
 	);
 };
 
+// 4. hotel
+var initialHotel = function(data){
+	console.log(data);
+	
+	var geo_list = data.itinerary.map(function(item, index){
+		var last = item[item.length-1];
+		if(last.geo != undefined){
+			return {
+				lng: last.geo[0],
+				lat: last.geo[1]
+			}
+		}else{
+			return {
+				lng: last.destination.geo[0],
+				lat: last.destination.geo[1]
+			}
+		}
+	});
+	
+	loadDate(data.start_date, data.end_date, geo_list);
+	
+	$('#get-hotel .date-card').first().click();
+};
+
 /* initial */
 var map = initializeMapbox('map', 'streets', [-98.2093396778871, 39.61233583451258], 4);
 map.on('load', function(){
@@ -586,10 +614,10 @@ initialDateSelection(form);
 intialPreferenceSelection(form);
 linkInternaryAndMark();
 
-// $('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
-// $(INPUT_BLOCK_ID[0]).css({'display': 'block'});
-$('[data-action="' + LEFT_NAV[4] + '"]').removeClass('disabled');
-$(INPUT_BLOCK_ID[4]).css({'display': 'block'});
+$('[data-action="' + LEFT_NAV[0] + '"]').removeClass('disabled');
+$(INPUT_BLOCK_ID[0]).css({'display': 'block'});
+// $('[data-action="' + LEFT_NAV[4] + '"]').removeClass('disabled');
+// $(INPUT_BLOCK_ID[4]).css({'display': 'block'});
 
 map.on('contextmenu', function(e){
 	console.log(map.getZoom());

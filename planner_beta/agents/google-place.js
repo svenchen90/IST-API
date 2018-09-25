@@ -1,17 +1,18 @@
-var NearBySearch = require("googleplaces/lib/NearBySearch");
-var config = require("/google-config.js");
-
-var nearBySearch = new NearBySearch(config.apiKey, config.outputFormat);
-
-var parameters = {
-		location: [40.7127, -74.0059],
-		keyword: "doctor"
+var config = {
+	apiKey: process.env.GOOGLE_PLACES_API_KEY || "AIzaSyAOfXmpPxCXjGchGCtmEZHQHeqyKqe5vnc",
+	outputFormat: process.env.GOOGLE_PLACES_OUTPUT_FORMAT || "json"
 };
 
-nearBySearch(parameters, function (error, response) {
-		if (error) throw error;
-		//assert.notEqual(response.results.length, 0, "Place search must not return 0 results");
-});
+var NearBySearch = require("googleplaces/lib/NearBySearch");
+var nearBySearch = new NearBySearch(config.apiKey, config.outputFormat);
+
+var ImageFetch = require("googleplaces/lib/ImageFetch.js");
+var imageFetch = new ImageFetch(config.apiKey);
+
+var PlaceDetailsRequest = require("googleplaces/lib/PlaceDetailsRequest.js");
+var placeDetailsRequest = new PlaceDetailsRequest(config.apiKey, config.outputFormat);
 
 
-exports.googleMapsClient = googleMapsClient;
+exports.NearBySearch = nearBySearch;
+exports.ImageFetch = imageFetch;
+exports.PlaceDetailsRequest = placeDetailsRequest;
