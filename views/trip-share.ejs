@@ -85,6 +85,8 @@
 		<% include module/box-select-city.ejs %>
 		<% include module/box-select-date.ejs %>
 		<% include module/box-select-preference.ejs %>
+		<% include module/box-select-hotel.ejs %>
+		<% include module/box-select-food.ejs %>
 		<% include module/box-select-itinerary.ejs %>
 		<% include module/right-info.ejs %>
 		
@@ -101,22 +103,69 @@
 		$('[data-action="' + LEFT_NAV[6] + '"]').addClass('active').removeClass('disabled');							
 		$(INPUT_BLOCK_ID[6]).css({'display': 'block'});		
 
+		$('[data-action="' + LEFT_NAV[4] + '"]').removeClass('disabled');							
+		$(INPUT_BLOCK_ID[4]).css({'display': 'block'});
+		$('[data-action="' + LEFT_NAV[5] + '"]').removeClass('disabled');							
+		$(INPUT_BLOCK_ID[5]).css({'display': 'block'});		
+		
+		
 		var url_string = window.location.href
 		var url = new URL(url_string);
 		var _id = url.searchParams.get("_id");
 		// console.log(_id);
 
+		
+		var initialHotel = function(data){
+			var geo_list = data.itinerary.map(function(item, index){
+				var last = item[item.length-1];
+				if(last.geo != undefined){
+					return {
+						lng: last.geo[0],
+						lat: last.geo[1]
+					}
+				}else{
+					return {
+						lng: last.destination.geo[0],
+						lat: last.destination.geo[1]
+					}
+				}
+			});
+			
+			loadDate(data.start_date, data.end_date, geo_list);
+			// $('#get-hotel .date-card').first().click();
+		};
+		
+		var initialFood = function(data){
+			var geo_list = data.itinerary.map(function(item, index){
+				var last = item[item.length-1];
+				if(last.geo != undefined){
+					return {
+						lng: last.geo[0],
+						lat: last.geo[1]
+					}
+				}else{
+					return {
+						lng: last.destination.geo[0],
+						lat: last.destination.geo[1]
+					}
+				}
+			});
+			loadDate(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
+			// $('#get-food .date-card').first().click();
+		};
+		
+		
 		$.ajax({
 			url : '/get-trip-by-id?_id=' + _id,
 			// data: form,
 			type : "GET",
 			dataType : 'json',
 			success : function (result){
-				console.log(result);
+				// console.log(result);
 				initializeRouteLayer(map, 
 					[{route: result.path.coordinates}]
 				);
-				
+				console.log(result.solution)
 				initializePOILayer(map, result.solution);
 				// console.log(result);
 				/*
@@ -139,6 +188,8 @@
 					}
 				)
 				bindMaker_Static(map)
+				initialHotel(result);
+				initialFood(result);
 				// map.moveLayer('buffer', 'route')
 				// console.log(result);
 			},
@@ -154,6 +205,7 @@
 			.always(function() {
 			$('.loader, .loader-bg').css({'display': 'none'});
 			});
+			
 		</script>
 	</body>
 </html>	

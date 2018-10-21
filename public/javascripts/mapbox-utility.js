@@ -393,6 +393,72 @@ var clearPOI = function(map,id="POI"){
 };
 /* ! POI */
 
+/* Hotel: {
+	id: ,
+	name: ,
+	geo: [lng, lat],
+	address: {type: String},
+	genres: [String],
+	poster: String,
+	
+	rates: [5,4,3,2,1],
+	reviews: [{}],
+	totalreviews: Number,
+	
+	hours: {type: String},
+	length_visit: {type: String},
+	phone: {type: String},
+	website: {type: String},
+	email: {type: String},
+	
+	description: {type: String},
+	certification: {type: String},
+	rank: [String],
+}; */
+var formateGoogle_ALPHA = function(poi){
+	return {
+		"type": "Feature",
+		"geometry": {
+			"type": "Point",
+			"coordinates": poi.geo
+		},
+		"properties": {
+			"name": poi.name,
+			'poster': poi.poster,
+			'_id': poi._id
+			// "icon": "monument",
+		}
+	}
+};
+
+var initializeGoogleLayer = function(map, data, options){
+	var defaultOptions = {
+		id: 'google',
+		formateFunct: formateGoogle_ALPHA
+	};
+	$.extend(true, defaultOptions, options);
+	
+	var list = data.map(function(poi){
+		return defaultOptions.formateFunct(poi);
+	});
+	
+	return initializePointLayer(map, list, defaultOptions.id, defaultOptions);
+};
+
+var addGooglePOI = function(map, POI, id="google", formateFunct=formateGoogle_ALPHA){
+	return addDataToLayer(map, 
+		list.map(function(i){
+			return formateFunct(i);
+		}),	
+		id
+	);
+};
+
+var clearGoogle = function(map,id="google"){
+	return clearLayer(map, id);
+};
+/* ! Hotel */
+
 
 /* Buffer */
 /* buffer: {

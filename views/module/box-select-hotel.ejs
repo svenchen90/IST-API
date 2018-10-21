@@ -88,16 +88,16 @@ var getDateBetween_inclusive = function(start_date, end_date){
 var loadDate = function(start_date, end_date, geo_list, $container=$('#get-hotel [data-container="date"]')){
 	var dateList = getDateBetween_inclusive(start_date, end_date);
 	
-	$container.empty();
-	
 	dateList.forEach(function(item, index){
-		var $card = getDateCard(item);
-		
-		$card
-			.attr('lng', geo_list[index].lng)
-			.attr('lat', geo_list[index].lat);
-		
-		$container.append($card);
+		if(index != dateList.length-1){
+			var $card = getDateCard(item);
+			
+			$card
+				.attr('lng', geo_list[index].lng)
+				.attr('lat', geo_list[index].lat);
+			
+			$container.append($card);
+		}
 	});
 };
 
@@ -205,7 +205,7 @@ var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]
 				var $card = getHotelCard_simple(json)
 				$container.append($card);
 			});
-			callback();
+			callback(data);
 		},
 		error: function(err){
 			console.log('error');
@@ -246,7 +246,7 @@ var loadPhoto = function(ref, photo_ref, $img){
 		});	
 };
 
-var loadDetail = function(ref, $container){
+var loadDetail = function(ref, $container, callback){
 	$.ajax({
 		url : '/google-place-detail',
 		data: {ref: ref},

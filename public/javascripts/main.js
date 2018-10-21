@@ -2,7 +2,7 @@ const LEFT_NAV = ['select-city', 'select-date', 'input-traveler', 'select-prefer
 const INPUT_BLOCK_ID = LEFT_NAV.map(function(item){
 	return '#' + item;
 });
-var disable_list = [2,5,7];
+var disable_list = [2,7];
 
 var enableFollow = function(nav_name, len=1){
 	var index = LEFT_NAV.indexOf(nav_name);
@@ -306,6 +306,7 @@ var intialPreferenceSelection = function(form){
 				
 				//hotel
 				initialHotel(result);
+				initialFood(result);
 				
 			},
 			error: function(err){
@@ -594,8 +595,26 @@ var initialHotel = function(data){
 	});
 	
 	loadDate(data.start_date, data.end_date, geo_list);
-	
 	$('#get-hotel .date-card').first().click();
+};
+
+var initialFood = function(data){
+	var geo_list = data.itinerary.map(function(item, index){
+		var last = item[item.length-1];
+		if(last.geo != undefined){
+			return {
+				lng: last.geo[0],
+				lat: last.geo[1]
+			}
+		}else{
+			return {
+				lng: last.destination.geo[0],
+				lat: last.destination.geo[1]
+			}
+		}
+	});
+	loadDate(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
+	$('#get-food .date-card').first().click();
 };
 
 /* initial */
@@ -639,6 +658,8 @@ map.on('contextmenu', function(e){
 });
 
 map.on('click', function(e){
+		
+		// console.log(map.getZoom());
 	// console.log(current_trip);
 });
 /* ! initial */

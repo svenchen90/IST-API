@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<div id="get-food" class="input-block customized-scrollbar" style="width: 300px;overflow-y: auto; max-height:100%;">
+	<div class="head">
+		Food
+	</div>
+	<div class="body">
+		<div data-container="date">
+		
+		</div>
+		<div data-container="food">
+		
+		</div>
+	</div>
+</div>
+
+<style>
+
+</style>
+
+<script>
+/*
+var getHotelCard_simple = function(data){
+	var $card = $(
+		'<div class="food-card" ref="' + data.ref + '">\n' +
+		'	<img>\n' +
+		'	<div class="name">' + data.name + '</div>\n' +
+		'</div>\n'
+	);
+	loadPhoto(data.ref, data.photo_ref, $card.find('img'));
+	
+	return $card;
+};
+*/
+
+(function(){
+	$('#get-food').on('click', '.hotel-card', function(e){
+		var ref = $(this).attr('ref')
+		loadDetail(ref, $('.right-info'));
+		// console.log(data);
+	});
+	
+	$('#get-food').on('click', '.date-card', function(e){
+		$(this).siblings().removeClass('active');
+		$(this).addClass('active');
+		
+		loadHotel({
+			lng: $(this).attr('lng'),
+			lat: $(this).attr('lat'),
+			distance: 5000,
+			type: 'restaurant'
+		}, 
+		$('#get-food [data-container="food"]'),
+		function(){
+			PHOTO_CASH = {}
+		});
+	});
+})();
+</script>
+
