@@ -18,24 +18,123 @@
 </style>
 
 <script>
-/*
-var getHotelCard_simple = function(data){
-	var $card = $(
-		'<div class="food-card" ref="' + data.ref + '">\n' +
-		'	<img>\n' +
-		'	<div class="name">' + data.name + '</div>\n' +
-		'</div>\n'
-	);
-	loadPhoto(data.ref, data.photo_ref, $card.find('img'));
+var loadDate_MultipleGeo = function(start_date, end_date, geo_list, $container){
+	var dateList = getDateBetween_inclusive(start_date, end_date);
 	
-	return $card;
+	dateList.forEach(function(item, index){
+		if(index != dateList.length-1){
+			var $card = getDateCard(item);
+			
+			$card.attr('geo', geo_list[index].join(','))
+			
+			$container.append($card);
+		}
+	});
 };
-*/
+
+var initialFood = function(data){
+	var geo_list = data.itinerary.map(function(list, index){
+		return list.map(function(item, index){
+			if(item.geo != undefined){
+				return item.geo[0] + '|' + item.geo[1];
+			}else{
+				return item.destination.geo[0] + '|' + item.destination.geo[1];
+			}
+		});
+	});
+	loadDate_MultipleGeo(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
+	$('#get-food .date-card').first().click();
+};
+
+var loadSimple_MultipleGeo = function(data, $container, callback){
+	var promise_query = function(data){
+		return new Promise(function(resolve, reject){
+			$.ajax({
+				url : '/place',
+				data: data,
+				type : "GET",
+				dataType : 'json',
+				success : function (data){
+					var list = data.results.map(function(item,index){
+						return {
+							lng: item.geometry.location.lng,
+							lat: item.geometry.location.lat,
+							name: item.name,
+							ref: item.reference,
+							photo_ref: item.photos.length > 0 ? item.photos[0].photo_reference : ''
+						};
+					});
+					resolve(data.results)
+					
+				},
+				error: function(err){
+					console.log('error');
+					reject(err)
+				}
+			});
+		});
+	};
+	
+	var promisePool = data.geo_list.map(function(item, index){
+		var query = item;
+		query['distance'] = data['distance'];
+		query['type'] = data['type'];
+		
+		return promise_query(query);
+	});
+	
+	Promise.all(promisePool)
+			.then(function(result){
+				var list = []
+				result.forEach(function(l){
+					// console.log(list)
+					list = list.concat(l);
+				});
+				
+				list = removeDuplicates(list);
+				
+				list.sort(function(a, b){return b.rating - a.rating});
+				sublist = list.slice(0, Math.min(20, list.length));
+			
+				$container.empty();
+				sublist.forEach(function(item){
+					var json = {
+						lng: item.geometry.location.lng,
+						lat: item.geometry.location.lat,
+						name: item.name,
+						ref: item.reference,
+						photo_ref: item.photos.length > 0 ? item.photos[0].photo_reference : ''
+					};
+				
+					var $card = getCard_simple(json)
+					$container.append($card);
+				});
+				callback(data);
+			})
+			.catch(function(exception){
+				console.log(exception);
+			});
+};
+
+var removeDuplicates = function(list){
+	var ref_set = new Set();
+	var newList = [];
+	
+	list.forEach(function(item){
+		if(!ref_set.has(item.reference)){
+			newList.push(item);
+			ref_set.add(item.reference);
+		}
+	});
+	
+	return newList;
+};
 
 (function(){
-	$('#get-food').on('click', '.hotel-card', function(e){
+	$('#get-food').on('click', '.default-card', function(e){
 		var ref = $(this).attr('ref')
-		loadDetail(ref, $('.right-info'));
+		var cash_id = $(this).attr('cashId')
+		loadDetail(ref, cash_id, $('.right-info'));
 		// console.log(data);
 	});
 	
@@ -43,16 +142,28 @@ var getHotelCard_simple = function(data){
 		$(this).siblings().removeClass('active');
 		$(this).addClass('active');
 		
-		loadHotel({
-			lng: $(this).attr('lng'),
-			lat: $(this).attr('lat'),
+		geo_str_list = $(this).attr('geo').split(',');
+		
+		geo_list = geo_str_list.map(function(str){
+			l = str.split('|');
+			return {
+				lng: l[0],
+				lat: l[1]
+			};
+		});
+		
+		// console.log(geo_list);
+
+		loadSimple_MultipleGeo({
+			geo_list: geo_list,
 			distance: 5000,
 			type: 'restaurant'
 		}, 
 		$('#get-food [data-container="food"]'),
 		function(){
-			PHOTO_CASH = {}
+			// PHOTO_CASH = {}
 		});
+
 	});
 })();
 </script>

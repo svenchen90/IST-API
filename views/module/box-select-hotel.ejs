@@ -37,16 +37,16 @@
 	font-size: 20px;
 }
 
-.hotel-card {
+.default-card {
 	margin: 5px 0;
 	cursor: pointer;
 }
 
-.hotel-card img {
+.default-card img {
 	width: 100%;
 }
 
-.hotel-card .name {
+.default-card .name {
 	font-size: 16px;
 	font-weight: 600;
 	
@@ -54,7 +54,10 @@
 </style>
 
 <script>
-
+var PHOTO_CASH = {};
+var localIDGenerator = function () {
+	return '_' + Math.random().toString(36).substr(2, 9);
+};
 
 var getWeekday = function(date, lang='en'){
 	var weekday_en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -85,7 +88,7 @@ var getDateBetween_inclusive = function(start_date, end_date){
 	return dateList;
 };
 
-var loadDate = function(start_date, end_date, geo_list, $container=$('#get-hotel [data-container="date"]')){
+var loadDate = function(start_date, end_date, geo_list, $container){
 	var dateList = getDateBetween_inclusive(start_date, end_date);
 	
 	dateList.forEach(function(item, index){
@@ -101,20 +104,21 @@ var loadDate = function(start_date, end_date, geo_list, $container=$('#get-hotel
 	});
 };
 
-var PHOTO_CASH = {};
-var getHotelCard_simple = function(data){
+
+var getCard_simple = function(data){
+	var cash_id = localIDGenerator();
 	var $card = $(
-		'<div class="hotel-card" ref="' + data.ref + '">\n' +
+		'<div class="default-card" cashId="' + cash_id + '" ref="' + data.ref + '">\n' +
 		'	<img>\n' +
 		'	<div class="name">' + data.name + '</div>\n' +
 		'</div>\n'
 	);
-	loadPhoto(data.ref, data.photo_ref, $card.find('img'));
+	loadPhoto(cash_id, data.photo_ref, $card.find('img'));
 	
 	return $card;
 };
 
-var getHotelCard_detail = function(data){
+var getlCard_detail = function(data){
 	var $card = $(
 		'<div>\n' +
 		'	<div class="body">\n' +
@@ -170,22 +174,28 @@ var getHotelCard_detail = function(data){
 	);
 	
 	var $hours = $card.find('[data-container="hours"]');
-	data.open_hours.forEach(function(item, index){
-		$hours.append(item + '<br>');
-	});
+	if(data.open_hours ==  undefined || typeof data.open_hours === 'string'){
+		$hours.append('N/A');
+	}else{
+		data.open_hours.forEach(function(item, index){
+			$hours.append(item + '<br>');
+		});
+	}
+	
 	
 	/* if(data.photos.length > 0){
 		console.log(data.photos[0])
 		loadPhoto(data.ref, data.photos[0], $card.find('.poster img'))
 	}; */
-	if(PHOTO_CASH[data.ref] != undefined){
-		$card.find('.poster img').prop('src', PHOTO_CASH[data.ref]);
+	console.log(data.cash_id, PHOTO_CASH[data.cash_id])
+	if(PHOTO_CASH[data.cash_id] != undefined){
+		$card.find('.poster img').prop('src', PHOTO_CASH[data.cash_id]);
 	}
 	
 	return $card;
 };
 
-var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]'), callback){
+var loadSimple = function(data, $container, callback){
 	$.ajax({
 		url : '/place',
 		data: data,
@@ -193,7 +203,11 @@ var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]
 		dataType : 'json',
 		success : function (data){
 			$container.empty();
-			data.results.forEach(function(item,index){
+			
+			var list = data.results;
+			list.sort(function(a, b){return b.rating - a.rating});
+			console.log(list.length)
+			list.forEach(function(item,index){
 				var json = {
 					lng: item.geometry.location.lng,
 					lat: item.geometry.location.lat,
@@ -202,7 +216,7 @@ var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]
 					photo_ref: item.photos.length > 0 ? item.photos[0].photo_reference : ''
 				};
 				
-				var $card = getHotelCard_simple(json)
+				var $card = getCard_simple(json)
 				$container.append($card);
 			});
 			callback(data);
@@ -221,7 +235,7 @@ var loadHotel = function(data, $container=$('#get-hotel [data-container="hotel"]
 		});	
 };
 
-var loadPhoto = function(ref, photo_ref, $img){
+var loadPhoto = function(cash_id, photo_ref, $img){
 	$.ajax({
 		url : '/google-place-photo',
 		data: {ref: photo_ref},
@@ -229,7 +243,8 @@ var loadPhoto = function(ref, photo_ref, $img){
 		dataType : 'json',
 		success : function (data){
 			$img.prop('src', data);
-			PHOTO_CASH[ref] = data;
+			PHOTO_CASH[cash_id] = data;
+			console.log(Object.keys(PHOTO_CASH).length);
 			// console.log(data);
 		},
 		error: function(err){
@@ -246,7 +261,7 @@ var loadPhoto = function(ref, photo_ref, $img){
 		});	
 };
 
-var loadDetail = function(ref, $container, callback){
+var loadDetail = function(ref, cash_id, $container, callback){
 	$.ajax({
 		url : '/google-place-detail',
 		data: {ref: ref},
@@ -258,7 +273,7 @@ var loadDetail = function(ref, $container, callback){
 			var json = {
 				ref: result.reference,
 				name: result.name,
-				open_hours: result.opening_hours.weekday_text,
+				open_hours: result.opening_hours != undefined ? result.opening_hours.weekday_text : 'N/A',
 				address: result.formatted_address,
 				phone: result.formatted_phone_number,
 				international_phone: result.international_phone_number,
@@ -268,10 +283,11 @@ var loadDetail = function(ref, $container, callback){
 				lat: result.geometry.location.lat,
 				photos: result.photos.map(function(item, index){
 					return item.photo_reference;
-				})
+				}),
+				cash_id: cash_id
 			}
 			// console.log(json)
-			var $card = getHotelCard_detail(json);
+			var $card = getlCard_detail(json);
 			$container.find('.body').html($card);
 			$container.css({display: 'block'});
 		},
@@ -289,31 +305,40 @@ var loadDetail = function(ref, $container, callback){
 		});	
 };
 
-(function(){
-	/* 
-	loadHotel({
-		lng: -74.0059,
-		lat: 40.7127,
-		distance: 1000,
-		type: 'lodging'
-	}, 
-	$('#get-hotel [data-container="hotel"]'),
-	function(){
-		PHOTO_CASH = {}
+var initialHotel = function(data){
+	var geo_list = data.itinerary.map(function(item, index){
+		var last = item[item.length-1];
+		if(last.geo != undefined){
+			return {
+				lng: last.geo[0],
+				lat: last.geo[1]
+			}
+		}else{
+			return {
+				lng: last.destination.geo[0],
+				lat: last.destination.geo[1]
+			}
+		}
 	});
-	*/
 	
-	$('#get-hotel').on('click', '.hotel-card', function(e){
-		var ref = $(this).attr('ref')
-		loadDetail(ref, $('.right-info'));
+	loadDate(data.start_date, data.end_date, geo_list, $('#get-hotel [data-container="date"]'));
+	$('#get-hotel .date-card').first().click();
+};
+
+(function(){
+	$('#get-hotel').on('click', '.default-card', function(e){
+		var ref = $(this).attr('ref');
+		var cash_id = $(this).attr('cashId')
+		loadDetail(ref, cash_id, $('.right-info'));
 		// console.log(data);
+		console.log(PHOTO_CASH);
 	});
 	
 	$('#get-hotel').on('click', '.date-card', function(e){
 		$(this).siblings().removeClass('active');
 		$(this).addClass('active');
 		
-		loadHotel({
+		loadSimple({
 			lng: $(this).attr('lng'),
 			lat: $(this).attr('lat'),
 			distance: 5000,
@@ -321,7 +346,7 @@ var loadDetail = function(ref, $container, callback){
 		}, 
 		$('#get-hotel [data-container="hotel"]'),
 		function(){
-			PHOTO_CASH = {}
+			// PHOTO_CASH = {}
 		});
 	});
 })();

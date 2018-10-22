@@ -115,46 +115,6 @@
 		// console.log(_id);
 
 		
-		var initialHotel = function(data){
-			var geo_list = data.itinerary.map(function(item, index){
-				var last = item[item.length-1];
-				if(last.geo != undefined){
-					return {
-						lng: last.geo[0],
-						lat: last.geo[1]
-					}
-				}else{
-					return {
-						lng: last.destination.geo[0],
-						lat: last.destination.geo[1]
-					}
-				}
-			});
-			
-			loadDate(data.start_date, data.end_date, geo_list);
-			// $('#get-hotel .date-card').first().click();
-		};
-		
-		var initialFood = function(data){
-			var geo_list = data.itinerary.map(function(item, index){
-				var last = item[item.length-1];
-				if(last.geo != undefined){
-					return {
-						lng: last.geo[0],
-						lat: last.geo[1]
-					}
-				}else{
-					return {
-						lng: last.destination.geo[0],
-						lat: last.destination.geo[1]
-					}
-				}
-			});
-			loadDate(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
-			// $('#get-food .date-card').first().click();
-		};
-		
-		
 		$.ajax({
 			url : '/get-trip-by-id?_id=' + _id,
 			// data: form,
@@ -165,7 +125,7 @@
 				initializeRouteLayer(map, 
 					[{route: result.path.coordinates}]
 				);
-				console.log(result.solution)
+				// console.log(result.solution)
 				initializePOILayer(map, result.solution);
 				// console.log(result);
 				/*

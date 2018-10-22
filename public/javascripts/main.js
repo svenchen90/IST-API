@@ -576,46 +576,9 @@ var loadItinerary = function(data, $container = $('#get-itinerary')) {
 };
 
 // 4. hotel
-var initialHotel = function(data){
-	console.log(data);
-	
-	var geo_list = data.itinerary.map(function(item, index){
-		var last = item[item.length-1];
-		if(last.geo != undefined){
-			return {
-				lng: last.geo[0],
-				lat: last.geo[1]
-			}
-		}else{
-			return {
-				lng: last.destination.geo[0],
-				lat: last.destination.geo[1]
-			}
-		}
-	});
-	
-	loadDate(data.start_date, data.end_date, geo_list);
-	$('#get-hotel .date-card').first().click();
-};
 
-var initialFood = function(data){
-	var geo_list = data.itinerary.map(function(item, index){
-		var last = item[item.length-1];
-		if(last.geo != undefined){
-			return {
-				lng: last.geo[0],
-				lat: last.geo[1]
-			}
-		}else{
-			return {
-				lng: last.destination.geo[0],
-				lat: last.destination.geo[1]
-			}
-		}
-	});
-	loadDate(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
-	$('#get-food .date-card').first().click();
-};
+
+
 
 /* initial */
 var map = initializeMapbox('map', 'streets', [-98.2093396778871, 39.61233583451258], 4);
