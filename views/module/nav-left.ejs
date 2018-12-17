@@ -48,6 +48,17 @@
 </style>
 
 <script>
+$('.left-nav').on('click', '[data-action="get-hotel"]', function(){
+	$('#get-hotel .date-card').first().click();
+});
+$('.left-nav').on('click', '[data-action="get-food"]', function(){
+	$('#get-food .date-card').first().click();
+});
+
+$('.left-nav').on('click', '[data-action="get-itinerary"]', function(){
+	clearMarker(map);
+	bindMaker_Static(map)
+});
 
 </script>
 

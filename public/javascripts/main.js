@@ -270,7 +270,7 @@ var intialPreferenceSelection = function(form){
 			success : function (result){
 				current_trip = result;
 				// console.log(form);
-				// console.log(result);
+				console.log(result);
 				initializeRouteLayer(map, 
 					[{route: result.path.coordinates}]
 				);
@@ -327,8 +327,8 @@ var intialPreferenceSelection = function(form){
 var linkInternaryAndMark = function(){
 	$('#map').on('click', '.marker', function(){
 		var _id = $(this).attr('data-id');
-		$('#get-itinerary').animate({
-			scrollTop: $('#get-itinerary [data-id="' + _id + '"]').position().top
+		$('#get-itinerary, #get-food, #get-hotel').animate({
+			scrollTop: $('.link-card[data-id="' + _id + '"]').position().top
 		}, 2000);
 		
 		$('#map .marker').removeClass('active');
@@ -336,7 +336,8 @@ var linkInternaryAndMark = function(){
 			.addClass('active')
 			.siblings().removeClass('active');
 			
-			loadPOIInfo(_id);
+			// loadPOIInfo(_id);
+			$('.link-card[data-id="' + _id + '"]').click();
 	});
 	
 	$('#map').on('click', ':not(.marker)' ,function(){
@@ -391,7 +392,7 @@ var loadItinerary = function(data, $container = $('#get-itinerary')) {
 		// console.log(data);
 
 		var $card = $(
-			'<li class="theme-bg-blue" data-id="' + data._id + '">\n' +
+			'<li class="theme-bg-blue link-card" data-id="' + data._id + '">\n' +
 			'	<i class="fa fa-university"></i>\n' +
 			'	<div class="timeline-item">\n' +
 			'		<!-- <span class="time"><i class="fa fa-clock-o"></i> 12:05</span> -->\n' +

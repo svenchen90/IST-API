@@ -1,5 +1,6 @@
 var config = {
-	apiKey: process.env.GOOGLE_PLACES_API_KEY || "AIzaSyAOfXmpPxCXjGchGCtmEZHQHeqyKqe5vnc",
+	// apiKey: process.env.GOOGLE_PLACES_API_KEY || "AIzaSyAOfXmpPxCXjGchGCtmEZHQHeqyKqe5vnc",
+	apiKey: process.env.GOOGLE_PLACES_API_KEY || "AIzaSyCnfkwH-NUX5aCpcZVDf5YYlNw7itJEg48",
 	outputFormat: process.env.GOOGLE_PLACES_OUTPUT_FORMAT || "json"
 };
 

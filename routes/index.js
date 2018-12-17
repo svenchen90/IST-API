@@ -502,17 +502,18 @@ var PlaceDetailsRequest = require('../planner_beta/agents/google-place').PlaceDe
 router.route('/place')
 	.get(function(req, res, next){
 			var parameters = {
-					location: [req.query.lat, req.query.lng],
-					type: req.query.type,
-					radius: req.query.distance,
-					// keyword: "doctor",
-					// rankby: 'distance'
+				location: [req.query.lat, req.query.lng],
+				type: req.query.type,
+				radius: req.query.distance,
+				// keyword: "doctor",
+				// rankby: 'distance'
 			};
 			
 			NearBySearch(parameters, function (error, response) {
-					if (error) throw error;
-					res.json(response);
-					//assert.notEqual(response.results.length, 0, "Place search must not return 0 results");
+				console.log(response);
+				if (error) throw error;
+				res.json(response);
+				//assert.notEqual(response.results.length, 0, "Place search must not return 0 results");
 			});
 	});	
 	

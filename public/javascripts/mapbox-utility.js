@@ -23,6 +23,7 @@ var initializePointLayer = function(map, list, id, options){
 	}else if(map.getLayer(id) != undefined){
 		throw id + ' layer already exist!';
 	}else{
+		console.log(list);
 		try{
 			var defaultOptions = {
 				cluster: true,
@@ -366,6 +367,7 @@ var formatePOI = function(poi){
 };
 
 var initializePOILayer = function(map, data, options){
+	
 	var defaultOptions = {
 		id: 'POI',
 		formateFunct: formatePOI_ALPHA
@@ -420,12 +422,12 @@ var formateGoogle_ALPHA = function(poi){
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
-			"coordinates": poi.geo
+			"coordinates": [poi.geometry.location.lng, poi.geometry.location.lat]
 		},
 		"properties": {
 			"name": poi.name,
-			'poster': poi.poster,
-			'_id': poi._id
+			'poster': poi.icon,
+			'_id': poi.id
 			// "icon": "monument",
 		}
 	}
@@ -445,7 +447,7 @@ var initializeGoogleLayer = function(map, data, options){
 	return initializePointLayer(map, list, defaultOptions.id, defaultOptions);
 };
 
-var addGooglePOI = function(map, POI, id="google", formateFunct=formateGoogle_ALPHA){
+var addGooglePOI = function(map, list, id="google", formateFunct=formateGoogle_ALPHA){
 	return addDataToLayer(map, 
 		list.map(function(i){
 			return formateFunct(i);
@@ -589,9 +591,17 @@ var bindMaker_Static = function(map, sources_id='POI') {
 	// ###
 	var iconSize = Math.max(Math.ceil(map.getZoom()*5), 30);
 	
+	var bounds = new mapboxgl.LngLatBounds();
+	
 	features.forEach(function(item){
 		addMarker(map, {_id: item.properties._id, poster: item.properties.poster, geo: item.geometry.coordinates, count: item.properties.point_count_abbreviated}, iconSize);
+		bounds.extend(item.geometry.coordinates);
 	});
+
+	map.fitBounds(bounds,{
+		padding: {top: 100, bottom:50, left: 600, right: 50}
+	});
+	
 };
 
 /* ! Marker */

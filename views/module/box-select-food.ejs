@@ -43,7 +43,7 @@ var initialFood = function(data){
 		});
 	});
 	loadDate_MultipleGeo(data.start_date, data.end_date, geo_list,$('#get-food [data-container="date"]'));
-	$('#get-food .date-card').first().click();
+	
 };
 
 var loadSimple_MultipleGeo = function(data, $container, callback){
@@ -54,7 +54,7 @@ var loadSimple_MultipleGeo = function(data, $container, callback){
 				data: data,
 				type : "GET",
 				dataType : 'json',
-				success : function (data){
+				success : function (data){				
 					var list = data.results.map(function(item,index){
 						return {
 							lng: item.geometry.location.lng,
@@ -64,8 +64,17 @@ var loadSimple_MultipleGeo = function(data, $container, callback){
 							photo_ref: item.photos.length > 0 ? item.photos[0].photo_reference : ''
 						};
 					});
-					resolve(data.results)
 					
+					/*
+					var bounds = new mapboxgl.LngLatBounds();
+
+					data.results.forEach(function(poi) {
+						bounds.extend([poi.geometry.location.lng, poi.geometry.location.lat]);
+					});
+
+					map.fitBounds(bounds);
+					*/
+					resolve(data.results) 
 				},
 				error: function(err){
 					console.log('error');
@@ -95,10 +104,17 @@ var loadSimple_MultipleGeo = function(data, $container, callback){
 				
 				list.sort(function(a, b){return b.rating - a.rating});
 				sublist = list.slice(0, Math.min(20, list.length));
-			
+				
+				clearGoogle(map);
+				clearMarker(map);
+				addGooglePOI(map, sublist);
+				bindMaker_Static(map, 'google');
+				
+				
 				$container.empty();
 				sublist.forEach(function(item){
 					var json = {
+						id: item.id,
 						lng: item.geometry.location.lng,
 						lat: item.geometry.location.lat,
 						name: item.name,

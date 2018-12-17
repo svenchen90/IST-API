@@ -75,7 +75,6 @@
 	
 	<body>
 		<div id="map"></div>		
-		
 		<% include module/profile-setting.ejs %>
 		<% include module/password-setting.ejs %>
 		<% include module/nav-top.ejs %>
@@ -147,7 +146,7 @@
 						padding: {top: 100, bottom:50, left: 600, right: 50}
 					}
 				)
-				bindMaker_Static(map)
+				bindMaker_Static(map, sources_id='POI')
 				initialHotel(result);
 				initialFood(result);
 				// map.moveLayer('buffer', 'route')
@@ -165,7 +164,7 @@
 			.always(function() {
 			$('.loader, .loader-bg').css({'display': 'none'});
 			});
-			
+		console.log(1);
 		</script>
 	</body>
 </html>	
